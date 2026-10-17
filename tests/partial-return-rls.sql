@@ -8,7 +8,7 @@ insert into public.customers(id,name) values(current_setting('pr.customer')::uui
 insert into public.products(id,name,sale_price) values(current_setting('pr.product')::uuid,'rounding product',3333);
 do $$
 declare
- items jsonb; s jsonb; s2 jsonb; cr jsonb; ds jsonb; r1 jsonb; r2 jsonb; rv jsonb; daily jsonb;
+ items jsonb; s jsonb; s2 jsonb; cr jsonb; ds jsonb; r1 jsonb; r2 jsonb; rd jsonb; rv jsonb; daily jsonb; discount_line jsonb;
  p uuid:=current_setting('pr.product')::uuid; c uuid:=current_setting('pr.customer')::uuid;
 begin
  perform public.post_purchase(gen_random_uuid(),jsonb_build_array(jsonb_build_object('product_id',p,'quantity_units',20000,'unit_cost',2000)),'','','');
@@ -33,12 +33,15 @@ begin
 
  cr:=public.post_credit_sale(current_setting('pr.credit')::uuid,items,0,1000,c,'credit');
  begin perform public.post_sale_return(gen_random_uuid(),(cr->>'id')::uuid,'credit partial',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',100))); raise exception 'credit partial allowed'; exception when raise_exception then if sqlerrm<>'return_credit_not_supported' then raise; end if; end;
- ds:=public.post_cash_sale(current_setting('pr.discount')::uuid,items,333,4000,'discounted','');
- begin perform public.post_sale_return(gen_random_uuid(),(ds->>'id')::uuid,'discount partial',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',100))); raise exception 'discount partial allowed'; exception when raise_exception then if sqlerrm<>'return_discount_not_supported' then raise; end if; end;
 
- if (select count(*) from public.sale_returns)<>2 or (select count(*) from public.stock_movements where return_id is not null)<>2 or (select count(*) from public.cash_movements where return_id is not null and kind='refund')<>2 then raise exception 'partial source ledgers wrong'; end if;
+ ds:=public.post_cash_sale(current_setting('pr.discount')::uuid,items,333,4000,'discounted','');
+ rd:=public.post_sale_return(gen_random_uuid(),(ds->>'id')::uuid,'discount partial',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',100)));
+ discount_line:=rd->'lines'->0;
+ if (rd->>'total')::bigint<>300 or (discount_line->>'allocated_discount')::bigint<>333 or (discount_line->>'net_line_total')::bigint<>3000 or (discount_line->>'line_total')::bigint<>300 then raise exception 'discount-aware partial return wrong: %',rd; end if;
+
+ if (select count(*) from public.sale_returns)<>3 or (select count(*) from public.stock_movements where return_id is not null)<>3 or (select count(*) from public.cash_movements where return_id is not null and kind='refund')<>3 then raise exception 'partial source ledgers wrong'; end if;
  daily:=public.get_daily_report((now() at time zone 'Asia/Baghdad')::date);
- if (daily->'returns'->>'count')::bigint<>3 or (daily->'returns'->>'cash_refund')::bigint<>6666 or (daily->'returns'->>'debt_reversed')::bigint<>0 then raise exception 'daily partial totals wrong: %',daily->'returns'; end if;
+ if (daily->'returns'->>'count')::bigint<>4 or (daily->'returns'->>'cash_refund')::bigint<>6966 or (daily->'returns'->>'debt_reversed')::bigint<>0 then raise exception 'daily partial totals wrong: %',daily->'returns'; end if;
 end $$;
 reset role;
 select set_config('request.jwt.claims',json_build_object('sub',current_setting('pr.b'),'role','authenticated')::text,true);
@@ -53,5 +56,5 @@ do $$ begin
  begin perform public.post_sale_return(gen_random_uuid(),gen_random_uuid(),'anon',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',100))); raise exception 'anonymous return allowed'; exception when insufficient_privilege then null; end;
 end $$;
 reset role;
-select 'PASS: partial cash returns, cumulative rounding, inventory, refunds, retry/conflict, over-return, reversal conflicts, scope guards, daily report and RLS' as verification;
+select 'PASS: cash partial returns, discounted net allocation, cumulative rounding, inventory, refunds, retry/conflict, credit guard, reversal conflicts, scope guards, daily report and RLS' as verification;
 rollback;
