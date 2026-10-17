@@ -252,3 +252,13 @@ The download uses original response UTF-8 bytes, never JSON.parse/stringify outp
 Validation: 200 Node tests pass, including real SHA-256, UTF-8 and large-integer byte preservation, owner/table/count validation, empty exports, account switching, no stale downloads, failed refresh, busy guard and authenticated raw API responses. Live rollback SQL verifies all 16 tables, references, idempotency payloads, private owner isolation, empty exports, row/size caps and unchanged ledgers. Fixtures were rolled back. No new security-advisor function/table findings; the previously documented password-protection warning remains. Browser visual/download QA has not been performed.
 
 Migration: `20261017111740_owner_business_data_snapshot_export.sql`.
+
+## Local export-file verification
+
+The home utilities tile and export page open `verify-export.html`. Select a previously downloaded JSON file and provide the original saved SHA-256 digest. The export page's verification link can prefill its prepared digest through a URL fragment. File bytes stay in the browser; verification calls no data API and changes no database records.
+
+Verification checks exact UTF-8 bytes against the supplied digest, the current session owner, export format/schema revision, all 16 business table keys, every row's owner and record counts. It rejects malformed UTF-8/JSON, wrong/missing digests, unsupported files, files above 25 MiB, mismatched owners and incomplete counts. Even a semantically harmless added newline fails the original checksum. Any file/hash change clears the previous result; late replies and session owner changes cannot restore a stale success. The UI reports metadata/count verification only, not financial-ledger reconciliation or restore readiness. SHA-256 is an integrity comparison against a trusted saved digest, not an authenticity signature.
+
+No restore/import has been added. File selection and verification require the current account context. Successful verification shows the chosen filename, original export timestamp and counts; private file content is not rendered or sent to a server.
+
+Validation: 208 Node tests pass, including real WebCrypto verification, changed-byte rejection, uppercase digest handling, malformed UTF-8, size/owner/count failures, no reads before input validation, late replies, busy guard, account changes and digest-prefill validation. Syntax/HTML/assets/DOM checks pass. Browser file-picker/visual QA has not been performed.
