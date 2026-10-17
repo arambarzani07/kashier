@@ -373,3 +373,10 @@ Open the expiry dashboard tile (`expiry.html`). Products have an optional expiry
 This is one manually maintained reminder date per product. If stock has several batches, enter the nearest relevant date and update it as stock changes. Displayed quantity is total product stock, not expired-batch quantity. There is no batch allocation, FEFO, or sale blocking. The existing three-column catalog CSV import does not import dates. Owner JSON exports include the nullable date; historical documents, stock catalogue shape and financial/stock ledgers are unchanged.
 
 The stable security-invoker `get_expiry_report` RPC reads products and stock under existing owner RLS. Validation includes 410 passing Node tests across the system and rollback-only SQL checks for date boundaries, date grants/checks, owner isolation, anonymous denial, zero stock, literal filters, export inclusion, no movements and the 5,001-row limit. Browser and physical printer QA remain unperformed.
+
+
+### Stock page print and CSV
+
+`stock.html` now prints or downloads the currently displayed page (up to 50 rows), for all/low/empty stock and product movement history. It labels page number, total matching count, displayed count, search, threshold/product context and read time in Baghdad. This is a page export, not a full-catalog or atomic multi-page snapshot. Reload to obtain current values; CSV and print use the same prepared display. Movement exports include the saved movement reason and relative source-document link; print shows that link too. Quantities preserve exact thousandths without floating-point division. CSV uses a UTF-8 BOM, escaped quoted fields and formula-prefix protection (signed movement quantities are exported as protected text).
+
+Filter changes, page requests and restored history invalidate the export. Changed accounts cannot render a late response or export/print a prior owner's rows. Bad quantities reject the entire page. No database records, schema or financial calculations change. Tests cover page scope, exact quantities, CSV escaping, movement sources, stale filters, account changes and navigation. Browser and physical printer QA remain unperformed.
