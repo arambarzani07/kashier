@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ckb" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#1253c8">
+  <title>کاشێر — سەرەکی</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">K</span><strong>کاشێر</strong><span class="version">ڕووکاری سەرەتایی</span></div>
+    <div class="identity"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/></svg><span>شاشەی سەرەکی</span></div>
+    <div class="clock"><time id="date"></time><time id="time" dir="ltr"></time></div>
+    <div class="utilities"><button id="search-toggle" aria-label="گەڕان لە بەشەکان" title="گەڕان لە بەشەکان">⌕</button><button id="fullscreen" aria-label="پڕکردنی شاشە" title="پڕکردنی شاشە">⛶</button></div>
+  </header>
+  <nav class="tabbar" aria-label="پەڕەکان"><span class="tab">سەرەکی <span class="tab-dot"></span></span><span class="reference">ڕێکخستن بە پێی وێنەی نموونە</span></nav>
+  <div class="workspace">
+    <aside class="rail"><span>داشبۆرد</span></aside>
+    <main id="main">
+      <div class="search-panel" id="search-panel" hidden><label for="search">گەڕان لە بەشەکان</label><input id="search" type="search" placeholder="ناوی بەشێک بنووسە…" autocomplete="off"><button id="clear-search">پاککردنەوە</button></div>
+      <h1 class="sr-only">بەشەکانی سیستەمی کاشێر</h1>
+      <div class="tile-grid" id="tiles"></div>
+      <p id="no-results" hidden role="status">هیچ بەشێک نەدۆزرایەوە.</p>
+      <footer><span><i class="status-dot"></i>قۆناغی دیزاینی ڕووکار</span><span>کردارە داراییەکان هێشتا چالاک نین</span></footer>
+    </main>
+  </div>
+  <dialog id="module-dialog" aria-labelledby="module-title">
+    <div class="dialog-heading"><span id="module-icon"></span><button id="close-dialog" aria-label="داخستنی پەنجەرە">×</button></div>
+    <h2 id="module-title"></h2><p id="module-description"></p>
+    <div class="module-note">ئەمە نموونەی ڕووکارە. ئەم بەشە هێشتا بە داتابەیس و مامەڵەکان نەبەستراوەتەوە.</div>
+    <div id="appearance" hidden><label for="tile-size">قەبارەی خانەکان</label><select id="tile-size"><option value="comfortable">ئاسایی</option><option value="compact">بچووک</option></select></div>
+    <button class="return-button" id="return-home">گەڕانەوە بۆ سەرەکی</button>
+  </dialog>
+</body>
+</html>
