@@ -226,3 +226,15 @@ UI validates row order, movement directions, running balances, type totals and o
 Validation: 182 Node tests pass. Live rollback SQL covers all cash movement types, Baghdad date boundaries, out-of-order dated entries, linked refund/purchase sources, chronological running balances, empty carry-forward, owner isolation, exact aggregates beyond Number range, result cap and no ledger writes. Fixtures were rolled back. No new function/table security-advisor findings; the previously documented password-protection warning remains. Browser visual QA and physical printing remain unverified.
 
 Migration: `20261017110018_cash_range_statement_with_chronological_balances.sql`.
+
+## Stock waste
+
+The home waste tile opens `waste.html` with private waste history and a link to choose a catalog product. Stock rows include a waste action. Enter a positive wasted quantity in base units (up to three decimals) and a mandatory reason. Only that quantity is subtracted; the entered number is not an absolute replacement stock count. The preview shows before/after and delta. Waste cannot exceed displayed available stock and is rejected if an intervening stock movement changes the quantity/version. Waste may reduce a product to zero.
+
+Waste and physical count corrections share the immutable stock_adjustments ledger with a checked `kind` discriminator; waste must have a negative delta. Both use the same atomic private posting engine and inventory/request locks. UUID replay includes kind, so a waste request cannot be replayed as a count correction. Existing count requests without a kind in their saved payload remain replay-compatible. Existing rows default to count. History lists are explicitly filtered by kind, movement links identify waste, and receipts preserve original product name/barcode/reason and before/after quantities. Print is available. No purchase, sale, cash, customer debt or supplier debt is posted; monetary waste valuation is not calculated.
+
+Waste uses a separate tab-local retry journal, restores the originally entered wasted quantity, locks edits on uncertain outcomes and retries the exact request. Storage failure blocks sending; malformed/wrong-kind journals block replacement requests. Receipts reached through the wrong page redirect to the matching ledger kind. Fix a later stock discrepancy by a new count correction; existing waste records are not edited or deleted.
+
+Validation: 190 Node tests pass. Live rollback SQL covers fractional waste, waste-to-zero, excess/zero rejection, required reasons, stale stock, exactly-once replay, cross-kind UUID conflicts, pre-migration count replay, immutable snapshots, owner isolation and unchanged financial ledgers. Physical count, inventory and supplier SQL regressions also pass. No fixtures remain. No new function/table security-advisor findings; the previously documented password-protection warning remains. Browser visual QA and physical printing remain unverified.
+
+Migration: `20261017110912_stock_waste_with_shared_atomic_adjustment_ledger.sql`.

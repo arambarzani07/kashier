@@ -1,0 +1,42 @@
+begin;
+select set_config('w.a',gen_random_uuid()::text,true),set_config('w.b',gen_random_uuid()::text,true),set_config('w.p',gen_random_uuid()::text,true),set_config('w.id',gen_random_uuid()::text,true),set_config('w.old',gen_random_uuid()::text,true);
+insert into auth.users(id,email) values(current_setting('w.a')::uuid,'waste-a@example.invalid'),(current_setting('w.b')::uuid,'waste-b@example.invalid');
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('w.a'),'role','authenticated')::text,true);
+set local role authenticated;
+insert into public.products(id,name,barcode,sale_price) values(current_setting('w.p')::uuid,'Waste snapshot','001234',2000);
+select public.post_stock_adjustment(current_setting('w.old')::uuid,current_setting('w.p')::uuid,0,0,10000,'Opening counted stock');
+reset role;
+-- Simulate a pre-migration request payload for backward-compatible replay.
+update public.stock_adjustments set request_payload=request_payload-'kind' where id=current_setting('w.old')::uuid;
+set local role authenticated;
+do $$declare p uuid:=current_setting('w.p')::uuid;ver bigint;v jsonb;again jsonb;cash_count bigint;debt_count bigint;supplier_count bigint;begin
+ v:=public.post_stock_adjustment(current_setting('w.old')::uuid,p,0,0,10000,'Opening counted stock');if v->>'kind'<>'count' then raise exception 'legacy count replay failed';end if;
+ select count(*) into cash_count from public.cash_movements;select count(*) into debt_count from public.debt_entries;select count(*) into supplier_count from public.supplier_entries;
+ select stock_version::bigint into ver from public.stock_catalog where id=p;
+ perform set_config('w.version',ver::text,true);
+ v:=public.post_stock_waste(current_setting('w.id')::uuid,p,10000,ver,1501,'Broken package');
+ if v->>'kind'<>'waste' or v->>'delta_units'<>'-1501' or v->>'after_units'<>'8499' or (select quantity_units from public.product_stock where product_id=p)<>8499 then raise exception 'waste stock deduction incorrect';end if;
+ again:=public.post_stock_waste(current_setting('w.id')::uuid,p,10000,ver,1501,'Broken package');if again<>v or (select count(*) from public.stock_movements where adjustment_id=current_setting('w.id')::uuid)<>1 then raise exception 'waste duplicate applied';end if;
+ begin perform public.post_stock_adjustment(current_setting('w.id')::uuid,p,10000,ver,8499,'Broken package');raise exception 'cross-kind replay accepted';exception when raise_exception then if sqlerrm<>'adjustment_request_conflict' then raise;end if;end;
+ begin perform public.post_stock_waste(gen_random_uuid(),p,10000,ver,100,'Stale stock');raise exception 'stale waste accepted';exception when raise_exception then if sqlerrm<>'adjustment_stock_changed' then raise;end if;end;
+ select stock_version::bigint into ver from public.stock_catalog where id=p;
+ begin perform public.post_stock_waste(gen_random_uuid(),p,8499,ver,8500,'Too much');raise exception 'over-waste accepted';exception when raise_exception then if sqlerrm<>'waste_insufficient_stock' then raise;end if;end;
+ begin perform public.post_stock_waste(gen_random_uuid(),p,8499,ver,0,'Zero');raise exception 'zero waste accepted';exception when raise_exception then if sqlerrm<>'waste_invalid_quantity' then raise;end if;end;
+ begin perform public.post_stock_waste(gen_random_uuid(),p,8499,ver,1,' ');raise exception 'blank note accepted';exception when raise_exception then if sqlerrm<>'adjustment_note_required' then raise;end if;end;
+ update public.products set name='Renamed after waste' where id=p;
+ if (select product_name from public.stock_adjustments where id=current_setting('w.id')::uuid)<>'Waste snapshot' then raise exception 'waste snapshot name changed';end if;
+ v:=public.post_stock_waste(gen_random_uuid(),p,8499,ver,8499,'Dispose remaining');if v->>'after_units'<>'0' then raise exception 'waste-to-zero failed';end if;
+ if (select count(*) from public.cash_movements)<>cash_count or (select count(*) from public.debt_entries)<>debt_count or (select count(*) from public.supplier_entries)<>supplier_count then raise exception 'waste affected money or debts';end if;
+ if (select count(*) from public.stock_adjustments where kind='count')<>1 or (select count(*) from public.stock_adjustments where kind='waste')<>2 then raise exception 'history classification incorrect';end if;
+end $$;
+reset role;
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('w.b'),'role','authenticated')::text,true);
+set local role authenticated;
+do $$begin
+ if exists(select 1 from public.stock_adjustments where kind='waste') then raise exception 'cross-owner waste read';end if;
+ begin perform public.post_stock_waste(gen_random_uuid(),current_setting('w.p')::uuid,1000,0,1,'Unauthorized');raise exception 'cross-owner waste write';exception when raise_exception then if sqlerrm<>'adjustment_product_unavailable' then raise;end if;end;
+ begin perform public.post_stock_waste(current_setting('w.id')::uuid,current_setting('w.p')::uuid,10000,current_setting('w.version')::bigint,1501,'Broken package');raise exception 'cross-owner waste replay';exception when raise_exception then if sqlerrm<>'adjustment_request_conflict' then raise;end if;end;
+end $$;
+reset role;
+do $$begin if has_function_privilege('anon','public.post_stock_waste(uuid,uuid,bigint,bigint,bigint,text)','execute') then raise exception 'anonymous waste exposed';end if;end $$;
+rollback;
