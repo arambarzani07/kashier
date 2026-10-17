@@ -1,0 +1,42 @@
+begin;
+select set_config('pr.a',gen_random_uuid()::text,true),set_config('pr.b',gen_random_uuid()::text,true),set_config('pr.p',gen_random_uuid()::text,true),set_config('pr.s',gen_random_uuid()::text,true),set_config('pr.one',gen_random_uuid()::text,true),set_config('pr.two',gen_random_uuid()::text,true),set_config('pr.three',gen_random_uuid()::text,true);
+insert into auth.users(id,email) values(current_setting('pr.a')::uuid,'purchase-report-a@example.invalid'),(current_setting('pr.b')::uuid,'purchase-report-b@example.invalid');
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('pr.a'),'role','authenticated')::text,true);
+set local role authenticated;
+insert into public.products(id,name,barcode,sale_price) values(current_setting('pr.p')::uuid,'Original purchase name','001234',3000);
+insert into public.suppliers(id,name) values(current_setting('pr.s')::uuid,'Report supplier');
+select public.post_cash_entry(gen_random_uuid(),'deposit',10000,'Rollback float');
+select public.post_purchase(current_setting('pr.one')::uuid,jsonb_build_array(jsonb_build_object('product_id',current_setting('pr.p'),'quantity_units',2501,'unit_cost',1000)),'Legacy supplier','PR-1','stock only');
+update public.products set name='Latest purchase snapshot',barcode='009999' where id=current_setting('pr.p')::uuid;
+select public.post_supplier_purchase(current_setting('pr.two')::uuid,jsonb_build_array(jsonb_build_object('product_id',current_setting('pr.p'),'quantity_units',1000,'unit_cost',2000)),current_setting('pr.s')::uuid,500,'PR-2','tracked');
+select public.post_purchase(current_setting('pr.three')::uuid,jsonb_build_array(jsonb_build_object('product_id',current_setting('pr.p'),'quantity_units',1000,'unit_cost',9000)),'Outside date','PR-3','excluded');
+reset role;
+update public.purchases set created_at=case when id=current_setting('pr.one')::uuid then '2026-04-30T21:00:00Z'::timestamptz when id=current_setting('pr.two')::uuid then '2026-05-01T20:59:59.999999Z'::timestamptz else '2026-05-01T21:00:00Z'::timestamptz end where owner_id=current_setting('pr.a')::uuid;
+set local role authenticated;
+update public.products set name='Current catalog name' where id=current_setting('pr.p')::uuid;
+do $$declare v jsonb;before_cash bigint;before_stock bigint;begin
+ select count(*) into before_cash from public.cash_movements;select count(*) into before_stock from public.stock_movements;
+ v:=public.get_purchase_report('2026-05-01','2026-05-01');
+ if v->>'timezone'<>'Asia/Baghdad' or (v->>'count')::int<>1 or v#>>'{summary,receipt_count}'<>'2' or v#>>'{summary,total}'<>'4501' or v#>>'{summary,paid}'<>'500' or v#>>'{summary,debt_added}'<>'1500' or v#>>'{summary,untracked_total}'<>'2501' then raise exception 'report summary or Baghdad boundary wrong: %',v;end if;
+ if v#>>'{rows,0,quantity_units}'<>'3501' or v#>>'{rows,0,total}'<>'4501' or v#>>'{rows,0,receipt_count}'<>'2' or v#>>'{rows,0,name}'<>'Latest purchase snapshot' or v#>>'{rows,0,barcode}'<>'009999' then raise exception 'line aggregation/snapshot wrong';end if;
+ if jsonb_typeof(v#>'{summary,total}')<>'string' or jsonb_typeof(v#>'{rows,0,quantity_units}')<>'string' then raise exception 'numeric precision lost';end if;
+ if (public.get_purchase_report('2026-04-30','2026-04-30')#>>'{summary,receipt_count}')<>'0' then raise exception 'lower bound wrong';end if;
+ if (public.get_purchase_report('2026-05-02','2026-05-02')#>>'{summary,total}')<>'9000' then raise exception 'upper bound wrong';end if;
+ begin perform public.get_purchase_report('2026-05-02','2026-05-01');raise exception 'reverse dates accepted';exception when raise_exception then if sqlerrm<>'purchase_report_invalid_range' then raise;end if;end;
+ begin perform public.get_purchase_report('2025-01-01','2026-01-02');raise exception 'long range accepted';exception when raise_exception then if sqlerrm<>'purchase_report_invalid_range' then raise;end if;end;
+ if (select count(*) from public.cash_movements)<>before_cash or (select count(*) from public.stock_movements)<>before_stock then raise exception 'report changed ledgers';end if;
+end $$;
+reset role;
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('pr.b'),'role','authenticated')::text,true);
+set local role authenticated;
+do $$declare v jsonb;begin v:=public.get_purchase_report('2026-05-01','2026-05-02');if v->>'count'<>'0' or v#>>'{summary,total}'<>'0' then raise exception 'cross-owner report';end if;end $$;
+reset role;
+-- Direct administrative fixtures for the result cap, all rolled back. Each receipt has <=200 lines.
+insert into public.products(owner_id,name,sale_price) select current_setting('pr.b')::uuid,'Report bulk '||g,1000 from generate_series(1,5001) g;
+insert into public.purchases(id,owner_id,created_at,supplier_name,total,lines,request_payload)
+select gen_random_uuid(),current_setting('pr.b')::uuid,'2026-06-01T10:00:00Z'::timestamptz,'Rollback cap fixture',count(*)*1000,jsonb_agg(jsonb_build_object('product_id',id,'name',name,'barcode',null,'quantity_units',1000,'unit_cost',1000,'line_total',1000)),'{}'::jsonb from (select id,name,(row_number() over(order by id)-1)/200 as batch from public.products where owner_id=current_setting('pr.b')::uuid) p group by batch;
+set local role authenticated;
+do $$begin begin perform public.get_purchase_report('2026-06-01','2026-06-01');raise exception 'partial report accepted';exception when raise_exception then if sqlerrm<>'purchase_report_too_many_rows' then raise;end if;end;end $$;
+reset role;
+do $$begin if has_function_privilege('anon','public.get_purchase_report(date,date)','execute') then raise exception 'anonymous report exposed';end if;end $$;
+rollback;

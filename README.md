@@ -188,3 +188,15 @@ The atomic posting function locks the owner inventory account and checks both ex
 The adjustment ledger has owner-only SELECT RLS and no client insert/update/delete grants. The privileged posting implementation is in the private schema, checks auth.uid(), uses an empty search_path, and is exposed through a restricted invoker RPC. Migration: `20261017104146_audited_stock_count_adjustments.sql`. The stock catalog adds a string stock_version and an index supports latest-movement lookups.
 
 Validation: 156 Node tests pass. Live rollback SQL covers initial stock, negative deltas, stale quantity/version, ABA changes, UUID replay/conflict, unchanged counts, range/reason checks, historical product snapshots, owner isolation, denied direct writes and no cash/debt changes. Inventory, full reversal, partial return and worksheet SQL regression suites also pass. No fixtures remain. Browser visual QA and physical receipt printing remain unverified.
+
+## Purchased product range report
+
+Home purchased-products tile opens `purchase-report.html`, with a default Baghdad month-to-date range. The purchase statement tile now opens supplier accounts; receipt listing also links to the purchase report. Select an inclusive date range of up to 366 days, then view/print the report or export its per-product rows as CSV. Values come from one stable invoker RPC under owner RLS; no stock, cash or debt is changed.
+
+The report groups immutable purchase lines by product UUID, sums exact quantity and recorded line totals, counts distinct receipts, and uses the last purchase-line name/barcode within the selected range. Catalog renames do not rewrite historical snapshots. Summary totals reconcile tracked purchase cash-at-posting, debt-at-posting and untracked stock-only purchases. Later supplier repayments and current outstanding balances are not included. This is purchase activity, not current stock or profit. Range boundaries use Baghdad midnight, including both selected dates. More than 5000 product groups fails explicitly; narrow the dates rather than exporting a truncated report.
+
+Aggregates are decimal strings, validated and formatted using BigInt to retain exact totals and thousandth-unit quantities beyond Number safety. CSV preserves exact raw numbers, escapes quotes/newlines and neutralizes formula-like text. Import barcode and UUID columns as text in spreadsheet software. Print/export always use the displayed snapshot; changed dates invalidate it and late replies are ignored.
+
+Validation: 165 Node tests pass, including accounting identities, exact large aggregates, CSV escaping, inclusive date limits, stale replies, invalid responses, auth and result-cap feedback. Live rollback SQL verifies real tracked/untracked purchases, inclusive Baghdad boundaries, product snapshot names/codes, owner isolation, empty reports, the 5000-product cap and unchanged stock/cash ledgers. Fixtures were rolled back. No new security-advisor function/table findings; the previously documented password-protection warning remains. Browser visual QA and physical printing remain unverified.
+
+Migration: `20261017104816_purchase_product_range_report.sql`.
