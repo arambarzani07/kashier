@@ -2,7 +2,7 @@
 
 User direction, 2026-10-18 Asia/Baghdad: finish the online system before working on offline behavior. Offline work is explicitly deferred. Work only on this Kashier project.
 
-Implemented online: owner-isolated accounts, catalog, cash/credit sales, purchases, stock/stocktake/waste, customer/supplier debts and statements, sale/purchase returns, supplier invoice payments, searchable receipts, labels, price lookup, expiry/minimum-stock alerts, dashboard balances, reports, CSV/JSON exports and export verification. Own-account identity/password self-service, explicit customer repayment allocation/reversal and customer installment schedules/cancellation, due-status reports, print/CSV and owner export v5, forward weighted-average inventory cost tracking and cost-coverage-aware gross-profit reports are implemented.
+Implemented online: owner-isolated accounts, catalog, cash/credit sales, purchases, stock/stocktake/waste, customer/supplier debts and statements, sale/purchase returns, supplier invoice payments, searchable receipts, labels, price lookup, expiry/minimum-stock alerts, dashboard balances, reports, CSV/JSON exports and export verification. Own-account identity/password self-service, explicit customer repayment allocation/reversal and customer installment schedules/cancellation, due-status reports, print/CSV and owner export v5, forward weighted-average inventory cost tracking and cost-coverage-aware gross-profit reports and current inventory valuation with missing-cost coverage are implemented.
 
 Remaining major online work:
 
