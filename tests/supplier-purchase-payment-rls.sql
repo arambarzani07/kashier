@@ -1,0 +1,47 @@
+begin;
+select set_config('spa.a',gen_random_uuid()::text,true),set_config('spa.b',gen_random_uuid()::text,true),set_config('spa.s',gen_random_uuid()::text,true),set_config('spa.p',gen_random_uuid()::text,true),set_config('spa.buy1',gen_random_uuid()::text,true),set_config('spa.buy2',gen_random_uuid()::text,true),set_config('spa.pay1',gen_random_uuid()::text,true),set_config('spa.pay2',gen_random_uuid()::text,true),set_config('spa.manual_charge',gen_random_uuid()::text,true),set_config('spa.manual_pay',gen_random_uuid()::text,true);
+insert into auth.users(id,email) values(current_setting('spa.a')::uuid,'spa-a@example.invalid'),(current_setting('spa.b')::uuid,'spa-b@example.invalid');
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('spa.a'),'role','authenticated')::text,true);set local role authenticated;
+insert into public.products(id,name,sale_price) values(current_setting('spa.p')::uuid,'Allocation Product',15000);
+insert into public.suppliers(id,name,phone) values(current_setting('spa.s')::uuid,'Allocation Supplier','000');
+do $$
+declare
+ p uuid:=current_setting('spa.p')::uuid;s uuid:=current_setting('spa.s')::uuid;b1 uuid:=current_setting('spa.buy1')::uuid;b2 uuid:=current_setting('spa.buy2')::uuid;
+ pay1 uuid:=current_setting('spa.pay1')::uuid;pay2 uuid:=current_setting('spa.pay2')::uuid;mc uuid:=current_setting('spa.manual_charge')::uuid;mp uuid:=current_setting('spa.manual_pay')::uuid;
+ r jsonb;before_entries bigint;after_entries bigint;bal bigint;cash bigint;allocs bigint;payables jsonb;
+begin
+ perform public.post_cash_entry(gen_random_uuid(),'deposit',100000,'allocation cash');
+ perform public.post_supplier_purchase(b1,jsonb_build_array(jsonb_build_object('product_id',p,'quantity_units',1000,'unit_cost',10000)),s,2000,'ALLOC-1','credit purchase one');
+ r:=public.get_supplier_purchase_finance(b1);
+ if (r->>'original_debt')::bigint<>8000 or (r->>'outstanding')::bigint<>8000 or (r->>'allocated_payments')::bigint<>0 then raise exception 'initial finance wrong: %',r;end if;
+ begin perform public.post_supplier_entry(gen_random_uuid(),s,'payment',1000,'must not pay purchase debt generically');raise exception 'generic purchase debt payment allowed';exception when raise_exception then if sqlerrm<>'supplier_manual_overpayment' then raise;end if;end;
+ select count(*) into before_entries from public.supplier_entries where owner_id=auth.uid();
+ r:=public.post_supplier_purchase_payment(pay1,b1,3000,'invoice payment one');
+ if (r->'finance'->>'outstanding')::bigint<>5000 or (r->'finance'->>'allocated_payments')::bigint<>3000 then raise exception 'first allocation wrong: %',r;end if;
+ r:=public.post_supplier_purchase_payment(pay1,b1,3000,'invoice payment one');
+ select count(*) into after_entries from public.supplier_entries where owner_id=auth.uid();
+ if after_entries<>before_entries+1 or (r->'finance'->>'outstanding')::bigint<>5000 then raise exception 'idempotent retry duplicated';end if;
+ select count(*) into allocs from public.supplier_payment_allocations where payment_entry_id=pay1 and purchase_id=b1 and amount=3000;
+ if allocs<>1 then raise exception 'allocation row missing';end if;
+ begin perform public.post_supplier_purchase_payment(gen_random_uuid(),b1,5001,'too much');raise exception 'purchase overpayment allowed';exception when raise_exception then if sqlerrm<>'supplier_purchase_overpayment' then raise;end if;end;
+ perform public.post_supplier_entry(mc,s,'charge',4000,'manual old debt');
+ perform public.post_supplier_entry(mp,s,'payment',1500,'manual debt payment');
+ begin perform public.post_supplier_entry(gen_random_uuid(),s,'payment',2501,'manual overpay');raise exception 'manual overpayment allowed';exception when raise_exception then if sqlerrm<>'supplier_manual_overpayment' then raise;end if;end;
+ select balance into bal from public.supplier_balances where supplier_id=s;if bal<>7500 then raise exception 'global balance wrong: %',bal;end if;
+ r:=public.get_supplier_purchase_finance(b1);if (r->>'outstanding')::bigint<>5000 then raise exception 'manual payment touched purchase';end if;
+ payables:=public.get_supplier_purchase_payables(s,0,50);if (payables->>'count')::int<>1 or (payables->'rows'->0->>'outstanding')::bigint<>5000 then raise exception 'payables wrong: %',payables;end if;
+ perform public.post_supplier_purchase(b2,jsonb_build_array(jsonb_build_object('product_id',p,'quantity_units',1000,'unit_cost',6000)),s,3000,'ALLOC-2','credit purchase two');
+ r:=public.post_supplier_purchase_payment(pay2,b2,3000,'pay invoice two');if (r->'finance'->>'outstanding')::bigint<>0 then raise exception 'full payment wrong';end if;
+ payables:=public.get_supplier_purchase_payables(s,0,50);if (payables->>'count')::int<>1 or payables->'rows'->0->>'purchase_id'<>b1::text then raise exception 'paid purchase still payable';end if;
+ select balance into bal from public.supplier_balances where supplier_id=s;if bal<>7500 then raise exception 'global balance reconciliation wrong';end if;
+ select balance into cash from public.cash_accounts where owner_id=auth.uid();if cash<>87500 then raise exception 'cash ledger wrong: %',cash;end if;
+ begin perform public.post_supplier_purchase_payment(gen_random_uuid(),b2,1,'already paid');raise exception 'paid purchase accepted more';exception when raise_exception then if sqlerrm<>'supplier_purchase_already_paid' then raise;end if;end;
+end $$;
+reset role;
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('spa.b'),'role','authenticated')::text,true);set local role authenticated;
+do $$ declare r jsonb; begin if exists(select 1 from public.supplier_payment_allocations) then raise exception 'allocation RLS leak';end if;begin r:=public.get_supplier_purchase_finance(current_setting('spa.buy1')::uuid);raise exception 'other owner finance visible';exception when raise_exception then if sqlerrm<>'supplier_purchase_unavailable' then raise;end if;end;end $$;
+reset role;set local role anon;
+do $$ begin begin perform public.get_supplier_purchase_finance(current_setting('spa.buy1')::uuid);raise exception 'anon finance allowed';exception when insufficient_privilege then null;end;begin perform public.post_supplier_purchase_payment(gen_random_uuid(),current_setting('spa.buy1')::uuid,1,'anon');raise exception 'anon payment allowed';exception when insufficient_privilege then null;end;end $$;
+reset role;
+select 'PASS: purchase-specific supplier payment allocation, manual-debt isolation, idempotency, cash/global reconciliation, payables, RLS and anon block' verification;
+rollback;
