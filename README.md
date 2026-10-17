@@ -262,3 +262,13 @@ Verification checks exact UTF-8 bytes against the supplied digest, the current s
 No restore/import has been added. File selection and verification require the current account context. Successful verification shows the chosen filename, original export timestamp and counts; private file content is not rendered or sent to a server.
 
 Validation: 208 Node tests pass, including real WebCrypto verification, changed-byte rejection, uppercase digest handling, malformed UTF-8, size/owner/count failures, no reads before input validation, late replies, busy guard, account changes and digest-prefill validation. Syntax/HTML/assets/DOM checks pass. Browser file-picker/visual QA has not been performed.
+
+## Device appearance and receipt printing preferences
+
+The home settings tile opens `settings.html`. Device-local choices cover home tile density, normal/large screen text, standard/high contrast, system/reduced motion and sale/purchase receipt paper (58 mm, 80 mm or A4). Preferences persist only in this browser's localStorage, are shared across its tabs and are not account/database settings. Reset restores defaults. Storage failures do not apply unsaved choices or claim they were saved. No business ledger or financial values are changed.
+
+Every HTML screen loads the shared preference script before its feature scripts and the override stylesheet after its base styles. Stored values are restricted enums; malformed/unsupported storage values fall back to defaults. Screen appearance overrides do not affect printed label/report typography. Reduced motion disables CSS motion; system mode retains OS/browser behavior.
+
+Receipt-only page rules are injected only when a receipt layout exists. Thermal layouts use a 4 mm page margin and content width 50 mm on 58 mm paper or 72 mm on 80 mm paper; A4 uses 10 mm margins and 190 mm content width. Select matching printer paper, 100% scale and disabled browser headers/footers in the print dialog. The setting does not configure a physical printer or force a thermal driver paper size. Long receipts may split between table rows; headers repeat. Label dimensions and report page rules remain independent. Default receipt paper is 80 mm.
+
+Validation: 216 Node tests pass, including storage/reload/reset, invalid values, write failures, cross-tab subscription updates, receipt-only page rules, form mapping and shared asset inclusion on every HTML screen. Syntax, HTML/asset and DOM-selector checks pass. Browser visual/accessibility QA and physical print calibration remain unverified.
