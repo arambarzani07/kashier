@@ -20,7 +20,7 @@ Dashboard: https://supabase.com/dashboard/project/dhfyqxdfwhxlipbsasqf
 
 ## Signup form
 
-`auth.html?mode=signup` opens a distinct registration form with password confirmation and a visible minimum of eight characters. Switching modes sends no request. Kurdish inline validation explains missing/invalid email, short passwords and mismatched confirmation before any signup attempt. Repeated submissions are blocked while pending. Login preserves safe local return destinations, including filtered stock and statements. Supabase confirmation requirements and data isolation are unchanged; no user is provisioned by this UI repair. Live email delivery/signup on the user’s device remains to be confirmed.
+`auth.html?mode=signup` opens a distinct registration form with password confirmation and a visible minimum of eight characters. Switching modes sends no request. Kurdish inline validation explains missing/invalid email, short passwords and mismatched confirmation before any signup attempt. Repeated submissions are blocked while pending. Login preserves safe local return destinations, including filtered stock and statements. Supabase confirmation requirements and data isolation are unchanged; no user is provisioned by this UI repair. Server Auth logs confirmed a real signup, email confirmation and successful password login on 17 October 2026; the full visual browser journey remains unverified.
 
 ## Run and first use
 
@@ -77,6 +77,10 @@ All totals and counts are exact integer strings, rendered with BigInt. Change gi
 
 The home tile کاڵا کەمبووەکان opens `stock.html?mode=low`. Select all stock, zero stock, or stock at/below a user-entered threshold (default 5). The threshold is a query filter shared by all products, not a saved per-product reorder level. Up to three decimal places are supported. Filtering, ordering and exact counts happen on the server before 50-row pagination, including unreceived products with zero stock. Name/barcode search combines with the threshold. Invalid thresholds fail explicitly. Movement links preserve filter/search context. Stock movements identify full and partial sale returns and resolve their original receipt through owner-protected source relations.
 
+## Home account status
+
+The home page verifies the signed-in identity through the Auth user endpoint and displays the account email, login/signup or logout actions. Failed authentication clears the displayed identity; a transient connection failure retains the session and offers retry. Late responses cannot restore a logged-out UI, and returning through back/forward cache rechecks the account. A short set of links explains product registration → purchase/stock receipt → sale. Previously outdated design-only footer copy is removed.
+
 ## Data and access
 
 IQD amounts are whole integers. Quantities are represented in thousandths. Line totals round once to whole IQD on both client and server.
@@ -93,11 +97,11 @@ Sessions and drafts use sessionStorage for the current tab. Logout clears ordina
 
 Initial-stock adjustments, stocktake corrections, multiple warehouses, supplier debt/payments, cost-of-goods/profit reporting, shared staff roles and the remaining home modules.
 
-Browser visual QA, the full email signup/login journey, simultaneous real-client field testing, physical scanner input and printer output remain unverified. Database and code tests do not establish complete field readiness.
+Browser visual QA, the complete visual email signup/login journey, simultaneous real-client field testing, physical scanner input and printer output remain unverified. Database and code tests do not establish complete field readiness.
 
 ## Verification
 
-Run `node --test tests/*.test.cjs` (98 tests). All passed.
+Run `node --test tests/*.test.cjs` (107 tests). All passed.
 
 Tests cover money/quantity arithmetic, authentication refresh, catalog requests, sale and purchase journals, reload recovery, repeat clicks, journal failure, invalid draft rejection, customer lookup/selection, credit-mode validation and recovery, receipt rendering from saved snapshots, cash journal recovery, exact lifetime cash formatting, and complete statement rendering, date validation, stale-response protection, snapshot printing, malformed-response rejection large exact totals, and daily report day selection, Baghdad rollover, cross-ledger arithmetic, stale-response protection snapshot printing, low-stock filters/pagination/context links and return movement rendering. JavaScript syntax, HTML navigation/assets, labels and static selectors were checked.
 
@@ -118,7 +122,7 @@ Remote rollback-only SQL checks cover:
 
 Security advisors returned no findings. Live anonymous REST checks returned 401 for stock reading, purchase posting, cash summary, cash posting, debt summary, debt posting and credit-sale posting and customer statement reading and daily reporting, as well as the earlier sales checks.
 
-After verification: 0 users, 0 products, 0 sales, 0 purchases, 0 stock balances, 0 stock movements, 0 cash accounts, 0 cash movements, 0 customers, 0 customer balances and 0 debt entries. No test data is seeded. Test identity sequence gaps after rollback are harmless.
+Rollback checks never seed permanent users or business data. A real user has since registered and confirmed their email; that account is preserved. Test identity sequence gaps after rollback are harmless.
 
 SQL files in `tests/` require administrative connections and roll back every fixture. They are not application endpoints.
 
