@@ -24,6 +24,9 @@ jobs:
         run: |
           node --check data.js
           node --check receipt.js
+          node --check returns-data.js
+          node --check returns.js
+          node --check returns-tile.js
       - name: Run Node tests
         shell: bash
         run: |
