@@ -238,3 +238,17 @@ Waste uses a separate tab-local retry journal, restores the originally entered w
 Validation: 190 Node tests pass. Live rollback SQL covers fractional waste, waste-to-zero, excess/zero rejection, required reasons, stale stock, exactly-once replay, cross-kind UUID conflicts, pre-migration count replay, immutable snapshots, owner isolation and unchanged financial ledgers. Physical count, inventory and supplier SQL regressions also pass. No fixtures remain. No new function/table security-advisor findings; the previously documented password-protection warning remains. Browser visual QA and physical printing remain unverified.
 
 Migration: `20261017110912_stock_waste_with_shared_atomic_adjustment_ledger.sql`.
+
+## Owner business data JSON export
+
+The home backup tile now opens `export.html`. Click Prepare to read one stable database snapshot, review the generated time, record counts per business table and SHA-256 digest, then explicitly Download JSON. No business records are changed. Empty accounts produce a valid empty business export; account changes or sign-out invalidate cached downloads.
+
+The owner-only invoker RPC exports all 16 current business tables: products, stock balances/movements/adjustments, sales/full reversals/partial returns, purchases, cash account/movements, customers/balances/debt entries, suppliers/balances/entries. Rows are owner-filtered under RLS and ordered by primary key. Idempotency payloads and historical snapshots are included. Authentication users/sessions/passwords/API keys, database DDL and RLS policies are excluded. This is a business data export, not a full database backup or an automatic restore feature.
+
+Limits are 50,000 total records and 20 MiB of estimated row JSON, checked before array aggregation; oversized snapshots fail rather than truncate. Browser rejects files above 25 MiB. Larger installations need a database-level backup workflow. Export format is `kashier-owner-export`, version 1, business schema revision `20261017110912`. Future data schema changes must review the format/validator.
+
+The download uses original response UTF-8 bytes, never JSON.parse/stringify output, so integer literals beyond JavaScript Number precision remain exact in the file. JSON is parsed only for validating owner/count metadata and table ownership; parsed numeric values are not re-emitted. SHA-256 hashes those exact downloaded bytes. Save the displayed digest alongside the file; it detects later changes but is not a signature or authenticity proof. A restore implementation must parse large numeric literals losslessly. No data file is saved in browser storage; the prepared file stays in page memory until replaced or closed.
+
+Validation: 200 Node tests pass, including real SHA-256, UTF-8 and large-integer byte preservation, owner/table/count validation, empty exports, account switching, no stale downloads, failed refresh, busy guard and authenticated raw API responses. Live rollback SQL verifies all 16 tables, references, idempotency payloads, private owner isolation, empty exports, row/size caps and unchanged ledgers. Fixtures were rolled back. No new security-advisor function/table findings; the previously documented password-protection warning remains. Browser visual/download QA has not been performed.
+
+Migration: `20261017111740_owner_business_data_snapshot_export.sql`.
