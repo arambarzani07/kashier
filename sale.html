@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ckb" dir="rtl">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>کاشێر — کاڵا فرۆشتن</title>
+  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="sale.css">
+  <script src="sale-math.js" defer></script><script src="sale.js" defer></script>
+</head>
+<body class="sale-page">
+  <header class="topbar"><div class="brand"><span class="brand-mark">K</span><strong>کاشێر</strong></div><span>کاڵا فرۆشتن</span><a href="index.html" class="home-link">سەرەکی ←</a></header>
+  <nav class="tabbar" aria-label="پەڕەکان"><span class="tab">کاڵا فرۆشتن</span><span class="draft-badge">مسودە — تۆمار نەکراوە</span></nav>
+  <main class="sale-layout">
+    <section class="cart-panel" aria-labelledby="sale-heading">
+      <div class="section-heading"><div><span class="eyebrow">فرۆشتنی نوێ</span><h1 id="sale-heading">لیستی کاڵاکان</h1></div><button id="add-item" class="primary">＋ زیادکردنی کاڵا</button></div>
+      <form id="scan-form" class="scan-form"><label for="barcode">بارکۆد / گەڕان بە ناوی کاڵا</label><div><input id="barcode" dir="auto" autocomplete="off" placeholder="بارکۆد سکەن بکە یان ناوی کاڵا بنووسە…"><button type="submit">گەڕان</button></div><small>کاتالۆگی کاڵا هێشتا نەبەستراوەتەوە؛ ئێستا دەتوانیت کاڵا بە دەستی بۆ مسودە زیاد بکەیت.</small></form>
+      <p id="scan-status" role="status" class="inline-status" hidden></p>
+      <div class="table-wrap"><table><caption class="sr-only">کاڵاکانی مسودەی فرۆشتن</caption><thead><tr><th scope="col">کاڵا</th><th scope="col">بڕ</th><th scope="col">نرخ / دینار</th><th scope="col">کۆ / دینار</th><th scope="col"><span class="sr-only">کردار</span></th></tr></thead><tbody id="cart-rows"></tbody></table></div>
+      <div id="empty-cart" class="empty-cart"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6M9 20h.01M18 20h.01"/></svg><h2>لیستەکە بەتالە</h2><p>بە دوگمەی «زیادکردنی کاڵا» دەست پێ بکە.</p></div>
+      <div class="cart-footer"><span id="item-count">٠ کاڵا</span><button id="clear-cart" class="danger" disabled>پاککردنەوەی مسودە</button></div>
+    </section>
+    <aside class="payment-panel" aria-labelledby="payment-heading">
+      <div class="payment-title"><span class="eyebrow">پوختەی مسودە</span><h2 id="payment-heading">هەژماری پارە</h2></div>
+      <label for="customer">ناوی کڕیار <span class="optional">(ئارەزوومەندانە)</span></label><input id="customer" autocomplete="off" maxlength="100" placeholder="ناوی کڕیار">
+      <dl class="subtotal"><dt>کۆی کاڵاکان</dt><dd><b id="subtotal">0</b> دینار</dd></dl>
+      <label for="discount">داشکاندن / دینار</label><input id="discount" type="number" min="0" step="1" value="0" inputmode="numeric"><p id="discount-error" class="field-error" hidden></p>
+      <div class="grand-total"><span>کۆی کۆتایی / دینار</span><strong id="total">0</strong></div>
+      <label for="received">پارەی وەرگیراو / دینار</label><input id="received" type="number" min="0" step="1" value="0" inputmode="numeric"><p id="received-error" class="field-error" hidden></p>
+      <div class="balance" id="balance-box" aria-live="polite"><span id="balance-label">پارەی گەڕاندنەوە</span><strong id="balance">0</strong><span>دینار</span></div>
+      <label for="note">تێبینی <span class="optional">(ئارەزوومەندانە)</span></label><textarea id="note" rows="2" maxlength="500" placeholder="تێبینی مسودە…"></textarea>
+      <button class="complete-sale" disabled title="تۆمارکردنی فرۆشتن هێشتا بە داتابەیس نەبەستراوەتەوە">تۆمارکردن و چاپ</button>
+      <p class="save-note">فرۆشتن هێشتا تۆمار ناکرێت. هەژمارەکان تەنها بۆ مسودەن.</p>
+      <button id="print-draft" class="secondary" disabled>پێشبینینی چاپی مسودە</button>
+      <p id="storage-status" role="status" class="storage-status">مسودە لەم تابەدا دەمێنێتەوە؛ لە داتابەیس تۆمار نابێت.</p>
+    </aside>
+  </main>
+  <dialog id="item-dialog" aria-labelledby="item-title"><div class="dialog-heading"><h2 id="item-title">زیادکردنی کاڵا بۆ مسودە</h2><button id="close-item" aria-label="داخستن">×</button></div><form id="item-form"><label for="item-name">ناوی کاڵا</label><input id="item-name" required maxlength="150" autocomplete="off"><label for="item-barcode">بارکۆد <span class="optional">(ئارەزوومەندانە)</span></label><input id="item-barcode" maxlength="64" dir="ltr" autocomplete="off"><div class="form-pair"><div><label for="item-quantity">بڕ</label><input id="item-quantity" type="number" min="0.001" max="10000" step="0.001" value="1" required inputmode="decimal"></div><div><label for="item-price">نرخی یەکە / دینار</label><input id="item-price" type="number" min="1" max="1000000000" step="1" required inputmode="numeric"></div></div><p id="item-error" class="field-error" hidden></p><button type="submit" class="primary">زیادکردن بۆ لیست</button></form></dialog>
+  <dialog id="clear-dialog" aria-labelledby="clear-title"><h2 id="clear-title">مسودەکە پاک بکرێتەوە؟</h2><p>هەموو کاڵا و زانیارییەکانی ئەم مسودەیە لەم تابە دەسڕێنەوە.</p><div class="confirm-actions"><button id="cancel-clear" class="secondary">گەڕانەوە</button><button id="confirm-clear" class="danger-solid">پاککردنەوە</button></div></dialog>
+  <section id="print-area" class="print-area" aria-label="مسودەی چاپ"></section>
+</body>
+</html>
