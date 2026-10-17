@@ -1,0 +1,10 @@
+(function(root){
+ 'use strict';
+ const sessionKey='kashier.auth.v1';
+ const messages={return_document_auth_required:'سەرەتا بچۆ ژوورەوە.',return_document_invalid_request:'ناسنامە یان جۆری پسوولەی گەڕاندنەوە نادروستە.',return_document_unavailable:'پسوولەی گەڕاندنەوە بەردەست نییە.'};
+ const uuid=value=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value||'');
+ function readToken(){try{return JSON.parse(sessionStorage.getItem(sessionKey)||'null')?.access_token||'';}catch{return '';}}
+ async function token(){if(!root.KashierData?.loggedIn?.())throw new Error(messages.return_document_auth_required);await root.KashierData.getAccount();const value=readToken();if(!value)throw new Error(messages.return_document_auth_required);return value;}
+ async function get(source,kind,id){source=String(source||'').trim().toLowerCase();kind=String(kind||'').trim().toLowerCase();if(!['sale','purchase'].includes(source)||!['full','partial'].includes(kind)||!uuid(id))throw new Error(messages.return_document_invalid_request);const access=await token();let response;try{response=await fetch(root.KashierConfig.url+'/rest/v1/rpc/get_return_document',{method:'POST',headers:{apikey:root.KashierConfig.publishableKey,Authorization:'Bearer '+access,'Content-Type':'application/json'},body:JSON.stringify({p_source:source,p_kind:kind,p_id:id}),signal:AbortSignal.timeout(20000)});}catch{throw new Error('پەیوەندی بە سێرڤەر نەکرا؛ ئینتەرنێتەکەت بپشکنە.');}const text=await response.text();let data=null;try{data=text?JSON.parse(text):null;}catch{throw new Error('وەڵامی سێرڤەر نەخوێندرایەوە.');}if(!response.ok){const code=data?.message||data?.code;const error=new Error(messages[code]||(response.status===401?messages.return_document_auth_required:'پسوولەی گەڕاندنەوە نەخوێندرایەوە.'));error.status=response.status;error.code=code;throw error;}if(!data||data.id!==id||data.source!==source||data.kind!==kind)throw new Error('وەڵامی پسوولەی گەڕاندنەوە پشتڕاست نەکرایەوە.');return data;}
+ root.KashierReturnDocument={get};
+})(globalThis);
