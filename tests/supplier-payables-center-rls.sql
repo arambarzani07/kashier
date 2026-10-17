@@ -1,0 +1,36 @@
+begin;
+select set_config('spc.a',gen_random_uuid()::text,true),set_config('spc.b',gen_random_uuid()::text,true),set_config('spc.s1',gen_random_uuid()::text,true),set_config('spc.s2',gen_random_uuid()::text,true),set_config('spc.p',gen_random_uuid()::text,true),set_config('spc.b1',gen_random_uuid()::text,true),set_config('spc.b2',gen_random_uuid()::text,true),set_config('spc.b3',gen_random_uuid()::text,true),set_config('spc.b4',gen_random_uuid()::text,true);
+insert into auth.users(id,email) values(current_setting('spc.a')::uuid,'spc-a@example.invalid'),(current_setting('spc.b')::uuid,'spc-b@example.invalid');
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('spc.a'),'role','authenticated')::text,true);set local role authenticated;
+insert into public.products(id,name,sale_price) values(current_setting('spc.p')::uuid,'Payables Product',15000);
+insert into public.suppliers(id,name,phone) values(current_setting('spc.s1')::uuid,'Alpha Supplier','111'),(current_setting('spc.s2')::uuid,'Beta Supplier','222');
+do $$
+declare p uuid:=current_setting('spc.p')::uuid;s1 uuid:=current_setting('spc.s1')::uuid;s2 uuid:=current_setting('spc.s2')::uuid;b1 uuid:=current_setting('spc.b1')::uuid;b2 uuid:=current_setting('spc.b2')::uuid;b3 uuid:=current_setting('spc.b3')::uuid;b4 uuid:=current_setting('spc.b4')::uuid;r jsonb;receipt text;
+begin
+ perform public.post_cash_entry(gen_random_uuid(),'deposit',100000,'payables center cash');
+ perform public.post_supplier_purchase(b1,jsonb_build_array(jsonb_build_object('product_id',p,'quantity_units',2000,'unit_cost',5000)),s1,2000,'PAY-A1','alpha one');
+ perform public.post_supplier_purchase_payment(gen_random_uuid(),b1,3000,'later alpha payment');
+ perform public.post_purchase_return(gen_random_uuid(),b1,'alpha debt return',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',200)));
+ perform public.post_supplier_purchase(b2,jsonb_build_array(jsonb_build_object('product_id',p,'quantity_units',3000,'unit_cost',2000)),s1,0,'PAY-A2','alpha two');
+ perform public.post_supplier_purchase(b3,jsonb_build_array(jsonb_build_object('product_id',p,'quantity_units',2000,'unit_cost',2000)),s1,0,'PAY-A3','alpha paid');
+ perform public.post_supplier_purchase_payment(gen_random_uuid(),b3,4000,'fully pay alpha three');
+ perform public.post_supplier_purchase(b4,jsonb_build_array(jsonb_build_object('product_id',p,'quantity_units',1000,'unit_cost',5000)),s2,0,'PAY-B1','beta one');
+ perform public.post_supplier_entry(gen_random_uuid(),s1,'charge',2500,'manual debt excluded from center');
+ r:=public.get_supplier_payables_report(null,null,null,null,0,50);
+ if (r->>'count')::int<>3 or (r->>'outstanding')::bigint<>15000 or (r->>'original_debt')::bigint<>19000 or (r->>'allocated_payments')::bigint<>3000 or (r->>'debt_reversed')::bigint<>1000 then raise exception 'global totals wrong';end if;
+ if exists(select 1 from jsonb_array_elements(r->'rows') x where x->>'purchase_id'=b3::text) then raise exception 'fully paid purchase not excluded';end if;
+ r:=public.get_supplier_payables_report('Alpha',null,null,null,0,50);if (r->>'count')::int<>2 or (r->>'outstanding')::bigint<>10000 then raise exception 'supplier filter wrong';end if;
+ r:=public.get_supplier_payables_report(null,'PAY-B1',null,null,0,50);if (r->>'count')::int<>1 or r->'rows'->0->>'supplier_name'<>'Beta Supplier' then raise exception 'invoice query wrong';end if;
+ select receipt_no::text into receipt from public.purchases where id=b1;r:=public.get_supplier_payables_report(null,receipt,null,null,0,50);if (r->>'count')::int<>1 or (r->'rows'->0->>'outstanding')::bigint<>4000 then raise exception 'receipt query wrong';end if;
+ r:=public.get_supplier_payables_report(null,null,4500,5500,0,50);if (r->>'count')::int<>1 or (r->'rows'->0->>'outstanding')::bigint<>5000 then raise exception 'amount filter wrong';end if;
+ r:=public.get_supplier_payables_report(null,null,null,null,1,1);if (r->>'count')::int<>3 or jsonb_array_length(r->'rows')<>1 then raise exception 'pagination wrong';end if;
+ begin perform public.get_supplier_payables_report(null,null,6000,5000,0,50);raise exception 'invalid range allowed';exception when raise_exception then if sqlerrm<>'supplier_payables_invalid_amount_range' then raise;end if;end;
+end $$;
+reset role;
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('spc.b'),'role','authenticated')::text,true);set local role authenticated;
+do $$ declare r jsonb;begin r:=public.get_supplier_payables_report(null,null,null,null,0,50);if (r->>'count')::int<>0 or (r->>'outstanding')::bigint<>0 then raise exception 'cross-owner payables leak';end if;end $$;
+reset role;set local role anon;
+do $$ begin begin perform public.get_supplier_payables_report(null,null,null,null,0,50);raise exception 'anon payables allowed';exception when insufficient_privilege then null;end;end $$;
+reset role;
+select 'PASS: supplier payables center exact outstanding, payment/return deductions, fully-paid exclusion, filters, pagination, RLS and anon block' verification;
+rollback;
