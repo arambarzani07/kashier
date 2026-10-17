@@ -27,6 +27,11 @@ jobs:
           node --check returns-data.js
           node --check returns.js
           node --check returns-tile.js
+          node --check purchase-reversal-data.js
+          node --check purchase-reversal.js
+          node --check cash.js
+          node --check daily.js
+          node --check cash-statement-math.js
       - name: Run Node tests
         shell: bash
         run: |
