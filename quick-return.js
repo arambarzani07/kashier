@@ -20,15 +20,14 @@ function renderBase(sale){
 function sumCash(returns){let total=0n;for(const item of returns)total+=BigInt(String(item.cash_refund??0));return total;}
 function renderState(sale,reversal,returns,stateError){
  renderBase(sale);
- const note=$('#quick-return-note'),partial=$('#partial-return-action'),full=$('#full-return-action'),documentLink=$('#return-document-action');
+ const note=$('#quick-return-note'),partial=$('#partial-return-action'),full=$('#full-return-action'),documentLink=$('#return-document-action'),discounted=BigInt(String(sale.discount??0))>0n;
  if(stateError){setState('دۆخ ناپشتڕاستە','warn');note.textContent='پسوولە دۆزرایەوە، بەڵام دۆخی گەڕاندنەوە پشتڕاست نەکرایەوە. بۆ پاراستنی حساب هیچ کردارێک لێرە چالاک ناکرێت؛ پسوولەکە بکەرەوە و نوێکردنەوە بکە.';return;}
  if(reversal){setState('گەڕێندراوەتەوە','done');note.textContent='ئەم فرۆشتنە پێشتر بە تەواوی گەڕێندراوەتەوە · R-'+reversal.reversal_no+' · '+money(reversal.cash_refund)+' کاش · '+money(reversal.debt_reversed)+' قەرز.';documentLink.href='return-document.html?source=sale&kind=full&id='+encodeURIComponent(reversal.id);documentLink.hidden=false;return;}
- if(returns.length){setState('Partial: '+returns.length,'warn');note.textContent='ئەم پسوولەیە '+returns.length+' گەڕاندنەوەی بەشی هەیە؛ کۆی پارەی گەڕاوە '+money(sumCash(returns))+' ـە. Full Return بە یاسای حسابداری قوفڵە.';if(sale.payment_mode==='cash'&&BigInt(String(sale.discount))===0n){partial.href=receiptHref(sale,'#partial-return-panel');partial.hidden=false;}else if(sale.payment_mode!=='cash')note.textContent+=' Partial Return ـی credit هێشتا قوفڵە.';else note.textContent+=' لەبەر داشکاندن، Partial Return ـی زیاتر هێشتا قوفڵە.';return;}
+ if(returns.length){setState('Partial: '+returns.length,'warn');note.textContent='ئەم پسوولەیە '+returns.length+' گەڕاندنەوەی بەشی هەیە؛ کۆی پارەی گەڕاوە '+money(sumCash(returns))+' ـە. Full Return بە یاسای حسابداری قوفڵە.';if(sale.payment_mode==='cash'){partial.href=receiptHref(sale,'#partial-return-panel');partial.hidden=false;if(discounted)note.textContent+=' refund ـی بەشی بە net allocation ـی داشکاندن حساب دەکرێت.';}else note.textContent+=' Partial Return ـی credit هێشتا قوفڵە.';return;}
  setState('ئامادە','');
  full.href=receiptHref(sale,'#reversal-panel');full.hidden=false;
- if(sale.payment_mode==='cash'&&BigInt(String(sale.discount))===0n){partial.href=receiptHref(sale,'#partial-return-panel');partial.hidden=false;note.textContent='پسوولەکە هیچ گەڕاندنەوەیەکی پێشووی نییە. دەتوانیت Full یان Partial Return هەڵبژێریت.';}
- else if(sale.payment_mode==='credit')note.textContent='ئەمە فرۆشتنی قەرزە. Full Return لەسەر guard ـی قەرز کار دەکات؛ Partial Return تا تەواوبوونی allocation ـی پارەدان قوفڵە.';
- else note.textContent='ئەم پسوولەیە داشکاندنی هەیە. Full Return چالاکە؛ Partial Return تا allocation ـی دقیق داشکاندن قوفڵە.';
+ if(sale.payment_mode==='cash'){partial.href=receiptHref(sale,'#partial-return-panel');partial.hidden=false;note.textContent=discounted?'پسوولەکە داشکاندنی هەیە. Full و Partial Return هەردووکیان چالاکن؛ refund ـی بەشی بە net allocation ـی exact حساب دەکرێت.':'پسوولەکە هیچ گەڕاندنەوەیەکی پێشووی نییە. دەتوانیت Full یان Partial Return هەڵبژێریت.';}
+ else note.textContent='ئەمە فرۆشتنی قەرزە. Full Return لەسەر guard ـی قەرز کار دەکات؛ Partial Return تا تەواوبوونی allocation ـی پارەدان قوفڵە.';
 }
 async function findReceipt(event){
  event?.preventDefault();
