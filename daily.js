@@ -1,0 +1,30 @@
+'use strict';
+const $=selector=>document.querySelector(selector);
+const money=value=>new Intl.NumberFormat('en-US').format(BigInt(value));
+const time=value=>new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Baghdad',dateStyle:'short',timeStyle:'short'}).format(new Date(value));
+function today(){const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Baghdad',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const part=type=>parts.find(x=>x.type===type).value;return part('year')+'-'+part('month')+'-'+part('day');}
+function node(tag,text,className){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;}
+let report=null,requestNumber=0;
+function invalidate(){requestNumber++;report=null;$('#daily-paper').hidden=true;$('#daily-paper').replaceChildren();$('#daily-print').disabled=true;$('#daily-load').disabled=false;$('#daily-status').textContent='بۆ خوێندنەوەی ڕاپۆرتی ئەم ڕۆژە دوگمەی پیشاندان دابگرە.';}
+function validDay(day){if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||day<'0001-01-01')return false;try{return new Date(day+'T00:00:00Z').toISOString().slice(0,10)===day;}catch{return false;}}
+function validate(data,day){
+ if(data?.day!==day||data.timezone!=='Asia/Baghdad'||data.currency!=='IQD')throw Error('وەڵامی ڕاپۆرت پشتڕاست نەکرایەوە.');
+ const fields={sales:['count','cash_count','credit_count','subtotal','discounts','total','cash_total','credit_total','cash_received','debt_added'],cash:['count','opening','inflows','outflows','closing','sales','repayments','deposits','withdrawals','expenses'],debt:['count','opening','manual_charges','sale_charges','repayments','closing'],purchases:['count','total']};const values={};
+ for(const [group,keys]of Object.entries(fields)){values[group]={};for(const key of keys){const value=data[group]?.[key];if(typeof value!=='string'||! /^-?\d+$/.test(value))throw Error('بڕی ڕاپۆرت نادروستە.');values[group][key]=BigInt(value);}}
+ const {sales:s,cash:c,debt:d}=values;
+ if(s.count!==s.cash_count+s.credit_count||s.total!==s.subtotal-s.discounts||s.total!==s.cash_total+s.credit_total||s.total!==s.cash_received+s.debt_added||c.inflows!==c.sales+c.repayments+c.deposits||c.outflows!==c.withdrawals+c.expenses||c.closing!==c.opening+c.inflows-c.outflows||d.closing!==d.opening+d.manual_charges+d.sale_charges-d.repayments||c.sales!==s.cash_received||d.sale_charges!==s.debt_added||d.repayments!==c.repayments)throw Error('کۆی فرۆشتن، پارە یان قەرز یەک ناگرێتەوە.');
+ time(data.generated_at);
+}
+function render(data){
+ const paper=$('#daily-paper');paper.replaceChildren(node('h2','کاشێر'),node('h3','ڕاپۆرتی ڕۆژانە — '+data.day));paper.append(node('p','ڕۆژەکە لە 00:00 تا پێش 00:00ی ڕۆژی دواتر بە کاتی بەغدا.','statement-meta'),node('p','کاتی خوێندنەوە: '+time(data.generated_at)+' · دراو: دیناری عێراقی / IQD','statement-meta'));
+ if([data.sales.count,data.cash.count,data.debt.count,data.purchases.count].every(x=>BigInt(x)===0n))paper.append(node('p','ئەم ڕۆژە هیچ مامەڵەیەک تۆمار نەکراوە؛ باڵانسی پێشوو هەر پیشان دەدرێت.','statement-empty'));
+ const sections=node('div',undefined,'daily-sections');
+ function section(title,group,rows){const box=node('section',undefined,'daily-section'),dl=node('dl');box.append(node('h3',title));for(const [label,key,total]of rows){const row=node('div',undefined,total?'daily-total':'');row.append(node('dt',label),node('dd',money(group[key]),'numeric'));dl.append(row);}box.append(dl);sections.append(box);}
+ section('فرۆشتن',data.sales,[['ژمارەی پسوولە','count'],['پسوولەی کاش','cash_count'],['پسوولەی قەرز','credit_count'],['کۆی کاڵا پێش داشکاندن','subtotal'],['داشکاندن','discounts'],['کۆی فرۆشتن','total',true],['فرۆشتنی کاش','cash_total'],['فرۆشتنی قەرز — کۆی پسوولە','credit_total'],['پارەی فرۆشتن دوای گەڕاندنەوە','cash_received'],['قەرزی نوێی فرۆشتن','debt_added']]);
+ section('سندوق',data.cash,[['باڵانسی سەرەتا','opening'],['پارەی فرۆشتن','sales'],['قەرزی وەرگیراو','repayments'],['پارەخستنە سندوق','deposits'],['کۆی پارەی هاتوو','inflows',true],['پارەوەرگرتن لە سندوق','withdrawals'],['خەرجی','expenses'],['کۆی پارەی دەرچوو','outflows',true],['باڵانسی کۆتایی','closing',true]]);
+ section('قەرزی کڕیارەکان',data.debt,[['باڵانسی سەرەتا','opening'],['قەرزی نوێی فرۆشتن','sale_charges'],['قەرزی دەستی زیادکراو','manual_charges'],['قەرزی وەرگیراو','repayments'],['باڵانسی کۆتایی','closing',true]]);
+ section('کڕینی کاڵا',data.purchases,[['ژمارەی پسوولە','count'],['کۆی نرخی کڕین','total',true]]);paper.append(sections);
+ paper.append(node('p','فرۆشتنی قەرز دەتوانێت پارەدانی بەشێکی تێدابێت؛ تەنها پارەی وەرگیراو دەچێتە سندوق. پارەخستنە سندوق و قەرزی وەرگیراو لە کۆی فرۆشتن جیاوازن.','daily-note'),node('p','کڕینی کاڵا خۆکار پارە لە سندوق دەرناهێنێت. ئەم ڕاپۆرتە قازانج هەژمار ناکات و داخستنی ڕۆژ ئەنجام نادات. بۆ ڕۆژی ئەمڕۆ، تەنها تۆمارەکانی تا کاتی خوێندنەوە لەخۆ دەگرێت.','daily-note'));paper.hidden=false;
+}
+async function load(){invalidate();const request=++requestNumber,day=$('#daily-day').value;if(!KashierData.loggedIn()){location.replace('auth.html?next=daily.html');return;}if(!$('#daily-form').reportValidity()||!validDay(day)){$('#daily-status').textContent='ڕۆژێکی دروست هەڵبژێرە.';return;}$('#daily-load').disabled=true;$('#daily-status').textContent='خوێندنەوەی ڕاپۆرت…';try{const data=await KashierData.getDailyReport(day);if(request!==requestNumber)return;validate(data,day);render(data);report=data;$('#daily-print').disabled=false;$('#daily-status').textContent='ڕاپۆرتەکە ئامادەیە؛ بۆ تۆمارە نوێکان نوێی بکەرەوە.';}catch(error){if(request===requestNumber){report=null;$('#daily-paper').hidden=true;$('#daily-print').disabled=true;$('#daily-status').textContent=error.message;}}finally{if(request===requestNumber)$('#daily-load').disabled=false;}}
+$('#daily-form').addEventListener('submit',event=>{event.preventDefault();load();});$('#daily-day').addEventListener('input',invalidate);$('#daily-today').addEventListener('click',()=>{$('#daily-day').value=today();load();});$('#daily-print').addEventListener('click',()=>{if(report&&!$('#daily-print').disabled)window.print();});$('#daily-day').value=today();load();
