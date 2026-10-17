@@ -51,7 +51,9 @@ Create an account and confirm its email if required by Supabase. Register produc
 - Cash statements distinguish debt repayments from sales and owner deposits.
 - Credit sales atomically subtract stock, post an immutable receipt, increase customer debt by total minus received, and add only the received portion to cash. Full credit creates no cash movement. Zero-debt credit is rejected; fully paid sales use cash mode.
 - Credit requests preserve payment mode and selected customer across retries and same-tab reload. Receipt/debt/cash source links support tracing. Receipt debt is the original amount, not a current per-invoice outstanding balance; repayments are account-level and are not allocated to invoices.
-- Inventory → debt → cash locks give credit sales a consistent ordering with other posting functions. Full printable/exportable customer statements are not yet implemented.
+- Inventory → debt → cash locks give credit sales a consistent ordering with other posting functions. Customer statements support full-period or Baghdad date ranges, opening/closing debt, charge/repayment totals, ordered movements, credit receipt links and A4 landscape printing. CSV/PDF file export is not implemented.
+
+Statements are read-only, use one database snapshot and derive balances from immutable ledger deltas. They return exact integer strings. A 5000-entry period limit fails explicitly; select a shorter range instead of printing a truncated statement. Changing dates invalidates the displayed snapshot and disables printing until refreshed. Empty periods retain opening debt; no activity is invented. Print uses the complete displayed snapshot without refetching.
 
 ## Data and access
 
@@ -73,9 +75,9 @@ Browser visual QA, the full email signup/login journey, simultaneous real-client
 
 ## Verification
 
-Run `node --test tests/*.test.cjs` (46 tests). All passed.
+Run `node --test tests/*.test.cjs` (57 tests). All passed.
 
-Tests cover money/quantity arithmetic, authentication refresh, catalog requests, sale and purchase journals, reload recovery, repeat clicks, journal failure, invalid draft rejection, customer lookup/selection, credit-mode validation and recovery, receipt rendering from saved snapshots, cash journal recovery, and exact lifetime cash formatting. JavaScript syntax, HTML navigation/assets, labels and static selectors were checked.
+Tests cover money/quantity arithmetic, authentication refresh, catalog requests, sale and purchase journals, reload recovery, repeat clicks, journal failure, invalid draft rejection, customer lookup/selection, credit-mode validation and recovery, receipt rendering from saved snapshots, cash journal recovery, exact lifetime cash formatting, and complete statement rendering, date validation, stale-response protection, snapshot printing, malformed-response rejection and large exact totals. JavaScript syntax, HTML navigation/assets, labels and static selectors were checked.
 
 Remote rollback-only SQL checks cover:
 - Catalog permissions and barcode validation.
@@ -86,9 +88,10 @@ Remote rollback-only SQL checks cover:
 - Cash deposits, expenses, withdrawals, net sale cash, exactly-once retries, negative-balance rejection, limits, and agreement between cash movements and cached balances.
 - Customer charges, atomic debt/cash repayments, overpayment rejection, cached debt agreement, cross-account denial and frozen customer names.
 - Full and partial credit, discounts, no fictitious cash on full credit, source links, cross-mode replay conflicts, immutable debt amounts after repayments, and atomic stock/cash/debt limit failures.
+- Customer statement opening/closing arithmetic, inclusive Baghdad midnight boundaries, full/open date ranges, empty periods, credit source links, lifetime precision, the 5000-row guard, no data mutation and owner isolation.
 - Cross-account isolation and denial of direct browser stock/cash mutations.
 
-Security advisors returned no findings. Live anonymous REST checks returned 401 for stock reading, purchase posting, cash summary, cash posting, debt summary, debt posting and credit-sale posting, as well as the earlier sales checks.
+Security advisors returned no findings. Live anonymous REST checks returned 401 for stock reading, purchase posting, cash summary, cash posting, debt summary, debt posting and credit-sale posting and customer statement reading, as well as the earlier sales checks.
 
 After verification: 0 users, 0 products, 0 sales, 0 purchases, 0 stock balances, 0 stock movements, 0 cash accounts, 0 cash movements, 0 customers, 0 customer balances and 0 debt entries. No test data is seeded. Test identity sequence gaps after rollback are harmless.
 
@@ -109,3 +112,5 @@ The cash migration deliberately requires an empty sales table for its initial ac
 - `20261017075847_customers_debt_ledger_and_cash_repayments.sql`
 
 - `20261017080907_credit_sales_atomic_inventory_debt_and_cash.sql`
+
+- `20261017081327_customer_statements_with_baghdad_date_bounds.sql`
