@@ -16,6 +16,15 @@ test('quick return UI reads real reversal state and never injects dynamic innerH
  assert.doesNotMatch(js,/innerHTML\s*=/);
 });
 
+test('discounted cash receipts keep partial return available while credit partial remains locked',()=>{
+ const js=fs.readFileSync(require.resolve('../quick-return.js'),'utf8');
+ assert.match(js,/if\(sale\.payment_mode==='cash'\)\{partial\.href=receiptHref/);
+ assert.match(js,/net allocation/);
+ assert.match(js,/Partial Return ـی credit هێشتا قوفڵە/);
+ assert.doesNotMatch(js,/لەبەر داشکاندن، Partial Return ـی زیاتر هێشتا قوفڵە/);
+ assert.doesNotMatch(js,/Partial Return تا allocation ـی دقیق داشکاندن قوفڵە/);
+});
+
 test('dashboard loads a dedicated quick return tile',()=>{
  const html=fs.readFileSync(require.resolve('../index.html'),'utf8');
  const tile=fs.readFileSync(require.resolve('../quick-return-tile.js'),'utf8');
