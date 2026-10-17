@@ -2,7 +2,7 @@
 const $=selector=>document.querySelector(selector);
 function safeDestination(value){
  if(!value||value.startsWith('/')||value.includes('\\')||value.includes('#'))return 'index.html';
- const [path,query='']=value.split('?');const allowed=['index.html','products.html','sale.html','receipts.html','purchase.html','purchase-receipts.html','stock.html','cash.html','customers.html','customer.html','receipt.html','purchase-receipt.html','statement.html','daily.html','suppliers.html','supplier.html','supplier-statement.html','labels.html','stocktake.html','stock-adjustment.html','purchase-report.html','sales-report.html'];
+ const [path,query='']=value.split('?');const allowed=['index.html','products.html','sale.html','receipts.html','purchase.html','purchase-receipts.html','stock.html','cash.html','customers.html','customer.html','receipt.html','purchase-receipt.html','statement.html','daily.html','suppliers.html','supplier.html','supplier-statement.html','labels.html','stocktake.html','stock-adjustment.html','purchase-report.html','sales-report.html','cash-statement.html'];
  if(!allowed.includes(path)||value.split('?').length>2)return 'index.html';
  const params=new URLSearchParams(query),keys={'stock-adjustment':['product','id'],labels:['kind'],products:['new'],stock:['product','mode','limit','q'],cash:['kind'],customers:['debt','repay'],customer:['id','action'],receipt:['id','print'],'purchase-receipt':['id','print'],statement:['id'],suppliers:['debt','payable','pay'],supplier:['id','action'],'supplier-statement':['id']};
  for(const key of params.keys())if(!(keys[path.replace('.html','')]||[]).includes(key))return 'index.html';

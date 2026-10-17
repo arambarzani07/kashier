@@ -214,3 +214,15 @@ Validation: 173 Node tests pass. Live rollback SQL checks mixed cash/credit sale
 Migrations:
 - `20261017105405_sales_product_report_with_returns_and_discount_allocation.sql`
 - `20261017105443_exact_integer_discount_allocation_in_sales_report.sql`
+
+## Cash account range statement
+
+The home cash-statement tile and cash account screen open `cash-statement.html`. Default range is Baghdad month-to-date. Select up to 366 inclusive days to view all cash movement types, opening balance before the range, inflows, outflows, closing balance, per-type totals and source links. Refunds link the original sale; tracked purchase cash links its receipt; supplier payments and customer repayments link their accounts. Statements above 5000 rows fail explicitly and require a narrower range.
+
+The stable invoker RPC reads only the current owner's RLS-protected ledger. Opening is the exact sum of all earlier dated deltas. Row statement balances are opening plus a running sum in created_at/movement_no order; they intentionally describe chronological statement balances rather than reusing each movement's historical posting-order balance_after. This keeps dated statements internally consistent even when transaction start timestamps and posting order differ. Original ledger records are unchanged. An empty period retains its carried opening/closing balance.
+
+UI validates row order, movement directions, running balances, type totals and overall reconciliation with BigInt. CSV includes an explicit summary row (also for empty periods) followed by movement rows; signed numeric fields remain numeric literals, notes are escaped and formula-neutralized. Print/export use the displayed validated snapshot; date changes and failed/inconsistent replies disable both.
+
+Validation: 182 Node tests pass. Live rollback SQL covers all cash movement types, Baghdad date boundaries, out-of-order dated entries, linked refund/purchase sources, chronological running balances, empty carry-forward, owner isolation, exact aggregates beyond Number range, result cap and no ledger writes. Fixtures were rolled back. No new function/table security-advisor findings; the previously documented password-protection warning remains. Browser visual QA and physical printing remain unverified.
+
+Migration: `20261017110018_cash_range_statement_with_chronological_balances.sql`.
