@@ -1,5 +1,5 @@
 (function(root){'use strict';const base=root.PurchaseReportMath||(typeof module==='object'&&module.exports?require('./purchase-report-math.js'):null);
-const labels={sale:'پارەی فرۆشتن',repayment:'وەرگرتنەوەی قەرز',deposit:'پارەخستنە سندوق',withdrawal:'پارەوەرگرتن لە سندوق',expense:'خەرجی',refund:'پارەی گەڕێندراوە',supplier_purchase:'پارەدانی کڕین',supplier_payment:'پارەدان بە دابینکەر'},incoming=new Set(['sale','repayment','deposit']);
+const labels={sale:'پارەی فرۆشتن',repayment:'وەرگرتنەوەی قەرز',deposit:'پارەخستنە سندوق',withdrawal:'پارەوەرگرتن لە سندوق',expense:'خەرجی',refund:'پارەی گەڕێندراوە',supplier_purchase:'پارەدانی کڕین',supplier_payment:'پارەدان بە دابینکەر',supplier_refund:'پارەی گەڕاوە لە دابینکەر'},incoming=new Set(['sale','repayment','deposit','supplier_refund']);
 const uuid=value=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 function integer(value){if(typeof value!=='string'||! /^-?\d+$/.test(value))throw Error('بڕی کەشف نادروستە.');return BigInt(value);}
 function money(value){return new Intl.NumberFormat('en-US').format(integer(value));}
