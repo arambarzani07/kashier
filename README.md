@@ -59,11 +59,19 @@ Create an account and confirm its email if required by Supabase. Register produc
 
 Statements are read-only, use one database snapshot and derive balances from immutable ledger deltas. They return exact integer strings. A 5000-entry period limit fails explicitly; select a shorter range instead of printing a truncated statement. Changing dates invalidates the displayed snapshot and disables printing until refreshed. Empty periods retain opening debt; no activity is invented. Print uses the complete displayed snapshot without refetching.
 
+## Sale returns integrated from GitHub
+
+The current source includes immutable full sale reversals and partial returns for cash receipts without discounts, along with atomic stock restoration/refunds and report integration. Partial credit or discounted returns are rejected. Full reversal is blocked after partial returns. These are separate reverse entries; original receipts remain unchanged.
+
 ## Daily report
 
 Open the home tile دەفتەری ڕۆژانە or the daily report link in the cashbox. Select a Baghdad calendar day. The report reads one database snapshot and provides receipt counts, gross/subtotal, discounts, cash/credit sale totals, net sale cash received, newly created sale debt, manual debt charges, repayments, deposits, withdrawals, expenses, purchases and cash/debt opening and closing balances.
 
 All totals and counts are exact integer strings, rendered with BigInt. Change given on cash sales is excluded from the cash intake. A credit receipt total includes any paid portion; that portion also appears in cash received, so those cards must not be added together as extra sales. Repayments/deposits are separate from sales. Purchase totals do not imply supplier cash payments. Empty days retain prior balances. This is a read-only live report, not an end-of-day close, profit report or locked accounting period. A4 landscape print uses the displayed snapshot; changing the date invalidates printing until refreshed.
+
+## Low stock
+
+The home tile کاڵا کەمبووەکان opens `stock.html?mode=low`. Select all stock, zero stock, or stock at/below a user-entered threshold (default 5). The threshold is a query filter shared by all products, not a saved per-product reorder level. Up to three decimal places are supported. Filtering, ordering and exact counts happen on the server before 50-row pagination, including unreceived products with zero stock. Name/barcode search combines with the threshold. Invalid thresholds fail explicitly. Movement links preserve filter/search context. Stock movements identify full and partial sale returns and resolve their original receipt through owner-protected source relations.
 
 ## Data and access
 
@@ -79,15 +87,15 @@ Sessions and drafts use sessionStorage for the current tab. Logout clears ordina
 
 ## Not implemented / field-verification limits
 
-Returns/reversals, initial-stock adjustments, stocktake corrections, multiple warehouses, supplier debt/payments, cost-of-goods/profit reporting, shared staff roles and the remaining home modules.
+Initial-stock adjustments, stocktake corrections, multiple warehouses, supplier debt/payments, cost-of-goods/profit reporting, shared staff roles and the remaining home modules.
 
 Browser visual QA, the full email signup/login journey, simultaneous real-client field testing, physical scanner input and printer output remain unverified. Database and code tests do not establish complete field readiness.
 
 ## Verification
 
-Run `node --test tests/*.test.cjs` (67 tests). All passed.
+Run `node --test tests/*.test.cjs` (87 tests). All passed.
 
-Tests cover money/quantity arithmetic, authentication refresh, catalog requests, sale and purchase journals, reload recovery, repeat clicks, journal failure, invalid draft rejection, customer lookup/selection, credit-mode validation and recovery, receipt rendering from saved snapshots, cash journal recovery, exact lifetime cash formatting, and complete statement rendering, date validation, stale-response protection, snapshot printing, malformed-response rejection large exact totals, and daily report day selection, Baghdad rollover, cross-ledger arithmetic, stale-response protection and snapshot printing. JavaScript syntax, HTML navigation/assets, labels and static selectors were checked.
+Tests cover money/quantity arithmetic, authentication refresh, catalog requests, sale and purchase journals, reload recovery, repeat clicks, journal failure, invalid draft rejection, customer lookup/selection, credit-mode validation and recovery, receipt rendering from saved snapshots, cash journal recovery, exact lifetime cash formatting, and complete statement rendering, date validation, stale-response protection, snapshot printing, malformed-response rejection large exact totals, and daily report day selection, Baghdad rollover, cross-ledger arithmetic, stale-response protection snapshot printing, low-stock filters/pagination/context links and return movement rendering. JavaScript syntax, HTML navigation/assets, labels and static selectors were checked.
 
 Remote rollback-only SQL checks cover:
 - Catalog permissions and barcode validation.
@@ -100,6 +108,8 @@ Remote rollback-only SQL checks cover:
 - Full and partial credit, discounts, no fictitious cash on full credit, source links, cross-mode replay conflicts, immutable debt amounts after repayments, and atomic stock/cash/debt limit failures.
 - Customer statement opening/closing arithmetic, inclusive Baghdad midnight boundaries, full/open date ranges, empty periods, credit source links, lifetime precision, the 5000-row guard, no data mutation and owner isolation.
 - Daily report cash/full-credit/partial-credit splits, net cash after change, Baghdad day boundaries, opening/closing cash and debt, empty days, exact large totals, read-only behavior and owner isolation.
+- Low stock: zero-stock inclusion, inclusive/fractional thresholds, combined search, pagination, owner isolation and no mutations.
+- Full and partial sale-return rollback checks cover stock/cash/debt source ledgers, retries, scope guards and reporting.
 - Cross-account isolation and denial of direct browser stock/cash mutations.
 
 Security advisors returned no findings. Live anonymous REST checks returned 401 for stock reading, purchase posting, cash summary, cash posting, debt summary, debt posting and credit-sale posting and customer statement reading and daily reporting, as well as the earlier sales checks.
@@ -127,3 +137,7 @@ The cash migration deliberately requires an empty sales table for its initial ac
 - `20261017081327_customer_statements_with_baghdad_date_bounds.sql`
 
 - `20261017083934_daily_sales_cash_and_debt_snapshot_report.sql`
+
+- `20261017085134_sale_reversals_atomic_inventory_debt_cash.sql`
+- `20261017094535_partial_cash_sale_returns_atomic_inventory_refund.sql`
+- `20261017094610_guard_full_reversal_after_partial_returns.sql`

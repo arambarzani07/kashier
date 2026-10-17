@@ -6,6 +6,7 @@ const id='00000000-0000-4000-8000-000000000003';
 async function render(kind,record,reversal=null,returns=[]){
  const elements=new Map();class E{constructor(){this.children=[];this.events={};this.hidden=false;this.textContent='';this.dataset={};}append(...v){this.children.push(...v)}replaceChildren(...v){this.children=v}addEventListener(n,f){this.events[n]=f}}
  const get=s=>{if(!elements.has(s))elements.set(s,new E());return elements.get(s)};
+ get('#partial-return-panel').append(get('#return-info'),get('#return-history'),get('#return-form'));get('#return-form').append(get('#return-lines'),get('#return-status'));get('#reversal-panel').append(get('#reversal-info'),get('#reversal-form'));get('#reversal-form').append(get('#reversal-status'));
  let finish;const done=new Promise(r=>finish=r);let prints=0;const document={querySelector:get,createElement:()=>new E(),body:new E()};document.body.dataset.receiptKind=kind;
  const api=async()=>{queueMicrotask(()=>queueMicrotask(finish));return record};
  vm.runInNewContext(fs.readFileSync(require.resolve('../receipt.js'),'utf8'),{document,KashierData:{loggedIn:()=>true,getSale:api,getPurchase:api,getSaleReversal:async()=>reversal,listSaleReturns:async()=>returns,postSaleReversal:async()=>{},postSaleReturn:async()=>{}},location:{search:'?id='+id},URLSearchParams,Intl,Date,window:{print:()=>prints++},requestAnimationFrame:f=>f()});await done; await new Promise(resolve=>setImmediate(resolve));
