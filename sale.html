@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>کاشێر — کاڵا فرۆشتن</title>
-  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="sale.css">
-  <script src="sale-math.js" defer></script><script src="sale.js" defer></script>
+  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="sale.css"><link rel="stylesheet" href="catalog.css">
+  <script src="config.js" defer></script><script src="data.js" defer></script><script src="sale-math.js" defer></script><script src="sale.js" defer></script>
 </head>
 <body class="sale-page">
   <header class="topbar"><div class="brand"><span class="brand-mark">K</span><strong>کاشێر</strong></div><span>کاڵا فرۆشتن</span><a href="index.html" class="home-link">سەرەکی ←</a></header>
@@ -12,9 +12,9 @@
   <main class="sale-layout">
     <section class="cart-panel" aria-labelledby="sale-heading">
       <div class="section-heading"><div><span class="eyebrow">فرۆشتنی نوێ</span><h1 id="sale-heading">لیستی کاڵاکان</h1></div><button id="add-item" class="primary">＋ زیادکردنی کاڵا</button></div>
-      <form id="scan-form" class="scan-form"><label for="barcode">بارکۆد / گەڕان بە ناوی کاڵا</label><div><input id="barcode" dir="auto" autocomplete="off" placeholder="بارکۆد سکەن بکە یان ناوی کاڵا بنووسە…"><button type="submit">گەڕان</button></div><small>کاتالۆگی کاڵا هێشتا نەبەستراوەتەوە؛ ئێستا دەتوانیت کاڵا بە دەستی بۆ مسودە زیاد بکەیت.</small></form>
+      <form id="scan-form" class="scan-form"><label for="barcode">بارکۆد / گەڕان بە ناوی کاڵا</label><div><input id="barcode" dir="auto" autocomplete="off" placeholder="بارکۆد سکەن بکە یان ناوی کاڵا بنووسە…"><button type="submit">گەڕان</button></div><small><span id="catalog-connection">گەڕان لە کاڵا تۆمارکراوەکان.</span> <a class="catalog-link" href="products.html">لیستی کاڵاکان</a> · <a class="catalog-link" href="auth.html?next=sale.html">چوونەژوورەوە</a></small></form>
       <p id="scan-status" role="status" class="inline-status" hidden></p>
-      <div class="table-wrap"><table><caption class="sr-only">کاڵاکانی مسودەی فرۆشتن</caption><thead><tr><th scope="col">کاڵا</th><th scope="col">بڕ</th><th scope="col">نرخ / دینار</th><th scope="col">کۆ / دینار</th><th scope="col"><span class="sr-only">کردار</span></th></tr></thead><tbody id="cart-rows"></tbody></table></div>
+      <div id="sale-results" class="sale-results" aria-label="ئەنجامی گەڕانی کاڵا"></div><div class="table-wrap"><table><caption class="sr-only">کاڵاکانی مسودەی فرۆشتن</caption><thead><tr><th scope="col">کاڵا</th><th scope="col">بڕ</th><th scope="col">نرخ / دینار</th><th scope="col">کۆ / دینار</th><th scope="col"><span class="sr-only">کردار</span></th></tr></thead><tbody id="cart-rows"></tbody></table></div>
       <div id="empty-cart" class="empty-cart"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6M9 20h.01M18 20h.01"/></svg><h2>لیستەکە بەتالە</h2><p>بە دوگمەی «زیادکردنی کاڵا» دەست پێ بکە.</p></div>
       <div class="cart-footer"><span id="item-count">٠ کاڵا</span><button id="clear-cart" class="danger" disabled>پاککردنەوەی مسودە</button></div>
     </section>

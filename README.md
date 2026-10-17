@@ -6,32 +6,40 @@
 
 - بنەمای دیزاین: شاشەی خانەیی بە دوگمە ڕەنگاوڕەنگەکان، هێما و ناونیشانی کوردی وەک وێنەی نموونە.
 - پلان، کۆد و پێداویستییەکانی پڕۆژە پێشووەکان بەشێک نین لەم پڕۆژەیە.
-- ئەمە تەنها دەستپێکی پڕۆژەکەیە؛ تۆمارکردنی مامەڵە لە داتابەیس هێشتا جێبەجێ نەکراوە.
+- تۆمارکردنی فرۆشتنی کۆتایی هێشتا چالاک نییە.
 
-## Supabase
+## Project
 
-- Project: `Kashier`
+- Supabase: Kashier
 - Project reference: `dhfyqxdfwhxlipbsasqf`
 - Organization: `yzqydecqltgvixelgrlk`
-- Region: `eu-central-1`
+- Region: eu-central-1
 - Dashboard: https://supabase.com/dashboard/project/dhfyqxdfwhxlipbsasqf
 
-Initial verification: 0 public tables, 0 authentication users, 0 storage buckets, 0 Edge Functions.
+## Run
 
-No API keys, passwords, or service-role credentials are stored in this repository. Application authentication and database schema are not implemented yet.
+Serve this repository over HTTP, for example `python3 -m http.server 8000`, then open http://localhost:8000. No package installation or external frontend assets are required.
 
-## Home screen implementation
+## Implemented
 
-Open `index.html` in a browser, or serve this repository using a static HTTP server. No package installation or external assets are required.
+- Reference-style Kurdish home screen with 33 tiles, module search and display density controls.
+- Product creation and editing: name, optional barcode, integer IQD selling price.
+- Product list with server-side search, pagination and exact matching barcode lookup.
+- Email/password sign-in and account creation. Email confirmation may be required by Supabase before login.
+- Products are private to the authenticated account using server-enforced RLS. Anonymous access is denied; users cannot assign or change ownership.
+- Sale draft: add catalog products by barcode/name, or enter manual draft rows. Quantities, prices, discounts, received cash, positive change/shortfall and explicitly marked draft printing.
+- Sessions and user-scoped drafts stay in sessionStorage for the current tab. Logout clears draft data.
 
-The initial screen includes 33 Kurdish module tiles matching the reference layout, responsive grid styles, module information dialogs, Kurdish module search, a fullscreen control, a Baghdad-time clock, and a tile-size setting. Module dialogs are placeholders; no financial operation or database connection is implemented.
+Only the public publishable key is in `config.js`. No service-role key, secret key or password is stored here. The database starts with no catalog or user seed data.
 
-Validation: JavaScript syntax and DOM-handler checks passed for 33 unique modules, dialog handlers, Kurdish search, clearing, and density controls. Full browser rendering and responsive visual QA remain unverified because a browser executable was unavailable in the execution environment.
+## Not implemented
 
-## Sale draft screen
+Final sale posting, stock movement, final receipts, role sharing, and the remaining home screen modules. No draft changes a customer's balance, cash or stock. Browser layout, physical scanner/printer use, and the full email signup/login journey still require field verification.
 
-The home screen's sale tile opens `sale.html`. It supports manual draft line entry, optional barcodes, editable quantities and integer IQD prices, removal, subtotal/discount/payment/change calculations, an explicit positive shortfall, customer and note fields, tab-scoped session storage, clearing with confirmation, and a draft-only print preview.
+## Verification
 
-Catalog lookup and final posting are not connected. The posting button stays disabled. Draft printouts are prominently labeled as unposted drafts. No sales, inventory, customers or payment rows are written to Supabase.
+Run `node --test tests/*.test.cjs` (10 tests). JavaScript parsing, HTML assets/labels/selectors and draft handler checks passed.
 
-Run `node --test tests/sale-math.test.cjs` for five arithmetic tests. JS syntax, HTML references and a DOM-handler smoke check passed. Browser rendering and physical printer output remain unverified.
+The remote migration was applied as `20261017065506_create_products_with_owner_rls.sql`. Rollback-only database checks covered own create/read/update, cross-account isolation, anonymous denial, duplicate barcode and price constraints. The anonymous live REST check returned 401. Security advisors returned no findings. Following verification, the database held 0 products and 0 authentication users.
+
+`tests/products-rls.sql` requires an administrative database connection and rolls back all fixtures. It is not an application endpoint.
