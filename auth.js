@@ -1,5 +1,6 @@
 'use strict';
 const nextPage=new URLSearchParams(location.search).get('next');
-const destination=nextPage==='sale.html'?'sale.html':nextPage==='products.html?new=1'?'products.html?new=1':'products.html';
+const receiptMatch=/^receipt\.html\?id=[0-9a-f-]{36}$/i.test(nextPage||'');
+const destination=receiptMatch?nextPage:nextPage==='receipts.html'?'receipts.html':nextPage==='sale.html'?'sale.html':nextPage==='products.html?new=1'?'products.html?new=1':'products.html';
 async function authenticate(signup){const form=document.querySelector('#auth-form');if(!form.reportValidity())return;const buttons=[...form.querySelectorAll('button')];buttons.forEach(b=>b.disabled=true);const status=document.querySelector('#auth-status');status.textContent='تکایە چاوەڕێ بکە…';try{const email=document.querySelector('#email').value.trim(),password=document.querySelector('#password').value;if(signup){const active=await KashierData.signUp(email,password);document.querySelector('#password').value='';if(!active){status.textContent='ئەگەر هەژمارەکە دروست بکرێت، نامەی پشتڕاستکردنەوە بۆ ئیمەیڵەکەت دەنێردرێت. ئیمەیڵەکەت پشتڕاست بکەرەوە، پاشان لێرە بچۆ ژوورەوە.';return;}}else await KashierData.signIn(email,password);location.href=destination;}catch(e){status.textContent=e.message;}finally{buttons.forEach(b=>b.disabled=false);}}
 document.querySelector('#auth-form').addEventListener('submit',e=>{e.preventDefault();authenticate(false);});document.querySelector('#signup').addEventListener('click',()=>authenticate(true));

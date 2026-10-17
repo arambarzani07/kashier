@@ -27,10 +27,10 @@
       <label for="received">پارەی وەرگیراو / دینار</label><input id="received" type="number" min="0" step="1" value="0" inputmode="numeric"><p id="received-error" class="field-error" hidden></p>
       <div class="balance" id="balance-box" aria-live="polite"><span id="balance-label">پارەی گەڕاندنەوە</span><strong id="balance">0</strong><span>دینار</span></div>
       <label for="note">تێبینی <span class="optional">(ئارەزوومەندانە)</span></label><textarea id="note" rows="2" maxlength="500" placeholder="تێبینی مسودە…"></textarea>
-      <button class="complete-sale" disabled title="تۆمارکردنی فرۆشتن هێشتا بە داتابەیس نەبەستراوەتەوە">تۆمارکردن و چاپ</button>
-      <p class="save-note">فرۆشتن هێشتا تۆمار ناکرێت. هەژمارەکان تەنها بۆ مسودەن.</p>
+      <button id="post-sale" class="complete-sale" disabled>تۆمارکردن و پسوولە</button>
+      <p class="save-note"><span id="posting-help">بۆ تۆمارکردن، هەموو کاڵاکان لە کاتالۆگەوە هەڵبژێرە و تەواوی پارەکە وەربگرە.</span></p>
       <button id="print-draft" class="secondary" disabled>پێشبینینی چاپی مسودە</button>
-      <p id="storage-status" role="status" class="storage-status">مسودە لەم تابەدا دەمێنێتەوە؛ لە داتابەیس تۆمار نابێت.</p>
+      <p id="post-status" role="status" class="field-error" hidden></p><a class="catalog-link" href="receipts.html">پسوولە تۆمارکراوەکان</a><p id="storage-status" role="status" class="storage-status">مسودە لەم تابەدا دەمێنێتەوە؛ لە داتابەیس تۆمار نابێت.</p>
     </aside>
   </main>
   <dialog id="item-dialog" aria-labelledby="item-title"><div class="dialog-heading"><h2 id="item-title">زیادکردنی کاڵا بۆ مسودە</h2><button id="close-item" aria-label="داخستن">×</button></div><form id="item-form"><label for="item-name">ناوی کاڵا</label><input id="item-name" required maxlength="150" autocomplete="off"><label for="item-barcode">بارکۆد <span class="optional">(ئارەزوومەندانە)</span></label><input id="item-barcode" maxlength="64" dir="ltr" autocomplete="off"><div class="form-pair"><div><label for="item-quantity">بڕ</label><input id="item-quantity" type="number" min="0.001" max="10000" step="0.001" value="1" required inputmode="decimal"></div><div><label for="item-price">نرخی یەکە / دینار</label><input id="item-price" type="number" min="1" max="1000000000" step="1" required inputmode="numeric"></div></div><p id="item-error" class="field-error" hidden></p><button type="submit" class="primary">زیادکردن بۆ لیست</button></form></dialog>
