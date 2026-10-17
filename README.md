@@ -109,7 +109,7 @@ Browser visual QA, the complete visual email signup/login journey, simultaneous 
 
 ## Verification
 
-Run `node --test tests/*.test.cjs` (127 tests). All passed.
+Run `node --test tests/*.test.cjs` (135 tests). All passed.
 
 Tests cover money/quantity arithmetic, authentication refresh, catalog requests, sale and purchase journals, reload recovery, repeat clicks, journal failure, invalid draft rejection, customer lookup/selection, credit-mode validation and recovery, receipt rendering from saved snapshots, cash journal recovery, exact lifetime cash formatting, and complete statement rendering, date validation, stale-response protection, snapshot printing, malformed-response rejection large exact totals, and daily report day selection, Baghdad rollover, cross-ledger arithmetic, stale-response protection snapshot printing, low-stock filters/pagination/context links and return movement rendering. JavaScript syntax, HTML navigation/assets, labels and static selectors were checked.
 
@@ -160,3 +160,11 @@ The cash migration deliberately requires an empty sales table for its initial ac
 - `20261017094610_guard_full_reversal_after_partial_returns.sql`
 
 - `20261017101112_suppliers_purchase_financing_and_cash_payments.sql`
+
+## Barcode and shelf price labels
+
+Home barcode and shelf tiles open `labels.html`. Select up to 50 products, 1–100 copies each (500 labels per batch), A4 or single-label roll paper, width 40–120 mm and height 30–80 mm. Shelf labels with barcodes need at least 35 mm height. Prices and barcodes are re-read from the authenticated owner catalog immediately before print; missing products or failed refreshes block printing. No stock or financial writes occur.
+
+Existing ASCII barcodes are encoded as CODE128 with locally vendored JsBarcode 3.12.3 (MIT); original leading zeros are retained. No new product code is assigned. SVG bars include ten-module quiet zones and reject widths below 0.25 mm per module. Shelf price labels may omit barcodes. Use 100% print scale, matching printer paper dimensions, and disable browser headers/footers. Current queue is tab-local and is lost when the page closes. A4 layout is an uncalibrated grid, not a template for pre-cut sticker sheets.
+
+Validation: 135 Node tests pass, including real encoder output, quantity and size bounds, fresh pricing, failed refresh prevention, shelf mode and stale catalog search handling. HTML, local assets and script syntax checks pass. Physical scanner/printer and browser visual validation have not been performed.
