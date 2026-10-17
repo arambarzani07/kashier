@@ -1,0 +1,52 @@
+-- Administrative test only. Every fixture and transaction record is rolled back.
+begin;
+select set_config('inv.a',gen_random_uuid()::text,true),set_config('inv.b',gen_random_uuid()::text,true),set_config('inv.product',gen_random_uuid()::text,true),set_config('inv.other_product',gen_random_uuid()::text,true),set_config('inv.purchase',gen_random_uuid()::text,true),set_config('inv.sale',gen_random_uuid()::text,true);
+insert into auth.users(id,email) values(current_setting('inv.a')::uuid,'inventory-rollback-a@example.invalid'),(current_setting('inv.b')::uuid,'inventory-rollback-b@example.invalid');
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('inv.a'),'role','authenticated')::text,true);
+set local role authenticated;
+insert into public.products(id,name,barcode,sale_price) values(current_setting('inv.product')::uuid,'rollback item','INV-ROLLBACK',3000),(current_setting('inv.other_product')::uuid,'empty stock item','INV-EMPTY',1000);
+do $$ declare p jsonb; s jsonb; payload jsonb; before_count bigint; before_moves bigint; begin
+ if (select quantity_units from public.stock_catalog where id=current_setting('inv.product')::uuid)<>0 then raise exception 'Initial stock is not zero'; end if;
+ payload:=jsonb_build_array(jsonb_build_object('product_id',current_setting('inv.product'),'quantity_units',10000,'unit_cost',2000));
+ p:=public.post_purchase(current_setting('inv.purchase')::uuid,payload,'rollback supplier','ROLLBACK','note');
+ if (p->>'total')::bigint<>20000 or (select quantity_units from public.product_stock where product_id=current_setting('inv.product')::uuid)<>10000 then raise exception 'Purchase did not add stock correctly'; end if;
+ if public.post_purchase(current_setting('inv.purchase')::uuid,payload,'rollback supplier','ROLLBACK','note')<>p or (select count(*) from public.stock_movements)<>1 then raise exception 'Purchase replay duplicated stock'; end if;
+ begin perform public.post_purchase(current_setting('inv.purchase')::uuid,payload,'changed supplier','ROLLBACK','note'); raise exception 'Conflicting purchase replay allowed'; exception when raise_exception then if sqlerrm<>'purchase_request_conflict' then raise; end if; end;
+ payload:=jsonb_build_array(jsonb_build_object('product_id',current_setting('inv.product'),'quantity_units',500,'unit_cost',2000),jsonb_build_object('product_id',current_setting('inv.product'),'quantity_units',1500,'unit_cost',2000));
+ perform public.post_purchase(gen_random_uuid(),payload,'','','');
+ if (select quantity_units from public.product_stock where product_id=current_setting('inv.product')::uuid)<>12000 or (select count(*) from public.stock_movements)<>3 then raise exception 'Repeated purchase rows failed'; end if;
+ payload:=jsonb_build_array(jsonb_build_object('product_id',current_setting('inv.product'),'quantity_units',3000,'expected_price',3000));
+ s:=public.post_cash_sale(current_setting('inv.sale')::uuid,payload,0,9000,'','');
+ if (select quantity_units from public.product_stock where product_id=current_setting('inv.product')::uuid)<>9000 then raise exception 'Sale stock decrement failed'; end if;
+ if public.post_cash_sale(current_setting('inv.sale')::uuid,payload,0,9000,'','')<>s or (select count(*) from public.stock_movements)<>4 then raise exception 'Sale replay duplicated stock decrement'; end if;
+ payload:=jsonb_build_array(jsonb_build_object('product_id',current_setting('inv.product'),'quantity_units',5000,'expected_price',3000),jsonb_build_object('product_id',current_setting('inv.product'),'quantity_units',5000,'expected_price',3000));
+ begin perform public.post_cash_sale(gen_random_uuid(),payload,0,30000,'',''); raise exception 'Repeated rows oversold stock'; exception when raise_exception then if sqlerrm<>'sale_insufficient_stock' then raise; end if; end;
+ payload:=jsonb_build_array(jsonb_build_object('product_id',current_setting('inv.product'),'quantity_units',1000,'expected_price',3000),jsonb_build_object('product_id',current_setting('inv.other_product'),'quantity_units',1000,'expected_price',1000));
+ begin perform public.post_cash_sale(gen_random_uuid(),payload,0,4000,'',''); raise exception 'Unavailable second row allowed'; exception when raise_exception then if sqlerrm<>'sale_insufficient_stock' then raise; end if; end;
+ if (select count(*) from public.sales)<>1 or (select count(*) from public.stock_movements)<>4 or (select quantity_units from public.product_stock where product_id=current_setting('inv.product')::uuid)<>9000 then raise exception 'Failed sale was not atomic'; end if;
+ payload:=jsonb_build_array(jsonb_build_object('product_id',current_setting('inv.product'),'quantity_units',1000,'unit_cost',2000),jsonb_build_object('product_id',gen_random_uuid(),'quantity_units',1000,'unit_cost',1000));
+ begin perform public.post_purchase(gen_random_uuid(),payload,'','',''); raise exception 'Unavailable purchase row allowed'; exception when raise_exception then if sqlerrm<>'purchase_product_unavailable' then raise; end if; end;
+ if (select count(*) from public.purchases)<>2 or (select count(*) from public.stock_movements)<>4 then raise exception 'Failed purchase left records'; end if;
+ payload:=jsonb_build_array(jsonb_build_object('product_id',current_setting('inv.product'),'quantity_units',0,'unit_cost',2000));
+ begin perform public.post_purchase(gen_random_uuid(),payload,'','',''); raise exception 'Invalid purchase quantity allowed'; exception when raise_exception then if sqlerrm<>'purchase_invalid_items' then raise; end if; end;
+ if (select sum(delta_units) from public.stock_movements where product_id=current_setting('inv.product')::uuid)<>9000 then raise exception 'Ledger and balance disagree'; end if;
+ if (select balance_after from public.stock_movements order by movement_no desc limit 1)<>9000 then raise exception 'Movement ordering failed'; end if;
+ begin update public.product_stock set quantity_units=999999; raise exception 'Direct stock update allowed'; exception when insufficient_privilege then null; end;
+ begin delete from public.stock_movements; raise exception 'Movement deletion allowed'; exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('inv.b'),'role','authenticated')::text,true);
+set local role authenticated;
+do $$ begin
+ if (select count(*) from public.stock_catalog)<>0 or (select count(*) from public.product_stock)<>0 or (select count(*) from public.stock_movements)<>0 or (select count(*) from public.purchases)<>0 then raise exception 'Inventory RLS isolation failed'; end if;
+ begin perform public.post_purchase(gen_random_uuid(),jsonb_build_array(jsonb_build_object('product_id',current_setting('inv.product'),'quantity_units',1000,'unit_cost',2000)),'','',''); raise exception 'Cross-account purchase allowed'; exception when raise_exception then if sqlerrm<>'purchase_product_unavailable' then raise; end if; end;
+end $$;
+reset role;
+set local role anon;
+do $$ begin
+ begin perform count(*) from public.stock_catalog; raise exception 'Anonymous stock read allowed'; exception when insufficient_privilege then null; end;
+ begin perform public.post_purchase(gen_random_uuid(),'[]','','',''); raise exception 'Anonymous purchase allowed'; exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+select 'PASS: purchase adds stock, sale subtracts stock, replay is exactly once, grouped repeated rows prevent overselling, atomic failure, ledger agreement, movement order, RLS, direct-write denial' as verification;
+rollback;

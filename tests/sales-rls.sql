@@ -5,6 +5,7 @@ insert into auth.users(id,email) values(current_setting('kashier.a')::uuid,'sale
 select set_config('request.jwt.claims',json_build_object('sub',current_setting('kashier.a'),'role','authenticated')::text,true);
 set local role authenticated;
 insert into public.products(id,name,barcode,sale_price) values(current_setting('kashier.product')::uuid,'rollback-only','SALE-ROLLBACK',3000);
+select public.post_purchase(gen_random_uuid(),jsonb_build_array(jsonb_build_object('product_id',current_setting('kashier.product'),'quantity_units',1000,'unit_cost',2000)),'rollback supplier','','');
 do $$ declare s jsonb; again jsonb; payload jsonb; n bigint; begin
  payload := jsonb_build_array(jsonb_build_object('product_id',current_setting('kashier.product'),'quantity_units',125,'expected_price',3000));
  s:=public.post_cash_sale(current_setting('kashier.sale')::uuid,payload,75,1000,'rollback customer','rollback note');
