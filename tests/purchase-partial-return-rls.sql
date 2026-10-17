@@ -24,12 +24,14 @@ begin
  if (y->>'total')::bigint<>1667 or (y->>'cash_refund')::bigint<>0 or (select balance from public.cash_accounts)<>before_cash then raise exception 'untracked return wrong';end if;
  if exists(select 1 from public.cash_movements where purchase_return_id=ur) then raise exception 'untracked invented cash';end if;
  perform public.post_supplier_purchase(credit,items,current_setting('ppr.s')::uuid,1000,'PPR-CREDIT','credit purchase');
- begin perform public.post_purchase_return(gen_random_uuid(),credit,'credit partial',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',500)));raise exception 'credit partial allowed';exception when raise_exception then if sqlerrm<>'purchase_return_credit_unsupported' then raise;end if;end;
+ before_cash:=(select balance from public.cash_accounts);
+ y:=public.post_purchase_return(gen_random_uuid(),credit,'credit partial',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',500)));
+ if (y->>'total')::bigint<>1667 or (y->>'debt_reversed')::bigint<>1667 or (y->>'cash_refund')::bigint<>0 or (select balance from public.cash_accounts)<>before_cash then raise exception 'credit return split wrong';end if;
  d:=public.get_daily_report((now() at time zone 'Asia/Baghdad')::date);
- if (d->'purchase_returns'->>'count')::bigint<>3 or (d->'purchase_returns'->>'total')::bigint<>11666 or (d->'purchase_returns'->>'cash_refund')::bigint<>9999 or (d->'purchase_returns'->>'untracked_count')::bigint<>1 then raise exception 'daily return summary wrong';end if;
+ if (d->'purchase_returns'->>'count')::bigint<>4 or (d->'purchase_returns'->>'total')::bigint<>13333 or (d->'purchase_returns'->>'cash_refund')::bigint<>9999 or (d->'purchase_returns'->>'untracked_count')::bigint<>1 then raise exception 'daily return summary wrong';end if;
  s:=public.get_cash_statement((now() at time zone 'Asia/Baghdad')::date,(now() at time zone 'Asia/Baghdad')::date);
  if (s->'by_kind'->>'supplier_refund')::bigint<>9999 or (select count(*) from jsonb_array_elements(s->'rows') z where z->>'kind'='supplier_refund' and z->>'purchase_id'=cash_purchase::text)<>2 then raise exception 'cash statement partial sources wrong';end if;
- if (select count(*) from public.stock_movements where purchase_return_id is not null)<>3 then raise exception 'stock partial source count wrong';end if;
+ if (select count(*) from public.stock_movements where purchase_return_id is not null)<>4 then raise exception 'stock partial source count wrong';end if;
 end $$;
 reset role;
 select set_config('request.jwt.claims',json_build_object('sub',current_setting('ppr.b'),'role','authenticated')::text,true);set local role authenticated;
@@ -37,5 +39,5 @@ do $$ begin if (select count(*) from public.purchase_returns)<>0 then raise exce
 reset role;set local role anon;
 do $$ begin begin perform public.post_purchase_return(gen_random_uuid(),gen_random_uuid(),'anon',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',1)));raise exception 'anon allowed';exception when insufficient_privilege then null;end;end $$;
 reset role;
-select 'PASS: partial purchase returns rounding, stock/cash, replay, over-return, full conflict, credit guard, reports and RLS' verification;
+select 'PASS: partial purchase returns rounding, stock/cash, replay, over-return, full conflict, credit debt/cash split, reports and RLS' verification;
 rollback;
