@@ -1,0 +1,43 @@
+begin;
+select set_config('adj.a',gen_random_uuid()::text,true),set_config('adj.b',gen_random_uuid()::text,true),set_config('adj.p',gen_random_uuid()::text,true),set_config('adj.id',gen_random_uuid()::text,true);
+insert into auth.users(id,email) values(current_setting('adj.a')::uuid,'stock-adjust-a@example.invalid'),(current_setting('adj.b')::uuid,'stock-adjust-b@example.invalid');
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('adj.a'),'role','authenticated')::text,true);
+set local role authenticated;
+insert into public.products(id,name,barcode,sale_price) values(current_setting('adj.p')::uuid,'Adjustment original','ADJ-ROLLBACK',2000);
+do $$declare v jsonb;again jsonb;p uuid:=current_setting('adj.p')::uuid;rid uuid:=current_setting('adj.id')::uuid;ver bigint;cash_count bigint;debt_count bigint;begin
+ select count(*) into cash_count from public.cash_movements;select count(*) into debt_count from public.debt_entries;
+ v:=public.post_stock_adjustment(rid,p,0,0,2501,'Opening physical count');
+ if (v->>'after_units')::bigint<>2501 or (v->>'delta_units')::bigint<>2501 then raise exception 'incorrect initial count';end if;
+ again:=public.post_stock_adjustment(rid,p,0,0,2501,'Opening physical count');if again<>v then raise exception 'replay not stable';end if;
+ if (select count(*) from public.stock_movements where adjustment_id=rid)<>1 then raise exception 'duplicate stock movement';end if;
+ begin perform public.post_stock_adjustment(rid,p,0,0,2502,'Opening physical count');raise exception 'conflict accepted';exception when raise_exception then if sqlerrm<>'adjustment_request_conflict' then raise;end if;end;
+ begin perform public.post_stock_adjustment(gen_random_uuid(),p,0,0,3000,'Stale');raise exception 'stale accepted';exception when raise_exception then if sqlerrm<>'adjustment_stock_changed' then raise;end if;end;
+ select stock_version::bigint into ver from public.stock_catalog where id=p;
+ v:=public.post_stock_adjustment(gen_random_uuid(),p,2501,ver,1000,'Damaged stock counted');if (v->>'delta_units')::bigint<>-1501 then raise exception 'negative delta wrong';end if;
+ -- Return to the previous quantity through a newer movement: the old version must still fail (ABA guard).
+ select stock_version::bigint into ver from public.stock_catalog where id=p;
+ perform public.post_stock_adjustment(gen_random_uuid(),p,1000,ver,2501,'Recount');
+ select movement_no into ver from public.stock_movements where adjustment_id=rid;
+ begin perform public.post_stock_adjustment(gen_random_uuid(),p,2501,ver,3000,'ABA stale');raise exception 'ABA accepted';exception when raise_exception then if sqlerrm<>'adjustment_stock_changed' then raise;end if;end;
+ select stock_version::bigint into ver from public.stock_catalog where id=p;
+ begin perform public.post_stock_adjustment(gen_random_uuid(),p,2501,ver,2501,'No change');raise exception 'noop accepted';exception when raise_exception then if sqlerrm<>'adjustment_no_change' then raise;end if;end;
+ begin perform public.post_stock_adjustment(gen_random_uuid(),p,2501,ver,-1,'Invalid');raise exception 'negative accepted';exception when raise_exception then if sqlerrm<>'adjustment_invalid_quantity' then raise;end if;end;
+ begin perform public.post_stock_adjustment(gen_random_uuid(),p,2501,ver,1000000000001,'Invalid');raise exception 'overflow accepted';exception when raise_exception then if sqlerrm<>'adjustment_invalid_quantity' then raise;end if;end;
+ begin perform public.post_stock_adjustment(gen_random_uuid(),p,2501,ver,1000,' ');raise exception 'blank reason accepted';exception when raise_exception then if sqlerrm<>'adjustment_note_required' then raise;end if;end;
+ update public.products set name='Renamed product' where id=p;
+ if (select product_name from public.stock_adjustments where id=rid)<>'Adjustment original' then raise exception 'snapshot name mutated';end if;
+ if (select count(*) from public.cash_movements)<>cash_count or (select count(*) from public.debt_entries)<>debt_count then raise exception 'financial ledger changed';end if;
+ if has_table_privilege('authenticated','public.stock_adjustments','insert') or has_table_privilege('authenticated','public.stock_adjustments','update') or has_table_privilege('authenticated','public.stock_adjustments','delete') then raise exception 'direct write exposed';end if;
+end $$;
+reset role;
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('adj.b'),'role','authenticated')::text,true);
+set local role authenticated;
+do $$begin
+ if exists(select 1 from public.stock_adjustments) then raise exception 'cross-owner read';end if;
+ if exists(select 1 from public.stock_catalog where id=current_setting('adj.p')::uuid) then raise exception 'cross-owner stock view';end if;
+ begin perform public.post_stock_adjustment(gen_random_uuid(),current_setting('adj.p')::uuid,2501,0,0,'Unauthorized');raise exception 'cross-owner write';exception when raise_exception then if sqlerrm<>'adjustment_product_unavailable' then raise;end if;end;
+ begin perform public.post_stock_adjustment(current_setting('adj.id')::uuid,current_setting('adj.p')::uuid,0,0,2501,'Opening physical count');raise exception 'cross-owner replay';exception when raise_exception then if sqlerrm<>'adjustment_request_conflict' then raise;end if;end;
+end $$;
+reset role;
+do $$begin if has_function_privilege('anon','public.post_stock_adjustment(uuid,uuid,bigint,bigint,bigint,text)','execute') then raise exception 'anon exposed';end if;end $$;
+rollback;
