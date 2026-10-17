@@ -1,0 +1,55 @@
+-- Administrative verification only. All users and transaction fixtures are rolled back.
+begin;
+select set_config('cash.a',gen_random_uuid()::text,true),set_config('cash.b',gen_random_uuid()::text,true),set_config('cash.product',gen_random_uuid()::text,true),set_config('cash.deposit',gen_random_uuid()::text,true),set_config('cash.sale',gen_random_uuid()::text,true);
+insert into auth.users(id,email) values(current_setting('cash.a')::uuid,'cash-rollback-a@example.invalid'),(current_setting('cash.b')::uuid,'cash-rollback-b@example.invalid');
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('cash.a'),'role','authenticated')::text,true);
+set local role authenticated;
+insert into public.products(id,name,barcode,sale_price) values(current_setting('cash.product')::uuid,'cash test item','CASH-ROLLBACK',10000);
+do $$ declare entry jsonb; same jsonb; summary jsonb; payload jsonb; sale jsonb; begin
+ summary:=public.get_cash_summary();if (summary->>'balance')::bigint<>0 then raise exception 'Initial balance not zero'; end if;
+ entry:=public.post_cash_entry(current_setting('cash.deposit')::uuid,'deposit',10000,'opening cash');
+ same:=public.post_cash_entry(current_setting('cash.deposit')::uuid,'deposit',10000,'opening cash');
+ if same<>entry or (select count(*) from public.cash_movements)<>1 then raise exception 'Cash replay duplicated deposit'; end if;
+ perform public.post_cash_entry(gen_random_uuid(),'expense',2000,'shop expense');
+ perform public.post_cash_entry(gen_random_uuid(),'withdrawal',3000,'owner withdrawal');
+ if (select balance from public.cash_accounts)<>5000 then raise exception 'Cash out calculation failed'; end if;
+ payload:=jsonb_build_array(jsonb_build_object('product_id',current_setting('cash.product'),'quantity_units',1000,'unit_cost',5000));
+ perform public.post_purchase(gen_random_uuid(),payload,'supplier','','');
+ if (select balance from public.cash_accounts)<>5000 then raise exception 'Purchase incorrectly deducted cash'; end if;
+ payload:=jsonb_build_array(jsonb_build_object('product_id',current_setting('cash.product'),'quantity_units',1000,'expected_price',10000));
+ sale:=public.post_cash_sale(current_setting('cash.sale')::uuid,payload,0,15000,'','');
+ if (sale->>'change_due')::bigint<>5000 or (select balance from public.cash_accounts)<>15000 then raise exception 'Sale should add net cash only'; end if;
+ perform public.post_cash_sale(current_setting('cash.sale')::uuid,payload,0,15000,'','');
+ if (select count(*) from public.cash_movements)<>4 or (select balance from public.cash_accounts)<>15000 then raise exception 'Sale replay duplicated cash'; end if;
+ summary:=public.get_cash_summary();
+ if (summary->>'sales')::bigint<>10000 or (summary->>'deposits')::bigint<>10000 or (summary->>'withdrawals')::bigint<>3000 or (summary->>'expenses')::bigint<>2000 or (summary->>'balance')::bigint<>15000 then raise exception 'Summary mismatch'; end if;
+ if (select sum(delta) from public.cash_movements)<>(select balance from public.cash_accounts) then raise exception 'Cash ledger and cache disagree'; end if;
+ begin perform public.post_cash_entry(gen_random_uuid(),'expense',16000,'overspend'); raise exception 'Negative cash allowed'; exception when raise_exception then if sqlerrm<>'cash_insufficient_balance' then raise; end if; end;
+ begin perform public.post_cash_entry(current_setting('cash.deposit')::uuid,'deposit',11000,'opening cash'); raise exception 'Conflicting replay allowed'; exception when raise_exception then if sqlerrm<>'cash_request_conflict' then raise; end if; end;
+ begin perform public.post_cash_entry(gen_random_uuid(),'sale',1000,'fake sale'); raise exception 'Manual sale cash allowed'; exception when raise_exception then if sqlerrm<>'cash_invalid_kind' then raise; end if; end;
+ begin perform public.post_cash_entry(gen_random_uuid(),'deposit',0,'zero'); raise exception 'Zero manual amount allowed'; exception when raise_exception then if sqlerrm<>'cash_invalid_amount' then raise; end if; end;
+ begin perform public.post_cash_entry(gen_random_uuid(),'deposit',1000,'  '); raise exception 'Missing reason allowed'; exception when raise_exception then if sqlerrm<>'cash_note_required' then raise; end if; end;
+ begin perform public.post_cash_entry(gen_random_uuid(),'deposit',100000000000000,'overflow'); raise exception 'Balance cap ignored'; exception when raise_exception then if sqlerrm<>'cash_balance_limit' then raise; end if; end;
+ if (select balance from public.cash_accounts)<>15000 or (select count(*) from public.cash_movements)<>4 then raise exception 'Failed entries changed cash'; end if;
+ begin perform public.post_cash_sale(gen_random_uuid(),payload,0,10000,'',''); raise exception 'Sale without stock allowed'; exception when raise_exception then if sqlerrm<>'sale_insufficient_stock' then raise; end if; end;
+ if (select count(*) from public.cash_movements)<>4 then raise exception 'Failed sale changed cash'; end if;
+ begin update public.cash_accounts set balance=999999; raise exception 'Direct cash update allowed'; exception when insufficient_privilege then null; end;
+ begin delete from public.cash_movements; raise exception 'Cash ledger delete allowed'; exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('cash.b'),'role','authenticated')::text,true);
+set local role authenticated;
+do $$ declare summary jsonb; begin
+ summary:=public.get_cash_summary();
+ if (summary->>'balance')::bigint<>0 or (summary->>'sales')::bigint<>0 or (select count(*) from public.cash_movements)<>0 or (select count(*) from public.cash_accounts)<>0 then raise exception 'Cash RLS isolation failed'; end if;
+ begin perform public.post_cash_entry(current_setting('cash.deposit')::uuid,'deposit',10000,'opening cash'); raise exception 'Cross-account replay allowed'; exception when raise_exception then if sqlerrm<>'cash_request_conflict' then raise; end if; end;
+end $$;
+reset role;
+set local role anon;
+do $$ begin
+ begin perform public.get_cash_summary(); raise exception 'Anonymous cash summary allowed'; exception when insufficient_privilege then null; end;
+ begin perform public.post_cash_entry(gen_random_uuid(),'deposit',1000,'anon'); raise exception 'Anonymous cash posting allowed'; exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+select 'PASS: cash deposits, expenses, withdrawals, net sale cash, exactly-once retries, atomic failures, balance limits, ledger agreement, summaries and RLS' as verification;
+rollback;
