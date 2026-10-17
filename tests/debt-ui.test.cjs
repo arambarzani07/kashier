@@ -1,0 +1,22 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const math=require('../sale-math.js');
+const owner='00000000-0000-4000-8000-000000000001',customer='00000000-0000-4000-8000-000000000002',id='00000000-0000-4000-8000-000000000003',key='kashier.debt-draft.v1.'+owner+'.'+customer;
+async function setup(post,{saved,storageFails=false,balance=10000}={}){
+ const nodes=new Map();class E{constructor(){this.value='';this.children=[];this.events={};this.hidden=false;this.textContent='';}append(...v){this.children.push(...v)}replaceChildren(...v){this.children=v}addEventListener(k,f){this.events[k]=f}showModal(){this.open=true}close(){this.open=false}reportValidity(){return true}}
+ const get=s=>{if(!nodes.has(s))nodes.set(s,new E());return nodes.get(s)};get('#debt-kind').value='charge';get('#debt-amount').value='1000';get('#debt-note').value='debt test reason';
+ const memory=saved||{},calls=[];const storage={getItem:k=>memory[k]||null,setItem:(k,v)=>{if(storageFails)throw Error('storage error');memory[k]=v},removeItem:k=>delete memory[k]};
+ const context={document:{querySelector:get,querySelectorAll:()=>[get('#debt-kind'),get('#debt-amount'),get('#debt-note')],createElement:()=>new E()},SaleMath:math,KashierData:{userId:()=>owner,loggedIn:()=>true,getCustomer:async()=>({id:customer,name:'Current customer',phone:null,balance}),getDebtEntries:async()=>({rows:[],total:0}),postDebtEntry:async p=>{calls.push(JSON.parse(JSON.stringify(p)));return post(p)}},Intl,Date,URLSearchParams,sessionStorage:storage,crypto:{randomUUID:()=>id},location:{search:'?id='+customer,replace(){},href:''},window:{print(){}}};
+ vm.runInNewContext(fs.readFileSync(require.resolve('../customer.js'),'utf8'),context);await new Promise(r=>setImmediate(r));return {get,memory,calls,submit:()=>get('#debt-form').events.submit({preventDefault(){}})};
+}
+function entry(p){return {id:p.p_id,customer_id:p.p_customer,customer_name:'Snapshot customer',movement_no:1,created_at:'2026-10-17T08:00:00Z',kind:p.p_kind,amount:p.p_amount,balance_after:p.p_kind==='charge'?11000:9000,note:p.p_note,cash_movement_id:p.p_kind==='repayment'?'00000000-0000-4000-8000-000000000004':null};}
+test('debt submission preserves selected customer and kind',async()=>{const x=await setup(async p=>entry(p));await x.submit();assert.equal(x.calls[0].p_customer,customer);assert.equal(x.calls[0].p_kind,'charge');assert.equal(x.memory[key],undefined);assert.equal(x.get('#debt-detail-dialog').open,true);});
+test('ambiguous repayment retries do not create a new ID',async()=>{let first=true;const x=await setup(async p=>{if(first){first=false;throw Error('lost response')}return entry(p)});x.get('#debt-kind').value='repayment';await x.submit();assert.equal(x.get('#debt-amount').disabled,true);await x.submit();assert.deepEqual(x.calls[0],x.calls[1]);});
+test('pending debt entry survives same-tab reload',async()=>{const a=await setup(async()=>{throw Error('timeout')});await a.submit();const b=await setup(async p=>entry(p),{saved:a.memory});await b.submit();assert.deepEqual(a.calls[0],b.calls[0]);});
+test('repayment larger than displayed debt is blocked before sending',async()=>{const x=await setup(async p=>entry(p),{balance:500});x.get('#debt-kind').value='repayment';await x.submit();assert.equal(x.calls.length,0);});
+test('server rejection unlocks debt form for correction',async()=>{const x=await setup(async()=>{const e=Error('overpayment');e.status=400;e.saleCode='debt_overpayment';throw e});await x.submit();assert.equal(x.get('#debt-amount').disabled,false);assert.equal(JSON.parse(x.memory[key]).posting,null);});
+test('debt entry is not sent without a saved retry journal',async()=>{const x=await setup(async p=>entry(p),{storageFails:true});await x.submit();assert.equal(x.calls.length,0);});
+test('in-flight debt submissions are sent only once',async()=>{let resolve;const x=await setup(p=>new Promise(r=>resolve=()=>r(entry(p))));const pending=x.submit();await x.submit();assert.equal(x.calls.length,1);resolve();await pending;});
+test('debt print uses the saved customer-name snapshot',async()=>{const x=await setup(async p=>entry(p));await x.submit();x.get('#debt-print').events.click();const text=e=>e.textContent+' '+e.children.map(text).join(' ');assert.match(text(x.get('#print-area')),/Snapshot customer/);assert.doesNotMatch(text(x.get('#print-area')),/Current customer/);});

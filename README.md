@@ -6,7 +6,7 @@
 
 - بنەمای دیزاین: شاشەی خانەیی بە دوگمە ڕەنگاوڕەنگەکان، هێما و ناونیشانی کوردی وەک وێنەی نموونە.
 - پلان، کۆد و پێداویستییەکانی پڕۆژە پێشووەکان بەشێک نین لەم پڕۆژەیە.
-- ئەم قۆناغە: کاتالۆگی کاڵا، کڕین، کۆگا، فرۆشتنی کاش، پسوولە و قاسە.
+- ئەم قۆناغە: کاتالۆگی کاڵا، کڕین، کۆگا، فرۆشتنی کاش، پسوولە، قاسە، کڕیار و قەرزی دەستی.
 
 ## Project
 
@@ -43,11 +43,19 @@ Create an account and confirm its email if required by Supabase. Register produc
 - Lifetime cash summaries are returned as exact integer strings and rendered using BigInt to avoid numeric precision loss.
 - Purchases still do not debit cash automatically; supplier payment accounting is separate and not implemented.
 
+- Customers: create/edit name and optional phone, search and private profiles with current debt and paginated history.
+- Manual debt charges increase a customer's balance without posting a sale, moving stock or increasing cash.
+- Cash repayments decrease customer debt and increase the same owner's cash balance in one transaction. Overpayment and balance limits are rejected.
+- Debt entries are immutable, idempotent and retain the customer's name at posting. Each repayment links to its cash movement.
+- Debt form retries preserve customer, amount and request ID across ambiguous responses and same-tab reload. Saved entries support individual printing.
+- Cash statements distinguish debt repayments from sales and owner deposits.
+- Cashier sales remain cash-only. Manual debt entry is not a credit-sale workflow, and full printable/exportable customer statements are not yet implemented.
+
 ## Data and access
 
 IQD amounts are whole integers. Quantities are represented in thousandths. Line totals round once to whole IQD on both client and server.
 
-All catalogs, receipts, balances and movements are protected by per-account RLS. The stock catalog view is security-invoker. There is no cross-account sharing or staff-role model yet.
+All catalogs, customers, debt entries, receipts, balances and movements are protected by per-account RLS. The stock catalog view is security-invoker. There is no cross-account sharing or staff-role model yet.
 
 Only the public publishable key is in `config.js`. No service-role key, secret key or password is stored in the repository.
 
@@ -63,7 +71,7 @@ Browser visual QA, the full email signup/login journey, simultaneous real-client
 
 ## Verification
 
-Run `node --test tests/*.test.cjs` (31 tests). All passed.
+Run `node --test tests/*.test.cjs` (39 tests). All passed.
 
 Tests cover money/quantity arithmetic, authentication refresh, catalog requests, sale and purchase journals, reload recovery, repeat clicks, journal failure, invalid draft rejection receipt rendering from saved snapshots, cash journal recovery, and exact lifetime cash formatting. JavaScript syntax, HTML navigation/assets, labels and static selectors were checked.
 
@@ -74,11 +82,12 @@ Remote rollback-only SQL checks cover:
 - Grouped repeated rows, insufficient stock rejection, atomic failure across multiple items.
 - Movement sums matching balances and sequence ordering.
 - Cash deposits, expenses, withdrawals, net sale cash, exactly-once retries, negative-balance rejection, limits, and agreement between cash movements and cached balances.
+- Customer charges, atomic debt/cash repayments, overpayment rejection, cached debt agreement, cross-account denial and frozen customer names.
 - Cross-account isolation and denial of direct browser stock/cash mutations.
 
-Security advisors returned no findings. Live anonymous REST checks returned 401 for stock reading, purchase posting, cash summary and cash posting, as well as the earlier sales checks.
+Security advisors returned no findings. Live anonymous REST checks returned 401 for stock reading, purchase posting, cash summary, cash posting, debt summary and debt posting, as well as the earlier sales checks.
 
-After verification: 0 users, 0 products, 0 sales, 0 purchases, 0 stock balances, 0 stock movements, 0 cash accounts and 0 cash movements. No test data is seeded. Test identity sequence gaps after rollback are harmless.
+After verification: 0 users, 0 products, 0 sales, 0 purchases, 0 stock balances, 0 stock movements, 0 cash accounts, 0 cash movements, 0 customers, 0 customer balances and 0 debt entries. No test data is seeded. Test identity sequence gaps after rollback are harmless.
 
 SQL files in `tests/` require administrative connections and roll back every fixture. They are not application endpoints.
 
@@ -93,3 +102,5 @@ SQL files in `tests/` require administrative connections and roll back every fix
 - `20261017075226_cash_summary_exact_totals.sql`
 
 The cash migration deliberately requires an empty sales table for its initial activation; an installation with pre-existing sales needs an explicit cash reconciliation rather than an assumed opening balance.
+
+- `20261017075847_customers_debt_ledger_and_cash_repayments.sql`

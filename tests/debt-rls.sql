@@ -1,0 +1,51 @@
+-- Administrative verification only. All test records are rolled back.
+begin;
+select set_config('debt.a',gen_random_uuid()::text,true),set_config('debt.b',gen_random_uuid()::text,true),set_config('debt.customer',gen_random_uuid()::text,true),set_config('debt.charge',gen_random_uuid()::text,true),set_config('debt.repay',gen_random_uuid()::text,true);
+insert into auth.users(id,email) values(current_setting('debt.a')::uuid,'debt-rollback-a@example.invalid'),(current_setting('debt.b')::uuid,'debt-rollback-b@example.invalid');
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('debt.a'),'role','authenticated')::text,true);
+set local role authenticated;
+insert into public.customers(id,name,phone) values(current_setting('debt.customer')::uuid,'original customer','ROLLBACK');
+do $$ declare charge jsonb; repay jsonb; summary jsonb; begin
+ if (select balance from public.customer_debt_catalog)<>0 then raise exception 'Initial debt not zero'; end if;
+ charge:=public.post_debt_entry(current_setting('debt.charge')::uuid,current_setting('debt.customer')::uuid,'charge',10000,'opening debt');
+ if (select balance from public.customer_balances)<>10000 or (select count(*) from public.cash_movements)<>0 then raise exception 'Charge balance or cash wrong'; end if;
+ if public.post_debt_entry(current_setting('debt.charge')::uuid,current_setting('debt.customer')::uuid,'charge',10000,'opening debt')<>charge or (select count(*) from public.debt_entries)<>1 then raise exception 'Charge replay duplicated'; end if;
+ repay:=public.post_debt_entry(current_setting('debt.repay')::uuid,current_setting('debt.customer')::uuid,'repayment',3000,'cash repayment');
+ if (select balance from public.customer_balances)<>7000 or (select balance from public.cash_accounts)<>3000 then raise exception 'Repayment did not update both ledgers'; end if;
+ if (select customer_id from public.cash_movements where id=(repay->>'cash_movement_id')::uuid)<>current_setting('debt.customer')::uuid then raise exception 'Cash source link mismatch'; end if;
+ if public.post_debt_entry(current_setting('debt.repay')::uuid,current_setting('debt.customer')::uuid,'repayment',3000,'cash repayment')<>repay or (select count(*) from public.cash_movements)<>1 then raise exception 'Repayment replay duplicated cash'; end if;
+ summary:=public.get_debt_summary();if (summary->>'balance')::bigint<>7000 or (summary->>'debtors')::bigint<>1 then raise exception 'Debt summary wrong'; end if;
+ summary:=public.get_cash_summary();if (summary->>'repayments')::bigint<>3000 or (summary->>'deposits')::bigint<>0 or (summary->>'sales')::bigint<>0 then raise exception 'Cash repayment classification wrong'; end if;
+ update public.customers set name='renamed customer' where id=current_setting('debt.customer')::uuid;
+ if public.post_debt_entry(current_setting('debt.charge')::uuid,current_setting('debt.customer')::uuid,'charge',10000,'opening debt')<>charge or charge->>'customer_name'<>'original customer' then raise exception 'Historical name changed'; end if;
+ begin perform public.post_debt_entry(gen_random_uuid(),current_setting('debt.customer')::uuid,'repayment',8000,'overpayment'); raise exception 'Overpayment allowed'; exception when raise_exception then if sqlerrm<>'debt_overpayment' then raise; end if; end;
+ begin perform public.post_debt_entry(gen_random_uuid(),current_setting('debt.customer')::uuid,'charge',100000000000000,'too much debt'); raise exception 'Debt cap ignored'; exception when raise_exception then if sqlerrm<>'debt_balance_limit' then raise; end if; end;
+ begin perform public.post_debt_entry(current_setting('debt.charge')::uuid,current_setting('debt.customer')::uuid,'charge',11000,'opening debt'); raise exception 'Conflicting charge allowed'; exception when raise_exception then if sqlerrm<>'debt_request_conflict' then raise; end if; end;
+ begin perform public.post_debt_entry(gen_random_uuid(),current_setting('debt.customer')::uuid,'charge',0,'zero'); raise exception 'Zero debt allowed'; exception when raise_exception then if sqlerrm<>'debt_invalid_amount' then raise; end if; end;
+ begin perform public.post_debt_entry(gen_random_uuid(),current_setting('debt.customer')::uuid,'charge',1000,' '); raise exception 'Blank note allowed'; exception when raise_exception then if sqlerrm<>'debt_note_required' then raise; end if; end;
+ begin perform public.post_cash_entry(gen_random_uuid(),'repayment',1000,'fake direct repayment'); raise exception 'Manual cash repayment bypass allowed'; exception when raise_exception then if sqlerrm<>'cash_invalid_kind' then raise; end if; end;
+ perform public.post_cash_entry(gen_random_uuid(),'deposit',99999999997000,'test cash cap');
+ begin perform public.post_debt_entry(gen_random_uuid(),current_setting('debt.customer')::uuid,'repayment',1000,'cash cap failure'); raise exception 'Cash cap ignored'; exception when raise_exception then if sqlerrm<>'cash_balance_limit' then raise; end if; end;
+ if (select balance from public.customer_balances)<>7000 or (select balance from public.cash_accounts)<>100000000000000 or (select count(*) from public.debt_entries)<>2 or (select count(*) from public.cash_movements)<>2 then raise exception 'Failed repayment was not atomic'; end if;
+ if (select sum(delta) from public.debt_entries)<>(select balance from public.customer_balances) then raise exception 'Debt ledger and balance disagree'; end if;
+ begin update public.customer_balances set balance=0; raise exception 'Direct debt balance edit allowed'; exception when insufficient_privilege then null; end;
+ begin delete from public.debt_entries; raise exception 'Debt deletion allowed'; exception when insufficient_privilege then null; end;
+ begin update public.customers set owner_id=current_setting('debt.b')::uuid; raise exception 'Ownership change allowed'; exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('debt.b'),'role','authenticated')::text,true);
+set local role authenticated;
+do $$ begin
+ if (select count(*) from public.customer_debt_catalog)<>0 or (select count(*) from public.customer_balances)<>0 or (select count(*) from public.debt_entries)<>0 then raise exception 'Debt RLS isolation failed'; end if;
+ begin perform public.post_debt_entry(gen_random_uuid(),current_setting('debt.customer')::uuid,'charge',1000,'other owner'); raise exception 'Cross-owner debt allowed'; exception when raise_exception then if sqlerrm<>'debt_customer_unavailable' then raise; end if; end;
+ begin perform public.post_debt_entry(current_setting('debt.repay')::uuid,current_setting('debt.customer')::uuid,'repayment',3000,'cash repayment'); raise exception 'Cross-owner replay allowed'; exception when raise_exception then if sqlerrm<>'debt_request_conflict' then raise; end if; end;
+end $$;
+reset role;
+set local role anon;
+do $$ begin
+ begin perform public.get_debt_summary(); raise exception 'Anonymous debt summary allowed'; exception when insufficient_privilege then null; end;
+ begin perform public.post_debt_entry(gen_random_uuid(),gen_random_uuid(),'charge',1000,'anon'); raise exception 'Anonymous debt allowed'; exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+select 'PASS: charges, repayments, atomic cash integration, overpayment rejection, replay safety, historical names, cap rollback, ledger agreement, owner protection and RLS' as verification;
+rollback;
