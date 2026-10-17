@@ -200,3 +200,17 @@ Aggregates are decimal strings, validated and formatted using BigInt to retain e
 Validation: 165 Node tests pass, including accounting identities, exact large aggregates, CSV escaping, inclusive date limits, stale replies, invalid responses, auth and result-cap feedback. Live rollback SQL verifies real tracked/untracked purchases, inclusive Baghdad boundaries, product snapshot names/codes, owner isolation, empty reports, the 5000-product cap and unchanged stock/cash ledgers. Fixtures were rolled back. No new security-advisor function/table findings; the previously documented password-protection warning remains. Browser visual QA and physical printing remain unverified.
 
 Migration: `20261017104816_purchase_product_range_report.sql`.
+
+## Product sales report including returns
+
+The home sold-products tile and receipt listing open `sales-report.html`. Inclusive Baghdad date ranges (up to 366 days) show sold, returned and net base-unit quantities plus sold, returned and net amounts per product. Printable report and product-row CSV exports use the displayed immutable snapshot. Changed dates invalidate results; mismatched/inconsistent replies cannot print or export. Reports above 5000 product groups fail explicitly.
+
+Receipt discounts are allocated proportionally to original line gross amounts using differences of cumulative integer quotients in original line order. Allocations sum exactly to each receipt discount; full reversal restores the same allocation. Partial cash returns use their saved actual line refunds, including cumulative fractional rounding. Sales are dated by sale time; returns are dated by return/reversal time, even when the sale lies outside the selected range. Return-only ranges therefore legitimately show negative net quantities and amounts. This is sales activity after discounts, not profit or cash received. The report does not post or alter any ledger.
+
+All aggregate numbers are exact decimal strings; browser calculation/formatting uses BigInt. Per-product names/barcodes come from historical activity snapshots (timestamp ties have deterministic ordering), not mutable catalog names. CSV keeps signed numeric results as numeric literals and neutralizes formulas only in untrusted text. Barcode/ID columns should be imported as text in spreadsheet software.
+
+Validation: 173 Node tests pass. Live rollback SQL checks mixed cash/credit sales, proportional discount allocation, full and partial returns, fractional refunds, Baghdad boundaries, return-only negatives, owner RLS, empty reports, the 5000-group cap and unchanged ledgers. A high-value regression proves exact integer division avoids NUMERIC division rounding moving one IQD between product allocations. No fixtures remain. Browser visual QA and physical printing remain unverified. No new security-advisor function/table findings; the previously documented password-protection warning remains.
+
+Migrations:
+- `20261017105405_sales_product_report_with_returns_and_discount_allocation.sql`
+- `20261017105443_exact_integer_discount_allocation_in_sales_report.sql`
