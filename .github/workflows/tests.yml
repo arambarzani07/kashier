@@ -27,6 +27,8 @@ jobs:
           node --check returns-data.js
           node --check returns.js
           node --check returns-tile.js
+          node --check return-document-data.js
+          node --check return-document.js
           node --check purchase-reversal-data.js
           node --check purchase-reversal.js
           node --check purchase-returns-data.js
@@ -34,6 +36,8 @@ jobs:
           node --check purchase-returns-tile.js
           node --check purchase-payment-data.js
           node --check purchase-payment.js
+          node --check supplier-payables-data.js
+          node --check supplier-payables.js
           node --check supplier-activity-data.js
           node --check supplier.js
           node --check statement.js
