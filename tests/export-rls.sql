@@ -1,5 +1,5 @@
 begin;
-select set_config('ex.a',gen_random_uuid()::text,true),set_config('ex.b',gen_random_uuid()::text,true),set_config('ex.c',gen_random_uuid()::text,true),set_config('ex.p',gen_random_uuid()::text,true),set_config('ex.s',gen_random_uuid()::text,true),set_config('ex.customer',gen_random_uuid()::text,true),set_config('ex.sale1',gen_random_uuid()::text,true),set_config('ex.sale2',gen_random_uuid()::text,true);
+select set_config('ex.a',gen_random_uuid()::text,true),set_config('ex.b',gen_random_uuid()::text,true),set_config('ex.c',gen_random_uuid()::text,true),set_config('ex.p',gen_random_uuid()::text,true),set_config('ex.s',gen_random_uuid()::text,true),set_config('ex.customer',gen_random_uuid()::text,true),set_config('ex.buy',gen_random_uuid()::text,true),set_config('ex.buy2',gen_random_uuid()::text,true),set_config('ex.sale1',gen_random_uuid()::text,true),set_config('ex.sale2',gen_random_uuid()::text,true);
 insert into auth.users(id,email) values(current_setting('ex.a')::uuid,'export-a@example.invalid'),(current_setting('ex.b')::uuid,'export-b@example.invalid'),(current_setting('ex.c')::uuid,'export-c@example.invalid');
 select set_config('request.jwt.claims',json_build_object('sub',current_setting('ex.a'),'role','authenticated')::text,true);
 set local role authenticated;
@@ -7,7 +7,11 @@ insert into public.products(id,name,barcode,sale_price) values(current_setting('
 insert into public.suppliers(id,name) values(current_setting('ex.s')::uuid,'Export supplier');
 insert into public.customers(id,name) values(current_setting('ex.customer')::uuid,'Export customer');
 select public.post_cash_entry(gen_random_uuid(),'deposit',10000,'Float');
-select public.post_supplier_purchase(gen_random_uuid(),jsonb_build_array(jsonb_build_object('product_id',current_setting('ex.p'),'quantity_units',10000,'unit_cost',1000)),current_setting('ex.s')::uuid,2000,'Export invoice','');
+select public.post_supplier_purchase(current_setting('ex.buy')::uuid,jsonb_build_array(jsonb_build_object('product_id',current_setting('ex.p'),'quantity_units',10000,'unit_cost',1000)),current_setting('ex.s')::uuid,2000,'Export invoice','');
+select public.post_supplier_purchase_payment(gen_random_uuid(),current_setting('ex.buy')::uuid,1000,'Invoice payment');
+select public.post_purchase_return(gen_random_uuid(),current_setting('ex.buy')::uuid,'Partial supplier return',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',500)));
+select public.post_supplier_purchase(current_setting('ex.buy2')::uuid,jsonb_build_array(jsonb_build_object('product_id',current_setting('ex.p'),'quantity_units',1000,'unit_cost',1000)),current_setting('ex.s')::uuid,1000,'Return invoice','');
+select public.post_purchase_reversal(gen_random_uuid(),current_setting('ex.buy2')::uuid,'Full supplier return');
 select public.post_debt_entry(gen_random_uuid(),current_setting('ex.customer')::uuid,'charge',1000,'Old debt');
 select public.post_debt_entry(gen_random_uuid(),current_setting('ex.customer')::uuid,'repayment',100,'Repayment');
 select public.post_cash_sale(current_setting('ex.sale1')::uuid,jsonb_build_array(jsonb_build_object('product_id',current_setting('ex.p'),'quantity_units',1000,'expected_price',2000)),0,2000,'','');
@@ -17,14 +21,14 @@ select public.post_sale_return(gen_random_uuid(),current_setting('ex.sale2')::uu
 do $$declare p record;begin select * into p from public.stock_catalog where id=current_setting('ex.p')::uuid;perform public.post_stock_waste(gen_random_uuid(),p.id,p.quantity_units,p.stock_version::bigint,1,'Broken');end $$;
 do $$declare v jsonb;k text;n bigint;total bigint:=0;before_count bigint;begin
  select count(*) into before_count from public.stock_movements;
- v:=public.export_owner_data();if v->>'format'<>'kashier-owner-export' or v->>'owner_id'<>current_setting('ex.a') or (select count(*) from jsonb_object_keys(v->'tables'))<>16 then raise exception 'export metadata incorrect';end if;
+ v:=public.export_owner_data();if v->>'format'<>'kashier-owner-export' or v->>'owner_id'<>current_setting('ex.a') or v->>'version'<>'2' or v->>'schema_revision'<>'20261017135746' or (select count(*) from jsonb_object_keys(v->'tables'))<>19 then raise exception 'export metadata incorrect';end if;
  for k in select jsonb_object_keys(v->'tables') loop
   n:=jsonb_array_length(v->'tables'->k);if n<1 or n<>(v->'counts'->>k)::bigint then raise exception 'missing table or count mismatch: %',k;end if;
   if exists(select 1 from jsonb_array_elements(v->'tables'->k) r where r->>'owner_id'<>current_setting('ex.a')) then raise exception 'wrong-owner row';end if;
   total:=total+n;
  end loop;
  if total<>(v->>'record_count')::bigint then raise exception 'record count mismatch';end if;
- if v#>>'{tables,products,0,barcode}'<>'001234' or v#>>'{tables,purchases,0,lines,0,product_id}'<>current_setting('ex.p') then raise exception 'relational snapshot lost';end if;
+ if v#>>'{tables,products,0,barcode}'<>'001234' or exists(select 1 from jsonb_array_elements(v#>'{tables,purchases}') r where r#>>'{lines,0,product_id}'<>current_setting('ex.p')) then raise exception 'relational snapshot lost';end if;
  if not (v#>'{tables,sales,0}')?'request_payload' then raise exception 'idempotency payload omitted';end if;
  if (v->'tables')?'auth.users' or (v->'tables')?'auth.sessions' then raise exception 'authentication export exposed';end if;
  if (select count(*) from public.stock_movements)<>before_count then raise exception 'export changed records';end if;
@@ -43,4 +47,5 @@ set local role authenticated;
 do $$begin begin perform public.export_owner_data();raise exception 'oversized export accepted';exception when raise_exception then if sqlerrm<>'export_too_large' then raise;end if;end;end $$;
 reset role;
 do $$begin if has_function_privilege('anon','public.export_owner_data()','execute') then raise exception 'anonymous export exposed';end if;end $$;
+select 'PASS: export v2 all 19 tables, new purchase returns/payment allocations, owner isolation, size/count caps and no mutation' verification;
 rollback;

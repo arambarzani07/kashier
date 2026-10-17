@@ -282,3 +282,9 @@ A stable invoker RPC applies owner RLS and all filters before exact counting and
 Validation: 300 Node tests pass after integration with the current return/payment features, including large/normalized receipt numbers, date validation, invoice rendering, page context, stale results, clear/retry, guest guards and authenticated RPC payloads. Live rollback SQL verifies server-side count/pagination, exact number lookup, no page overlap, literal wildcard search, invoice matching, inclusive/open-ended Baghdad dates, owner isolation, invalid arguments and unchanged receipts. Fixtures were rolled back. No new function/table security-advisor findings; the previously documented password-protection warning remains. Browser visual QA remains unverified.
 
 Migration: `20261017122202_owner_receipt_search_with_baghdad_date_filters.sql`.
+
+### Owner export format v2
+
+New JSON exports include all 19 business tables, including `purchase_reversals`, `purchase_returns` and `supplier_payment_allocations`. Format v2 uses schema revision `20261017135746`; the local verifier still accepts v1 (`20261017110912`, 16 tables) and displays a notice that v1 excludes those three tables. Both export previews show counts for the selected format. Downloads and SHA-256 use the exact original UTF-8 response bytes, preserving large integer values. This is a business data snapshot, not an automatic restore or authentication backup. The owner-only security-invoker RPC retains the 50,000-record and 20 MiB row-data caps.
+
+Validation: `node --test tests/*.test.cjs`; `tests/export-rls.sql` exercises all 19 nonempty tables, owner isolation, anonymous denial and export limits in a rollback-only transaction.
