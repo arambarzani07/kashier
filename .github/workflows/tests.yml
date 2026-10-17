@@ -29,6 +29,9 @@ jobs:
           node --check returns-tile.js
           node --check purchase-reversal-data.js
           node --check purchase-reversal.js
+          node --check purchase-returns-data.js
+          node --check purchase-returns.js
+          node --check purchase-returns-tile.js
           node --check supplier-activity-data.js
           node --check supplier.js
           node --check statement.js
