@@ -1,0 +1,36 @@
+begin;
+select set_config('cbr.a',gen_random_uuid()::text,true),set_config('cbr.b',gen_random_uuid()::text,true),set_config('cbr.c',gen_random_uuid()::text,true),set_config('cbr.customer',gen_random_uuid()::text,true),set_config('cbr.customer2',gen_random_uuid()::text,true);
+insert into auth.users(id,email) values(current_setting('cbr.a')::uuid,'cbr-a@example.invalid'),(current_setting('cbr.b')::uuid,'cbr-b@example.invalid'),(current_setting('cbr.c')::uuid,'cbr-c@example.invalid');
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('cbr.a'),'role','authenticated')::text,true);set local role authenticated;
+insert into public.customers(id,name,phone) values(current_setting('cbr.customer')::uuid,'Literal%_customer','00123'),(current_setting('cbr.customer2')::uuid,'Second',null);
+insert into public.customers(name) values('Zero debt');
+select public.post_debt_entry(gen_random_uuid(),current_setting('cbr.customer')::uuid,'charge',1000,'Charge');
+select public.post_debt_entry(gen_random_uuid(),current_setting('cbr.customer')::uuid,'repayment',200,'Payment');
+select public.post_debt_entry(gen_random_uuid(),current_setting('cbr.customer2')::uuid,'charge',300,'Charge');
+do $$declare v jsonb;n bigint;begin
+ select count(*) into n from public.debt_entries;
+ v:=public.get_customer_balances_report();if v->>'count'<>'2' or v->>'debtors'<>'2' or v->>'balance'<>'1100' or v#>>'{rows,0,id}'<>current_setting('cbr.customer') or v#>>'{rows,0,balance}'<>'800' or v#>>'{rows,0,phone}'<>'00123' then raise exception 'report balances/order wrong';end if;
+ if jsonb_typeof(v#>'{rows,0,balance}')<>'string' or (v#>'{rows,0}')?'amount' then raise exception 'exact output contract wrong';end if;
+ v:=public.get_customer_balances_report('',false);if v->>'count'<>'3' or v->>'debtors'<>'2' or v->>'balance'<>'1100' then raise exception 'zero balance filter wrong';end if;
+ v:=public.get_customer_balances_report('%_',true);if v->>'count'<>'1' or v->>'balance'<>'800' then raise exception 'literal search wrong';end if;
+ v:=public.get_customer_balances_report('0012',true);if v->>'count'<>'1' then raise exception 'phone filter wrong';end if;
+ if (select count(*) from public.debt_entries)<>n then raise exception 'report mutated ledger';end if;
+ begin perform public.get_customer_balances_report(repeat('x',101));raise exception 'oversized query allowed';exception when raise_exception then if sqlerrm<>'customer_report_invalid_filters' then raise;end if;end;
+end $$;
+reset role;select set_config('request.jwt.claims',json_build_object('sub',current_setting('cbr.b'),'role','authenticated')::text,true);set local role authenticated;
+do $$declare v jsonb;begin v:=public.get_customer_balances_report('',false);if v->>'count'<>'0' or v->>'balance'<>'0' then raise exception 'other owner leak';end if;end $$;
+insert into public.customers(name) select 'Cap '||g from generate_series(1,5001) g;
+do $$declare v jsonb;begin begin perform public.get_customer_balances_report('',false);raise exception 'truncated report allowed';exception when raise_exception then if sqlerrm<>'customer_report_too_many_rows' then raise;end if;end;v:=public.get_customer_balances_report('Cap 5001',false);if v->>'count'<>'1' then raise exception 'cap recovery filter wrong';end if;end $$;
+reset role;
+-- Rollback-only administrative fixture verifies sums beyond JavaScript Number precision.
+insert into public.customers(id,owner_id,name) select gen_random_uuid(),current_setting('cbr.c')::uuid,'Large '||g from generate_series(1,92) g;
+insert into public.customer_balances(customer_id,owner_id,balance) select id,owner_id,100000000000000 from public.customers where owner_id=current_setting('cbr.c')::uuid;
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('cbr.c'),'role','authenticated')::text,true);set local role authenticated;
+do $$declare v jsonb;begin v:=public.get_customer_balances_report();if v->>'balance'<>'9200000000000000' or v->>'debtors'<>'92' then raise exception 'large exact sum wrong';end if;end $$;
+reset role;select set_config('request.jwt.claims','{}',true);set local role authenticated;
+do $$begin begin perform public.get_customer_balances_report();raise exception 'no UID allowed';exception when raise_exception then if sqlerrm<>'customer_report_auth_required' then raise;end if;end;end $$;
+reset role;set local role anon;
+do $$begin begin perform public.get_customer_balances_report();raise exception 'anon report allowed';exception when insufficient_privilege then null;end;end $$;
+reset role;
+select 'PASS: customer balance snapshot, exact large sums, filters/sort, zero balances, full-list cap, no mutation, owner isolation and anon denial' verification;
+rollback;
