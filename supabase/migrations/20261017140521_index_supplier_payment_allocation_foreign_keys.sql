@@ -1,0 +1,2 @@
+create index if not exists supplier_payment_allocations_purchase_fk_idx on public.supplier_payment_allocations(purchase_id);
+create index if not exists supplier_payment_allocations_supplier_fk_idx on public.supplier_payment_allocations(supplier_id);
