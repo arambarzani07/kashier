@@ -1,0 +1,41 @@
+-- Rollback-only verification for partial purchase returns.
+begin;
+select set_config('ppr.a',gen_random_uuid()::text,true),set_config('ppr.b',gen_random_uuid()::text,true),set_config('ppr.s',gen_random_uuid()::text,true),set_config('ppr.p',gen_random_uuid()::text,true),set_config('ppr.cash_purchase',gen_random_uuid()::text,true),set_config('ppr.untracked_purchase',gen_random_uuid()::text,true),set_config('ppr.credit_purchase',gen_random_uuid()::text,true);
+insert into auth.users(id,email) values(current_setting('ppr.a')::uuid,'ppr-a@example.invalid'),(current_setting('ppr.b')::uuid,'ppr-b@example.invalid');
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('ppr.a'),'role','authenticated')::text,true);set local role authenticated;
+insert into public.products(id,name,sale_price) values(current_setting('ppr.p')::uuid,'Partial purchase product',9000);
+insert into public.suppliers(id,name,phone) values(current_setting('ppr.s')::uuid,'PPR Supplier','000');
+do $$
+declare items jsonb:=jsonb_build_array(jsonb_build_object('product_id',current_setting('ppr.p'),'quantity_units',3000,'unit_cost',3333));cash_purchase uuid:=current_setting('ppr.cash_purchase')::uuid;untracked uuid:=current_setting('ppr.untracked_purchase')::uuid;credit uuid:=current_setting('ppr.credit_purchase')::uuid;r1 uuid:=gen_random_uuid();r2 uuid:=gen_random_uuid();ur uuid:=gen_random_uuid();x jsonb;y jsonb;d jsonb;s jsonb;before_cash bigint;
+begin
+ perform public.post_cash_entry(gen_random_uuid(),'deposit',100000,'fixture cash');
+ perform public.post_supplier_purchase(cash_purchase,items,current_setting('ppr.s')::uuid,9999,'PPR-CASH','cash purchase');
+ x:=public.post_purchase_return(r1,cash_purchase,'first partial',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',1000)));
+ if (x->>'total')::bigint<>3333 or (x->>'cash_refund')::bigint<>3333 then raise exception 'first refund money wrong';end if;
+ y:=public.post_purchase_return(r2,cash_purchase,'second partial',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',2000)));
+ if (y->>'total')::bigint<>6666 or (select sum(total) from public.purchase_returns where purchase_id=cash_purchase)<>9999 then raise exception 'cumulative rounding wrong';end if;
+ if (select quantity_units from public.product_stock where product_id=current_setting('ppr.p')::uuid)<>0 then raise exception 'tracked stock wrong';end if;
+ if public.post_purchase_return(r1,cash_purchase,'first partial',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',1000)))<>x then raise exception 'idempotent replay wrong';end if;
+ begin perform public.post_purchase_return(gen_random_uuid(),cash_purchase,'over',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',1)));raise exception 'over return allowed';exception when raise_exception then if sqlerrm<>'purchase_return_quantity_exceeds_remaining' then raise;end if;end;
+ begin perform public.post_purchase_reversal(gen_random_uuid(),cash_purchase,'full after partial');raise exception 'full after partial allowed';exception when raise_exception then if sqlerrm<>'purchase_reversal_partial_returns_exist' then raise;end if;end;
+ if (select sum(amount) from public.cash_movements where kind='supplier_refund' and purchase_return_id is not null)<>9999 then raise exception 'supplier refund cash total wrong';end if;
+ perform public.post_purchase(untracked,items,'legacy supplier','PPR-U','untracked purchase');before_cash:=(select balance from public.cash_accounts);
+ y:=public.post_purchase_return(ur,untracked,'stock only partial',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',500)));
+ if (y->>'total')::bigint<>1667 or (y->>'cash_refund')::bigint<>0 or (select balance from public.cash_accounts)<>before_cash then raise exception 'untracked return wrong';end if;
+ if exists(select 1 from public.cash_movements where purchase_return_id=ur) then raise exception 'untracked invented cash';end if;
+ perform public.post_supplier_purchase(credit,items,current_setting('ppr.s')::uuid,1000,'PPR-CREDIT','credit purchase');
+ begin perform public.post_purchase_return(gen_random_uuid(),credit,'credit partial',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',500)));raise exception 'credit partial allowed';exception when raise_exception then if sqlerrm<>'purchase_return_credit_unsupported' then raise;end if;end;
+ d:=public.get_daily_report((now() at time zone 'Asia/Baghdad')::date);
+ if (d->'purchase_returns'->>'count')::bigint<>3 or (d->'purchase_returns'->>'total')::bigint<>11666 or (d->'purchase_returns'->>'cash_refund')::bigint<>9999 or (d->'purchase_returns'->>'untracked_count')::bigint<>1 then raise exception 'daily return summary wrong';end if;
+ s:=public.get_cash_statement((now() at time zone 'Asia/Baghdad')::date,(now() at time zone 'Asia/Baghdad')::date);
+ if (s->'by_kind'->>'supplier_refund')::bigint<>9999 or (select count(*) from jsonb_array_elements(s->'rows') z where z->>'kind'='supplier_refund' and z->>'purchase_id'=cash_purchase::text)<>2 then raise exception 'cash statement partial sources wrong';end if;
+ if (select count(*) from public.stock_movements where purchase_return_id is not null)<>3 then raise exception 'stock partial source count wrong';end if;
+end $$;
+reset role;
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('ppr.b'),'role','authenticated')::text,true);set local role authenticated;
+do $$ begin if (select count(*) from public.purchase_returns)<>0 then raise exception 'purchase return RLS leak';end if;begin perform public.post_purchase_return(gen_random_uuid(),current_setting('ppr.cash_purchase')::uuid,'cross owner',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',1)));raise exception 'cross owner allowed';exception when raise_exception then if sqlerrm<>'purchase_return_unavailable' then raise;end if;end;end $$;
+reset role;set local role anon;
+do $$ begin begin perform public.post_purchase_return(gen_random_uuid(),gen_random_uuid(),'anon',jsonb_build_array(jsonb_build_object('line_no',1,'quantity_units',1)));raise exception 'anon allowed';exception when insufficient_privilege then null;end;end $$;
+reset role;
+select 'PASS: partial purchase returns rounding, stock/cash, replay, over-return, full conflict, credit guard, reports and RLS' verification;
+rollback;
