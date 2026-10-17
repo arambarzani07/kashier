@@ -25,4 +25,17 @@ jobs:
           node --check data.js
           node --check receipt.js
       - name: Run Node tests
-        run: node --test tests/*.test.cjs
+        shell: bash
+        run: |
+          set +e
+          node --test tests/*.test.cjs 2>&1 | tee test-output.txt
+          code=${PIPESTATUS[0]}
+          exit "$code"
+      - name: Upload test output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-test-output
+          path: test-output.txt
+          if-no-files-found: error
+          retention-days: 3
