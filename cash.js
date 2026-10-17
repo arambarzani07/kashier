@@ -1,6 +1,6 @@
 'use strict';
 const $ = selector => document.querySelector(selector);
-const labels = {sale:'فرۆشتنی کاش',repayment:'وەرگرتنەوەی قەرز',deposit:'پارەخستنە سندوق',withdrawal:'پارەوەرگرتن لە کاشێر',expense:'پارە سەرفکردن'};
+const labels = {sale:'پارەی فرۆشتن',repayment:'وەرگرتنەوەی قەرز',deposit:'پارەخستنە سندوق',withdrawal:'پارەوەرگرتن لە کاشێر',expense:'پارە سەرفکردن'};
 const format = value => new Intl.NumberFormat('en-US').format(typeof value==='string'&&/^-?\d+$/.test(value)?BigInt(value):value);
 const date = value => new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Baghdad',dateStyle:'short',timeStyle:'medium'}).format(new Date(value));
 const key = 'kashier.cash-draft.v1.' + (KashierData.userId() || 'local');

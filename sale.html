@@ -20,7 +20,9 @@
     </section>
     <aside class="payment-panel" aria-labelledby="payment-heading">
       <div class="payment-title"><span class="eyebrow">پوختەی مسودە</span><h2 id="payment-heading">هەژماری پارە</h2></div>
-      <label for="customer">ناوی کڕیار <span class="optional">(ئارەزوومەندانە)</span></label><input id="customer" autocomplete="off" maxlength="100" placeholder="ناوی کڕیار">
+      <label for="payment-mode">شێوازی فرۆشتن</label><select id="payment-mode"><option value="cash">کاش — تەواوی پارە</option><option value="credit">قەرز — پارەی تەواو یان بەشێک دواتر</option></select>
+      <div id="cash-customer"><label for="customer">ناوی کڕیار <span class="optional">(ئارەزوومەندانە)</span></label><input id="customer" autocomplete="off" maxlength="100" placeholder="ناوی کڕیار"></div>
+      <section id="credit-customer" hidden aria-label="کڕیاری قەرز"><form id="customer-search-form"><label for="customer-search">گەڕان بە ناو / تەلەفۆن</label><input id="customer-search" autocomplete="off" maxlength="100"><button id="customer-search-button" type="submit" class="secondary">گەڕان بۆ کڕیار</button></form><p id="customer-search-status" role="status" hidden></p><div id="customer-results" class="sale-results"></div><p id="selected-customer" aria-live="polite"></p><button id="clear-customer" class="secondary" type="button">گۆڕینی کڕیار</button><p><a class="catalog-link" href="customers.html">تۆمارکردنی کڕیاری نوێ</a></p></section>
       <dl class="subtotal"><dt>کۆی کاڵاکان</dt><dd><b id="subtotal">0</b> دینار</dd></dl>
       <label for="discount">داشکاندن / دینار</label><input id="discount" type="number" min="0" step="1" value="0" inputmode="numeric"><p id="discount-error" class="field-error" hidden></p>
       <div class="grand-total"><span>کۆی کۆتایی / دینار</span><strong id="total">0</strong></div>

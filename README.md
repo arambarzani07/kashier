@@ -6,7 +6,7 @@
 
 - بنەمای دیزاین: شاشەی خانەیی بە دوگمە ڕەنگاوڕەنگەکان، هێما و ناونیشانی کوردی وەک وێنەی نموونە.
 - پلان، کۆد و پێداویستییەکانی پڕۆژە پێشووەکان بەشێک نین لەم پڕۆژەیە.
-- ئەم قۆناغە: کاتالۆگی کاڵا، کڕین، کۆگا، فرۆشتنی کاش، پسوولە، قاسە، کڕیار و قەرزی دەستی.
+- ئەم قۆناغە: کاتالۆگی کاڵا، کڕین، کۆگا، فرۆشتنی کاش و قەرز، پسوولە، قاسە، کڕیار و قەرزی دەستی.
 
 ## Project
 
@@ -28,7 +28,7 @@ Create an account and confirm its email if required by Supabase. Register produc
 - Purchases: catalog item selection, quantities, unit costs, optional supplier/invoice/note, atomic posting and saved purchase receipts. Supplier payment is not recorded in this phase.
 - Inventory: real available balances and immutable signed stock movements linked to each purchase or sale receipt. Movement sequence numbers provide a stable order.
 - Cashier barcode/name lookup shows a balance snapshot. The server always rechecks the actual balance at posting.
-- Sale posting: current catalog price validation, quantities, discounts, full cash tender and positive change. Manual rows remain draft-only.
+- Sale posting: current catalog price validation, quantities, discounts, full cash tender and positive change, or full/partial credit against a selected registered customer. Manual rows remain draft-only.
 - Each purchase adds stock and each sale subtracts stock in the same database transaction as its receipt and movement records.
 - Negative stock is rejected. Repeated product lines are grouped for the availability check.
 - A per-account inventory transaction lock serializes competing stock mutations. Conditional stock updates and nonnegative constraints provide additional protection.
@@ -49,7 +49,9 @@ Create an account and confirm its email if required by Supabase. Register produc
 - Debt entries are immutable, idempotent and retain the customer's name at posting. Each repayment links to its cash movement.
 - Debt form retries preserve customer, amount and request ID across ambiguous responses and same-tab reload. Saved entries support individual printing.
 - Cash statements distinguish debt repayments from sales and owner deposits.
-- Cashier sales remain cash-only. Manual debt entry is not a credit-sale workflow, and full printable/exportable customer statements are not yet implemented.
+- Credit sales atomically subtract stock, post an immutable receipt, increase customer debt by total minus received, and add only the received portion to cash. Full credit creates no cash movement. Zero-debt credit is rejected; fully paid sales use cash mode.
+- Credit requests preserve payment mode and selected customer across retries and same-tab reload. Receipt/debt/cash source links support tracing. Receipt debt is the original amount, not a current per-invoice outstanding balance; repayments are account-level and are not allocated to invoices.
+- Inventory → debt → cash locks give credit sales a consistent ordering with other posting functions. Full printable/exportable customer statements are not yet implemented.
 
 ## Data and access
 
@@ -71,9 +73,9 @@ Browser visual QA, the full email signup/login journey, simultaneous real-client
 
 ## Verification
 
-Run `node --test tests/*.test.cjs` (39 tests). All passed.
+Run `node --test tests/*.test.cjs` (46 tests). All passed.
 
-Tests cover money/quantity arithmetic, authentication refresh, catalog requests, sale and purchase journals, reload recovery, repeat clicks, journal failure, invalid draft rejection receipt rendering from saved snapshots, cash journal recovery, and exact lifetime cash formatting. JavaScript syntax, HTML navigation/assets, labels and static selectors were checked.
+Tests cover money/quantity arithmetic, authentication refresh, catalog requests, sale and purchase journals, reload recovery, repeat clicks, journal failure, invalid draft rejection, customer lookup/selection, credit-mode validation and recovery, receipt rendering from saved snapshots, cash journal recovery, and exact lifetime cash formatting. JavaScript syntax, HTML navigation/assets, labels and static selectors were checked.
 
 Remote rollback-only SQL checks cover:
 - Catalog permissions and barcode validation.
@@ -83,9 +85,10 @@ Remote rollback-only SQL checks cover:
 - Movement sums matching balances and sequence ordering.
 - Cash deposits, expenses, withdrawals, net sale cash, exactly-once retries, negative-balance rejection, limits, and agreement between cash movements and cached balances.
 - Customer charges, atomic debt/cash repayments, overpayment rejection, cached debt agreement, cross-account denial and frozen customer names.
+- Full and partial credit, discounts, no fictitious cash on full credit, source links, cross-mode replay conflicts, immutable debt amounts after repayments, and atomic stock/cash/debt limit failures.
 - Cross-account isolation and denial of direct browser stock/cash mutations.
 
-Security advisors returned no findings. Live anonymous REST checks returned 401 for stock reading, purchase posting, cash summary, cash posting, debt summary and debt posting, as well as the earlier sales checks.
+Security advisors returned no findings. Live anonymous REST checks returned 401 for stock reading, purchase posting, cash summary, cash posting, debt summary, debt posting and credit-sale posting, as well as the earlier sales checks.
 
 After verification: 0 users, 0 products, 0 sales, 0 purchases, 0 stock balances, 0 stock movements, 0 cash accounts, 0 cash movements, 0 customers, 0 customer balances and 0 debt entries. No test data is seeded. Test identity sequence gaps after rollback are harmless.
 
@@ -104,3 +107,5 @@ SQL files in `tests/` require administrative connections and roll back every fix
 The cash migration deliberately requires an empty sales table for its initial activation; an installation with pre-existing sales needs an explicit cash reconciliation rather than an assumed opening balance.
 
 - `20261017075847_customers_debt_ledger_and_cash_repayments.sql`
+
+- `20261017080907_credit_sales_atomic_inventory_debt_and_cash.sql`
