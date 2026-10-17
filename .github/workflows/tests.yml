@@ -24,9 +24,13 @@ jobs:
         run: |
           node --check data.js
           node --check receipt.js
+          node --check receipt-barcode.js
           node --check returns-data.js
           node --check returns.js
           node --check returns-tile.js
+          node --check return-lookup-data.js
+          node --check quick-return.js
+          node --check quick-return-tile.js
           node --check return-document-data.js
           node --check return-document.js
           node --check purchase-reversal-data.js
