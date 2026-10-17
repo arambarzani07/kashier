@@ -1,6 +1,6 @@
 'use strict';
 const $ = selector => document.querySelector(selector);
-const key = 'kashier.purchase-draft.v1.' + (KashierData.userId() || 'local');
+const purchaseOwner=KashierData.userId(),key = 'kashier.purchase-draft.v1.' + (purchaseOwner || 'local');
 const format = value => new Intl.NumberFormat('en-US').format(value);
 let selectedSupplier=null,supplierRequest=0;
 const tracked=()=>$('#purchase-accounting').value==='tracked';
@@ -41,15 +41,15 @@ function render() {
   $('#purchase-total').textContent = total === null ? '—' : format(total); $('#purchase-count').textContent = format(items.length) + ' کاڵا'; $('#purchase-empty').hidden = items.length > 0; save(); controls();
 }
 function add(product) {
-  if (posting) return;
-  try { const index = items.findIndex(item => item.productId === product.id); if (index >= 0) items[index].quantityUnits = SaleMath.quantityUnits((items[index].quantityUnits + 1000) / 1000); else { if (items.length >= 200) throw new Error('سنووری کڕین ٢٠٠ ڕیزە.'); items.push({ productId: product.id, name: product.name, barcode: product.barcode || '', quantityUnits: 1000, price: 0 }); } $('#purchase-results').replaceChildren(); $('#purchase-query').value = ''; status('#purchase-status', 'نرخی کڕینی یەکە بنووسە.'); render(); }
+  if (posting||!KashierData.loggedIn()||KashierData.userId()!==purchaseOwner) return;
+  try { const index = items.findIndex(item => item.productId === product.id); if (index >= 0) items[index].quantityUnits = SaleMath.quantityUnits((items[index].quantityUnits + 1000) / 1000); else { if (items.length >= 200) throw new Error('سنووری کڕین ٢٠٠ ڕیزە.'); items.push({ productId: product.id, name: product.name, barcode: product.barcode || '', quantityUnits: 1000, price: 0 }); } searchNumber++;$('#purchase-results').replaceChildren(); $('#purchase-query').value = ''; status('#purchase-status', 'نرخی کڕینی یەکە بنووسە.'); render(); }
   catch (error) { status('#purchase-status', error.message); }
 }
 $('#purchase-search').addEventListener('submit', async event => {
   event.preventDefault(); if (posting) return; const query = $('#purchase-query').value.trim(), request = ++searchNumber; $('#purchase-results').replaceChildren(); if (!query) return;
   if (!KashierData.loggedIn()) { location.href = 'auth.html?next=purchase.html'; return; }
   status('#purchase-status', 'گەڕان لە کاڵاکان…');
-  try { const rows = await KashierData.lookupProducts(query); if (request !== searchNumber || posting || $('#purchase-query').value.trim() !== query) return; if (rows.length === 1) { add(rows[0]); return; } status('#purchase-status', rows.length ? 'کاڵاکە هەڵبژێرە:' : 'کاڵاکە نەدۆزرایەوە؛ سەرەتا کاڵای نوێ بناسێنە.'); for (const product of rows) { const button = node('button', product.name); button.type = 'button'; button.addEventListener('click', () => add(product)); $('#purchase-results').append(button); } }
+  try { const rows = await KashierData.lookupProducts(query); if (request !== searchNumber || posting || $('#purchase-query').value.trim() !== query) return; if(KashierData.userId()!==purchaseOwner)throw Error('هەژمارەکە گۆڕاوە؛ لە هەژماری سەرەتای کڕین بەردەوام بە.');const match=CatalogLookup.match(rows,query);if (match.exact) { add(match.exact); return; } status('#purchase-status', rows.length ? 'ئەنجامی گەڕان — بارکۆدی تەواو یەک ناگرێتەوە؛ کاڵاکە هەڵبژێرە:' : 'کاڵاکە نەدۆزرایەوە؛ سەرەتا کاڵای نوێ بناسێنە.'); for (const product of rows) { const button = node('button', product.name+' · '+(product.barcode||'بارکۆد نییە')); button.type = 'button'; button.addEventListener('click', () => {if(request===searchNumber&&$('#purchase-query').value.trim()===query)add(product);}); $('#purchase-results').append(button); } }
   catch (error) { if (request === searchNumber) status('#purchase-status', error.message); }
 });
 $('#purchase-query').addEventListener('input', () => { searchNumber++; $('#purchase-results').replaceChildren(); });
@@ -59,13 +59,14 @@ $('#cancel-purchase-clear').addEventListener('click', () => $('#purchase-clear-d
 $('#confirm-purchase-clear').addEventListener('click', () => { if (posting) return; items = [];selectedSupplier=null;$('#purchase-paid').value='0'; for (const selector of ['#supplier', '#invoice', '#purchase-note', '#purchase-query']) $(selector).value = ''; status('#purchase-status', ''); status('#purchase-post-status', ''); $('#purchase-clear-dialog').close(); render(); });
 $('#post-purchase').addEventListener('click', async () => {
   if (busy) return;
+  if(KashierData.userId()!==purchaseOwner){status('#purchase-post-status','هەژمارەکە گۆڕاوە؛ لە هەژماری سەرەتای کڕین بەردەوام بە.');return;}
   if (!posting) {
     if (!KashierData.loggedIn() || !items.length || total === null || !validFinance() || items.some(item => item.price < 1)) return;
     const id = crypto.randomUUID(); posting = { id, accounting:tracked()?'tracked':'untracked', payload: { p_id: id, p_items: items.map(item => ({ product_id: item.productId, quantity_units: item.quantityUnits, unit_cost: item.price })), p_supplier: tracked()?selectedSupplier.id:$('#supplier').value.trim(),...(tracked()?{p_paid:SaleMath.money($('#purchase-paid').value)}:{}), p_invoice: $('#invoice').value.trim(), p_note: $('#purchase-note').value.trim() } };
     if (!save()) { posting = null; controls(); return; }
   }
   busy = true; searchNumber++;supplierRequest++; $('#purchase-results').replaceChildren(); controls(); status('#purchase-post-status', 'تۆمارکردنی کڕین…');
-  try { const receipt = await (posting.accounting==='tracked'?KashierData.postSupplierPurchase(posting.payload):KashierData.postPurchase(posting.payload)); if (receipt?.id !== posting.id) throw new Error('وەڵامی کڕین پشتڕاست نەکرایەوە.'); try { sessionStorage.removeItem(key); } catch {} location.href = 'purchase-receipt.html?id=' + receipt.id + '&print=1'; }
+  try { const receipt = await (posting.accounting==='tracked'?KashierData.postSupplierPurchase(posting.payload):KashierData.postPurchase(posting.payload)); if(KashierData.userId()!==purchaseOwner)throw Error('هەژمارەکە گۆڕاوە.');if (receipt?.id !== posting.id) throw new Error('وەڵامی کڕین پشتڕاست نەکرایەوە.'); try { sessionStorage.removeItem(key); } catch {} location.href = 'purchase-receipt.html?id=' + receipt.id + '&print=1'; }
   catch (error) { if ([400, 401, 403, 422].includes(error.status) && error.saleCode !== 'purchase_request_conflict') { posting = null; render(); status('#purchase-post-status', error.message); } else { save(); status('#purchase-post-status', 'دۆخی کڕین هێشتا پشتڕاست نییە؛ هەمان کڕین دووبارە بپشکنەوە.'); } }
   finally { busy = false; controls(); }
 });
