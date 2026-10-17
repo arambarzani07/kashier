@@ -168,3 +168,13 @@ Home barcode and shelf tiles open `labels.html`. Select up to 50 products, 1–1
 Existing ASCII barcodes are encoded as CODE128 with locally vendored JsBarcode 3.12.3 (MIT); original leading zeros are retained. No new product code is assigned. SVG bars include ten-module quiet zones and reject widths below 0.25 mm per module. Shelf price labels may omit barcodes. Use 100% print scale, matching printer paper dimensions, and disable browser headers/footers. Current queue is tab-local and is lost when the page closes. A4 layout is an uncalibrated grid, not a template for pre-cut sticker sheets.
 
 Validation: 135 Node tests pass, including real encoder output, quantity and size bounds, fresh pricing, failed refresh prevention, shelf mode and stale catalog search handling. HTML, local assets and script syntax checks pass. Physical scanner/printer and browser visual validation have not been performed.
+
+## Stocktake worksheet
+
+The home stocktake tile opens `stocktake.html`: a complete, read-only catalog snapshot from one stable invoker RPC, with timestamp in Baghdad time, literal name/barcode search, recorded base-unit quantity and blank physical count/note columns. Print landscape A4 or download UTF-8 BOM CSV. Snapshots never adjust stock or cash. Changed search inputs invalidate old results. Printing and export use the displayed snapshot; reload to obtain a newer one.
+
+Maximum 5000 rows per snapshot: larger results fail explicitly rather than truncate, and the user must narrow search. CSV quotes embedded quotes/newlines and neutralizes spreadsheet formulas. Import barcode and ID columns as text in spreadsheet tools to retain leading zeros; CSV itself retains the original values. No saved count sessions or reconciliation posting are included yet.
+
+Validation: 143 Node tests pass, including exact quantities, CSV escaping, request authentication, stale results, failed and incomplete snapshots. Live rollback SQL verifies owner isolation, real stock quantities, literal wildcard search, no ledger writes, anonymous denial and the 5000-row guard. Browser and physical printing remain unverified. Security advisor still reports the previously documented leaked-password-protection warning, with no new function/table findings.
+
+Migration: `20261017103630_readonly_stocktake_snapshot.sql`.
