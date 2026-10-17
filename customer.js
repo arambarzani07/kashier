@@ -2,6 +2,7 @@
 const $=selector=>document.querySelector(selector),params=new URLSearchParams(location.search),customerId=params.get('id');
 const key='kashier.debt-draft.v1.'+(KashierData.userId()||'local')+'.'+customerId;
 $('#customer-statement').href='statement.html?id='+encodeURIComponent(customerId||'');
+$('#customer-allocations').href='customer-allocations.html?id='+encodeURIComponent(customerId||'');
 const labels={charge:'تۆمارکردنی قەرز',repayment:'وەرگرتنەوەی قەرز',reversal:'هەڵوەشاندنەوەی قەرزی فرۆشتن'};
 const format=value=>new Intl.NumberFormat('en-US').format(value);
 const date=value=>new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Baghdad',dateStyle:'short',timeStyle:'medium'}).format(new Date(value));

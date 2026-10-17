@@ -1,0 +1,61 @@
+-- All accounts, fixtures and business changes roll back.
+begin;
+select set_config('ca.owner',gen_random_uuid()::text,true),set_config('ca.other',gen_random_uuid()::text,true),set_config('ca.customer',gen_random_uuid()::text,true),set_config('ca.charge',gen_random_uuid()::text,true),set_config('ca.payment',gen_random_uuid()::text,true),set_config('ca.allocation',gen_random_uuid()::text,true),set_config('ca.reverse',gen_random_uuid()::text,true),set_config('ca.product',gen_random_uuid()::text,true);
+insert into auth.users(id,email) values(current_setting('ca.owner')::uuid,'allocation-a@example.invalid'),(current_setting('ca.other')::uuid,'allocation-b@example.invalid');
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('ca.owner'),'role','authenticated')::text,true);
+set local role authenticated;
+insert into public.customers(id,name) values(current_setting('ca.customer')::uuid,'allocation fixture');
+insert into public.products(id,name,sale_price) values(current_setting('ca.product')::uuid,'allocation product',1000);
+do $$ declare c uuid:=current_setting('ca.customer')::uuid;ch uuid:=current_setting('ca.charge')::uuid;pay uuid:=current_setting('ca.payment')::uuid;a uuid:=current_setting('ca.allocation')::uuid;r uuid:=current_setting('ca.reverse')::uuid;x jsonb;y jsonb;s jsonb;sale jsonb;v_alloc uuid;v_charge uuid;v_pay uuid:=gen_random_uuid();v_other uuid:=gen_random_uuid();v_before bigint;v_stock bigint;begin
+ x:=public.get_customer_allocations(c);if x->>'balance'<>'0' or jsonb_array_length(x->'entries')<>0 then raise exception 'empty snapshot';end if;
+ perform public.post_debt_entry(ch,c,'charge',10000,'opening');
+ perform public.post_debt_entry(pay,c,'repayment',4000,'cash');
+ x:=public.get_customer_allocations(c);if jsonb_array_length(x->'allocations')<>0 or x->>'balance'<>'6000' then raise exception 'history silently allocated';end if;
+ x:=public.allocate_customer_payment(a,c,pay,ch,3000,'explicit');
+ if public.allocate_customer_payment(a,c,pay,ch,3000,'explicit')<>x then raise exception 'allocation replay';end if;
+ if (select balance from public.customer_balances where customer_id=c)<>6000 or (select balance from public.cash_accounts)<>4000 or (select count(*) from public.debt_entries)<>2 or (select count(*) from public.cash_movements)<>1 then raise exception 'classification changed money';end if;
+ begin perform public.allocate_customer_payment(a,c,pay,ch,2000,'explicit');raise exception 'conflict accepted';exception when raise_exception then if sqlerrm<>'allocation_request_conflict' then raise;end if;end;
+ begin perform public.allocate_customer_payment(gen_random_uuid(),c,pay,ch,1001,'exceed payment');raise exception 'overpayment accepted';exception when raise_exception then if sqlerrm<>'allocation_payment_exceeded' then raise;end if;end;
+ begin perform public.allocate_customer_payment(gen_random_uuid(),c,ch,pay,1,'wrong kinds');raise exception 'kinds accepted';exception when raise_exception then if sqlerrm<>'allocation_entry_unavailable' then raise;end if;end;
+ insert into public.customers(id,name) values(v_other,'other customer');
+ begin perform public.allocate_customer_payment(gen_random_uuid(),v_other,pay,ch,1,'wrong customer');raise exception 'customer accepted';exception when raise_exception then if sqlerrm<>'allocation_entry_unavailable' then raise;end if;end;
+ y:=public.reverse_customer_allocation(r,c,a,'correction');if public.reverse_customer_allocation(r,c,a,'correction')<>y then raise exception 'reversal replay';end if;
+ begin perform public.reverse_customer_allocation(gen_random_uuid(),c,a,'again');raise exception 'duplicate reversal accepted';exception when raise_exception then if sqlerrm<>'allocation_already_reversed' then raise;end if;end;
+ x:=public.get_customer_allocations(c);if (x->'entries'->0->>'available')<>'10000' or (x->'entries'->1->>'available')<>'4000' or (x->'allocations'->0->>'reversal_id')<>r::text then raise exception 'reversal snapshot wrong';end if;
+ perform public.allocate_customer_payment(gen_random_uuid(),c,pay,ch,4000,'reassign');
+ -- Credit sale capacity must remain correct when aggregate customer debt alone would permit a reversal.
+ perform public.post_purchase(gen_random_uuid(),jsonb_build_array(jsonb_build_object('product_id',current_setting('ca.product'),'quantity_units',10000,'unit_cost',500)),'','','');
+ sale:=public.post_credit_sale(gen_random_uuid(),jsonb_build_array(jsonb_build_object('product_id',current_setting('ca.product'),'quantity_units',1000,'expected_price',1000)),0,0,c,'credit');
+ v_charge:=(sale->>'debt_entry_id')::uuid;v_alloc:=gen_random_uuid();
+ perform public.post_debt_entry(v_pay,c,'repayment',1000,'invoice receipt');
+ perform public.allocate_customer_payment(v_alloc,c,v_pay,v_charge,1000,'invoice paid');
+ v_before:=(select balance from public.customer_balances where customer_id=c);v_stock:=(select quantity_units from public.product_stock);
+ begin perform public.post_sale_reversal(gen_random_uuid(),(sale->>'id')::uuid,'attempt');raise exception 'allocated invoice reversed';exception when raise_exception then if sqlerrm<>'allocation_reverse_before_sale_return' then raise;end if;end;
+ if (select balance from public.customer_balances where customer_id=c)<>v_before or (select quantity_units from public.product_stock)<>v_stock or exists(select 1 from public.sale_reversals) then raise exception 'failed return not atomic';end if;
+ perform public.reverse_customer_allocation(gen_random_uuid(),c,v_alloc,'unclassify before return');
+ perform public.post_sale_reversal(gen_random_uuid(),(sale->>'id')::uuid,'allowed');
+ begin perform public.allocate_customer_payment(gen_random_uuid(),c,v_pay,v_charge,1,'reversed invoice');raise exception 'reversed charge allocated';exception when raise_exception then if sqlerrm<>'allocation_charge_exceeded' then raise;end if;end;
+ x:=public.get_customer_allocations(c);if not exists(select 1 from jsonb_array_elements(x->'entries') e where e->>'id'=v_charge::text and e->>'available'='0' and e->>'reversed'='1000') then raise exception 'reversed charge snapshot wrong';end if;
+ x:=public.export_owner_data();if x->>'version'<>'3' or (select count(*) from jsonb_object_keys(x->'tables'))<>21 or not (x->'tables' ? 'customer_allocation_reversals') then raise exception 'export omitted new records';end if;
+ begin delete from public.customer_payment_allocations;raise exception 'direct delete accepted';exception when insufficient_privilege then null;end;
+ begin update public.customer_allocation_reversals set reason='tamper';raise exception 'direct update accepted';exception when insufficient_privilege then null;end;
+end $$;
+reset role;
+set constraints all immediate;
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('ca.other'),'role','authenticated')::text,true);
+set local role authenticated;
+do $$ begin
+ if exists(select 1 from public.customer_payment_allocations) or exists(select 1 from public.customer_allocation_reversals) then raise exception 'RLS leak';end if;
+ begin perform public.get_customer_allocations(current_setting('ca.customer')::uuid);raise exception 'snapshot leak';exception when raise_exception then if sqlerrm<>'debt_customer_unavailable' then raise;end if;end;
+ begin perform public.allocate_customer_payment(current_setting('ca.allocation')::uuid,current_setting('ca.customer')::uuid,current_setting('ca.payment')::uuid,current_setting('ca.charge')::uuid,3000,'explicit');raise exception 'replay leak';exception when raise_exception then if sqlerrm<>'allocation_request_conflict' then raise;end if;end;
+ begin perform public.reverse_customer_allocation(gen_random_uuid(),current_setting('ca.customer')::uuid,current_setting('ca.allocation')::uuid,'other owner');raise exception 'reverse leak';exception when raise_exception then if sqlerrm<>'allocation_entry_unavailable' then raise;end if;end;
+end $$;
+reset role;
+set local role anon;
+do $$ begin
+ begin perform public.get_customer_allocations(gen_random_uuid());raise exception 'anon allowed';exception when insufficient_privilege then null;end;
+ begin perform public.allocate_customer_payment(gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),gen_random_uuid(),1,'anon');raise exception 'anon write allowed';exception when insufficient_privilege then null;end;
+end $$;
+reset role;
+select 'PASS: explicit allocation, no cash/debt changes, idempotency, capacities, audited reversal, invoice reversal rollback, snapshot, export v3, RLS and grants' as verification;
+rollback;
