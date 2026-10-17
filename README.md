@@ -18,6 +18,10 @@ Supabase project: Kashier, reference `dhfyqxdfwhxlipbsasqf`, organization `yzqyd
 
 Dashboard: https://supabase.com/dashboard/project/dhfyqxdfwhxlipbsasqf
 
+## Signup form
+
+`auth.html?mode=signup` opens a distinct registration form with password confirmation and a visible minimum of eight characters. Switching modes sends no request. Kurdish inline validation explains missing/invalid email, short passwords and mismatched confirmation before any signup attempt. Repeated submissions are blocked while pending. Login preserves safe local return destinations, including filtered stock and statements. Supabase confirmation requirements and data isolation are unchanged; no user is provisioned by this UI repair. Live email delivery/signup on the user’s device remains to be confirmed.
+
 ## Run and first use
 
 Serve this repository over HTTP, for example `python3 -m http.server 8000`, then open http://localhost:8000. No package installation or external frontend assets are required.
@@ -93,7 +97,7 @@ Browser visual QA, the full email signup/login journey, simultaneous real-client
 
 ## Verification
 
-Run `node --test tests/*.test.cjs` (87 tests). All passed.
+Run `node --test tests/*.test.cjs` (98 tests). All passed.
 
 Tests cover money/quantity arithmetic, authentication refresh, catalog requests, sale and purchase journals, reload recovery, repeat clicks, journal failure, invalid draft rejection, customer lookup/selection, credit-mode validation and recovery, receipt rendering from saved snapshots, cash journal recovery, exact lifetime cash formatting, and complete statement rendering, date validation, stale-response protection, snapshot printing, malformed-response rejection large exact totals, and daily report day selection, Baghdad rollover, cross-ledger arithmetic, stale-response protection snapshot printing, low-stock filters/pagination/context links and return movement rendering. JavaScript syntax, HTML navigation/assets, labels and static selectors were checked.
 
