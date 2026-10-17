@@ -33,7 +33,7 @@ Create an account and confirm its email if required by Supabase. Register produc
 - Kurdish home screen with 33 reference-style tiles, module search and display density.
 - Email/password authentication and private per-account catalogs.
 - Products: name, optional unique barcode, integer IQD selling price; creation, editing, search and pagination.
-- Purchases: catalog item selection, quantities, unit costs, optional supplier/invoice/note, atomic posting and saved purchase receipts. Supplier payment is not recorded in this phase.
+- Purchases: catalog item selection, quantities, unit costs, optional supplier/invoice/note, atomic posting and saved purchase receipts. New tracked purchases require a registered supplier and record paid cash plus remaining debt atomically. A clearly labeled stock-only mode preserves the previous untracked workflow.
 - Inventory: real available balances and immutable signed stock movements linked to each purchase or sale receipt. Movement sequence numbers provide a stable order.
 - Cashier barcode/name lookup shows a balance snapshot. The server always rechecks the actual balance at posting.
 - Sale posting: current catalog price validation, quantities, discounts, full cash tender and positive change, or full/partial credit against a selected registered customer. Manual rows remain draft-only.
@@ -49,7 +49,7 @@ Create an account and confirm its email if required by Supabase. Register produc
 - Cash outflows reject insufficient funds. Cash balances and movements are private and cannot be edited or deleted through browser roles.
 - Cash posting uses the same account-scoped same-tab retry journal pattern as purchases and sales.
 - Lifetime cash summaries are returned as exact integer strings and rendered using BigInt to avoid numeric precision loss.
-- Purchases still do not debit cash automatically; supplier payment accounting is separate and not implemented.
+- Supplier purchase payments and later supplier debt payments debit cash in the same transaction as their receipt/payable entries. They have distinct cash movement kinds and report totals.
 
 - Customers: create/edit name and optional phone, search and private profiles with current debt and paginated history.
 - Manual debt charges increase a customer's balance without posting a sale, moving stock or increasing cash.
@@ -71,7 +71,15 @@ The current source includes immutable full sale reversals and partial returns fo
 
 Open the home tile دەفتەری ڕۆژانە or the daily report link in the cashbox. Select a Baghdad calendar day. The report reads one database snapshot and provides receipt counts, gross/subtotal, discounts, cash/credit sale totals, net sale cash received, newly created sale debt, manual debt charges, repayments, deposits, withdrawals, expenses, purchases and cash/debt opening and closing balances.
 
-All totals and counts are exact integer strings, rendered with BigInt. Change given on cash sales is excluded from the cash intake. A credit receipt total includes any paid portion; that portion also appears in cash received, so those cards must not be added together as extra sales. Repayments/deposits are separate from sales. Purchase totals do not imply supplier cash payments. Empty days retain prior balances. This is a read-only live report, not an end-of-day close, profit report or locked accounting period. A4 landscape print uses the displayed snapshot; changing the date invalidates printing until refreshed.
+All totals and counts are exact integer strings, rendered with BigInt. Change given on cash sales is excluded from the cash intake. A credit receipt total includes any paid portion; that portion also appears in cash received, so those cards must not be added together as extra sales. Repayments/deposits are separate from sales. Daily purchases separately show paid cash, newly created supplier debt and the number of stock-only receipts; total purchase value alone does not imply a cash outflow. Empty days retain prior balances. This is a read-only live report, not an end-of-day close, profit report or locked accounting period. A4 landscape print uses the displayed snapshot; changing the date invalidates printing until refreshed.
+
+## Suppliers and purchase financing
+
+The supplier tile opens private supplier accounts: create/edit name/phone, search, outstanding-payable filter, immutable history, manual opening debt, cash payments, individual entry printing and Baghdad-date statements. Payments reject amounts above the supplier balance and insufficient cash. Supplier statements show outgoing payments and link purchase receipts.
+
+New purchase drafts default to registered-supplier accounting. Enter paid cash (zero for full credit); the remaining amount becomes supplier debt. Posting validates stock/costs, adds inventory, debits paid cash and charges supplier debt in one transaction, using request → inventory → supplier → cash locks. Replays return the original receipt; conflicting payloads fail. Pending journals preserve supplier, amount and accounting mode across retry/reload.
+
+Existing receipts remain `untracked` with no assumed historic cash/debt. Existing drafts retain stock-only behavior. The stock-only option remains explicitly available and posts no supplier cash/debt. No old purchases or balances are automatically backfilled. Supplier payments are account-level, with no invoice allocation or prepayment balances. IQD only.
 
 ## Low stock
 
@@ -95,13 +103,13 @@ Sessions and drafts use sessionStorage for the current tab. Logout clears ordina
 
 ## Not implemented / field-verification limits
 
-Initial-stock adjustments, stocktake corrections, multiple warehouses, supplier debt/payments, cost-of-goods/profit reporting, shared staff roles and the remaining home modules.
+Initial-stock adjustments, stocktake corrections, multiple warehouses, supplier prepayments, supplier purchase returns/reversals, allocation of payments to specific supplier invoices, cost-of-goods/profit reporting, shared staff roles and the remaining home modules.
 
 Browser visual QA, the complete visual email signup/login journey, simultaneous real-client field testing, physical scanner input and printer output remain unverified. Database and code tests do not establish complete field readiness.
 
 ## Verification
 
-Run `node --test tests/*.test.cjs` (107 tests). All passed.
+Run `node --test tests/*.test.cjs` (127 tests). All passed.
 
 Tests cover money/quantity arithmetic, authentication refresh, catalog requests, sale and purchase journals, reload recovery, repeat clicks, journal failure, invalid draft rejection, customer lookup/selection, credit-mode validation and recovery, receipt rendering from saved snapshots, cash journal recovery, exact lifetime cash formatting, and complete statement rendering, date validation, stale-response protection, snapshot printing, malformed-response rejection large exact totals, and daily report day selection, Baghdad rollover, cross-ledger arithmetic, stale-response protection snapshot printing, low-stock filters/pagination/context links and return movement rendering. JavaScript syntax, HTML navigation/assets, labels and static selectors were checked.
 
@@ -118,9 +126,10 @@ Remote rollback-only SQL checks cover:
 - Daily report cash/full-credit/partial-credit splits, net cash after change, Baghdad day boundaries, opening/closing cash and debt, empty days, exact large totals, read-only behavior and owner isolation.
 - Low stock: zero-stock inclusion, inclusive/fractional thresholds, combined search, pagination, owner isolation and no mutations.
 - Full and partial sale-return rollback checks cover stock/cash/debt source ledgers, retries, scope guards and reporting.
+- Suppliers: full-credit/partial/cash purchases, manual charges and payments, snapshot/retry safety, overpayment/insufficient-cash/debt-cap failures, full stock/cash/debt rollback, legacy receipts, statements and owner isolation.
 - Cross-account isolation and denial of direct browser stock/cash mutations.
 
-Security advisors returned no findings. Live anonymous REST checks returned 401 for stock reading, purchase posting, cash summary, cash posting, debt summary, debt posting and credit-sale posting and customer statement reading and daily reporting, as well as the earlier sales checks.
+Security advisors found no new table/function access findings. The existing Auth advisory for disabled leaked-password protection remains; configuration guidance: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection . Live anonymous REST checks returned 401 for stock reading, purchase posting, cash summary, cash posting, debt summary, debt posting and credit-sale posting and customer statement reading and daily reporting, as well as the earlier sales checks.
 
 Rollback checks never seed permanent users or business data. A real user has since registered and confirmed their email; that account is preserved. Test identity sequence gaps after rollback are harmless.
 
@@ -149,3 +158,5 @@ The cash migration deliberately requires an empty sales table for its initial ac
 - `20261017085134_sale_reversals_atomic_inventory_debt_cash.sql`
 - `20261017094535_partial_cash_sale_returns_atomic_inventory_refund.sql`
 - `20261017094610_guard_full_reversal_after_partial_returns.sql`
+
+- `20261017101112_suppliers_purchase_financing_and_cash_payments.sql`

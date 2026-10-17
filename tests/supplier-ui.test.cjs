@@ -1,0 +1,22 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const math=require('../sale-math.js');
+const owner='00000000-0000-4000-8000-000000000001',supplier='00000000-0000-4000-8000-000000000002',id='00000000-0000-4000-8000-000000000003',key='kashier.payable-draft.v1.'+owner+'.'+supplier;
+async function setup(post,{saved,storageFails=false,balance=10000}={}){
+ const nodes=new Map();class E{constructor(){this.value='';this.children=[];this.events={};this.hidden=false;this.textContent='';}append(...v){this.children.push(...v)}replaceChildren(...v){this.children=v}addEventListener(k,f){this.events[k]=f}showModal(){this.open=true}close(){this.open=false}reportValidity(){return true}}
+ const get=s=>{if(!nodes.has(s))nodes.set(s,new E());return nodes.get(s)};get('#payable-kind').value='charge';get('#payable-amount').value='1000';get('#payable-note').value='payable test reason';
+ const memory=saved||{},calls=[];const storage={getItem:k=>memory[k]||null,setItem:(k,v)=>{if(storageFails)throw Error('storage error');memory[k]=v},removeItem:k=>delete memory[k]};
+ const context={document:{querySelector:get,querySelectorAll:()=>[get('#payable-kind'),get('#payable-amount'),get('#payable-note')],createElement:()=>new E()},SaleMath:math,KashierData:{userId:()=>owner,loggedIn:()=>true,getSupplier:async()=>({id:supplier,name:'Current supplier',phone:null,balance}),getSupplierEntries:async()=>({rows:[],total:0}),postSupplierEntry:async p=>{calls.push(JSON.parse(JSON.stringify(p)));return post(p)}},Intl,Date,URLSearchParams,sessionStorage:storage,crypto:{randomUUID:()=>id},location:{search:'?id='+supplier,replace(){},href:''},window:{print(){}}};
+ vm.runInNewContext(fs.readFileSync(require.resolve('../supplier.js'),'utf8'),context);await new Promise(r=>setImmediate(r));return {get,memory,calls,submit:()=>get('#payable-form').events.submit({preventDefault(){}})};
+}
+function entry(p){return {id:p.p_id,supplier_id:p.p_supplier,supplier_name:'Snapshot supplier',movement_no:1,created_at:'2026-10-17T08:00:00Z',kind:p.p_kind,amount:p.p_amount,balance_after:p.p_kind==='charge'?11000:9000,note:p.p_note,cash_movement_id:p.p_kind==='payment'?'00000000-0000-4000-8000-000000000004':null};}
+test('payable submission preserves selected supplier and kind',async()=>{const x=await setup(async p=>entry(p));await x.submit();assert.equal(x.calls[0].p_supplier,supplier);assert.equal(x.calls[0].p_kind,'charge');assert.equal(x.memory[key],undefined);assert.equal(x.get('#payable-detail-dialog').open,true);});
+test('ambiguous payment retries do not create a new ID',async()=>{let first=true;const x=await setup(async p=>{if(first){first=false;throw Error('lost response')}return entry(p)});x.get('#payable-kind').value='payment';await x.submit();assert.equal(x.get('#payable-amount').disabled,true);await x.submit();assert.deepEqual(x.calls[0],x.calls[1]);});
+test('pending payable entry survives same-tab reload',async()=>{const a=await setup(async()=>{throw Error('timeout')});await a.submit();const b=await setup(async p=>entry(p),{saved:a.memory});await b.submit();assert.deepEqual(a.calls[0],b.calls[0]);});
+test('payment larger than displayed payable is blocked before sending',async()=>{const x=await setup(async p=>entry(p),{balance:500});x.get('#payable-kind').value='payment';await x.submit();assert.equal(x.calls.length,0);});
+test('server rejection unlocks payable form for correction',async()=>{const x=await setup(async()=>{const e=Error('overpayment');e.status=400;e.saleCode='supplier_overpayment';throw e});await x.submit();assert.equal(x.get('#payable-amount').disabled,false);assert.equal(JSON.parse(x.memory[key]).posting,null);});
+test('payable entry is not sent without a saved retry journal',async()=>{const x=await setup(async p=>entry(p),{storageFails:true});await x.submit();assert.equal(x.calls.length,0);});
+test('in-flight payable submissions are sent only once',async()=>{let resolve;const x=await setup(p=>new Promise(r=>resolve=()=>r(entry(p))));const pending=x.submit();await x.submit();assert.equal(x.calls.length,1);resolve();await pending;});
+test('payable print uses the saved supplier-name snapshot',async()=>{const x=await setup(async p=>entry(p));await x.submit();x.get('#payable-print').events.click();const text=e=>e.textContent+' '+e.children.map(text).join(' ');assert.match(text(x.get('#print-area')),/Snapshot supplier/);assert.doesNotMatch(text(x.get('#print-area')),/Current supplier/);});

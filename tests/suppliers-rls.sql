@@ -1,0 +1,75 @@
+-- Administrative rollback-only verification. Real users/business data are untouched.
+begin;
+select set_config('sp.a',gen_random_uuid()::text,true),set_config('sp.b',gen_random_uuid()::text,true),set_config('sp.s',gen_random_uuid()::text,true),set_config('sp.p',gen_random_uuid()::text,true),set_config('sp.credit',gen_random_uuid()::text,true),set_config('sp.partial',gen_random_uuid()::text,true),set_config('sp.payment',gen_random_uuid()::text,true);
+insert into auth.users(id,email) values(current_setting('sp.a')::uuid,'supplier-a@example.invalid'),(current_setting('sp.b')::uuid,'supplier-b@example.invalid');
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('sp.a'),'role','authenticated')::text,true);
+set local role authenticated;
+insert into public.suppliers(id,name,phone) values(current_setting('sp.s')::uuid,'original supplier','123');
+insert into public.products(id,name,sale_price) values(current_setting('sp.p')::uuid,'supplier product',10000);
+do $$ declare items jsonb;credit jsonb;partial jsonb;payment jsonb;r jsonb;s uuid:=current_setting('sp.s')::uuid;p uuid:=current_setting('sp.p')::uuid;begin
+ if (select balance from public.supplier_debt_catalog)<>0 then raise exception 'New supplier debt nonzero';end if;
+ perform public.post_cash_entry(gen_random_uuid(),'deposit',100000,'opening');
+ items:=jsonb_build_array(jsonb_build_object('product_id',p,'quantity_units',1000,'unit_cost',8000));
+ credit:=public.post_supplier_purchase(current_setting('sp.credit')::uuid,items,s,0,'CREDIT','');
+ if credit->>'accounting_mode'<>'tracked' or credit->>'debt_amount'<>'8000' or (select balance from public.supplier_balances)<>8000 or (select quantity_units from public.product_stock)<>1000 or (select count(*) from public.cash_movements)<>1 then raise exception 'Full-credit purchase incorrect';end if;
+ if public.post_supplier_purchase(current_setting('sp.credit')::uuid,items,s,0,'CREDIT','')<>credit or (select count(*) from public.supplier_entries)<>1 then raise exception 'Credit replay duplicated';end if;
+ items:=jsonb_build_array(jsonb_build_object('product_id',p,'quantity_units',1000,'unit_cost',6000));
+ partial:=public.post_supplier_purchase(current_setting('sp.partial')::uuid,items,s,2000,'PARTIAL','');
+ if partial->>'debt_amount'<>'4000' or partial->>'amount_paid'<>'2000' or (select balance from public.cash_accounts)<>98000 or (select balance from public.supplier_balances)<>12000 then raise exception 'Partial purchase totals wrong';end if;
+ if not exists(select 1 from public.cash_movements where purchase_id=(partial->>'id')::uuid and supplier_id=s and kind='supplier_purchase' and amount=2000) then raise exception 'Purchase cash source missing';end if;
+ if public.post_supplier_purchase(current_setting('sp.partial')::uuid,items,s,2000,'PARTIAL','')<>partial or (select count(*) from public.cash_movements)<>2 then raise exception 'Partial replay duplicated';end if;
+ begin perform public.post_supplier_purchase(current_setting('sp.partial')::uuid,items,s,3000,'PARTIAL','');raise exception 'Changed paid amount accepted';exception when raise_exception then if sqlerrm<>'purchase_request_conflict' then raise;end if;end;
+ items:=jsonb_build_array(jsonb_build_object('product_id',p,'quantity_units',1000,'unit_cost',4000));
+ perform public.post_supplier_purchase(gen_random_uuid(),items,s,4000,'CASH','');
+ if (select balance from public.cash_accounts)<>94000 or (select balance from public.supplier_balances)<>12000 or (select count(*) from public.supplier_entries)<>2 then raise exception 'Cash purchase created fictitious debt';end if;
+ perform public.post_supplier_entry(gen_random_uuid(),s,'charge',500,'old opening debt');
+ payment:=public.post_supplier_entry(current_setting('sp.payment')::uuid,s,'payment',2500,'pay supplier');
+ if (select balance from public.cash_accounts)<>91500 or (select balance from public.supplier_balances)<>10000 then raise exception 'Payment did not reduce cash and debt';end if;
+ if public.post_supplier_entry(current_setting('sp.payment')::uuid,s,'payment',2500,'pay supplier')<>payment or (select count(*) from public.cash_movements)<>4 then raise exception 'Payment replay duplicated';end if;
+ if not exists(select 1 from public.cash_movements where id=(payment->>'cash_movement_id')::uuid and supplier_id=s and kind='supplier_payment' and delta=-2500) then raise exception 'Payment source wrong';end if;
+ update public.suppliers set name='renamed supplier' where id=s;
+ if public.post_supplier_purchase(current_setting('sp.credit')::uuid,jsonb_build_array(jsonb_build_object('product_id',p,'quantity_units',1000,'unit_cost',8000)),s,0,'CREDIT','')<>credit or credit->>'supplier_name'<>'original supplier' then raise exception 'Purchase snapshot or retry changed after supplier rename';end if;
+ begin perform public.post_supplier_entry(gen_random_uuid(),s,'payment',10001,'too much');raise exception 'Overpayment accepted';exception when raise_exception then if sqlerrm<>'supplier_overpayment' then raise;end if;end;
+ begin perform public.post_supplier_purchase(gen_random_uuid(),items,s,4001,'','');raise exception 'Purchase overpaid';exception when raise_exception then if sqlerrm<>'supplier_purchase_overpaid' then raise;end if;end;
+ begin perform public.post_supplier_entry(gen_random_uuid(),s,'charge',100000000000000,'cap');raise exception 'Debt cap ignored';exception when raise_exception then if sqlerrm<>'supplier_balance_limit' then raise;end if;end;
+ begin
+  perform public.post_supplier_entry(gen_random_uuid(),s,'charge',99999999990000,'nested cap fixture');
+  begin perform public.post_supplier_purchase(gen_random_uuid(),items,s,0,'','');raise exception 'Purchase debt cap ignored';exception when raise_exception then if sqlerrm<>'supplier_balance_limit' then raise;end if;end;
+  if (select count(*) from public.purchases)<>3 or (select quantity_units from public.product_stock)<>3000 then raise exception 'Purchase cap left stock/receipt';end if;
+  raise exception 'rollback_nested_cap_fixture';
+ exception when raise_exception then if sqlerrm<>'rollback_nested_cap_fixture' then raise;end if;end;
+ r:=public.get_supplier_statement(s);if r->>'opening'<>'0' or r->>'charges'<>'12500' or r->>'payments'<>'2500' or r->>'closing'<>'10000' or r->>'count'<>'4' then raise exception 'Supplier statement incorrect: %',r;end if;
+ if r#>>'{rows,0,purchase_id}' is null or r#>>'{rows,3,balance}'<>'10000' then raise exception 'Statement sources/balances wrong';end if;
+ r:=public.get_cash_summary();if r->>'supplier_purchases'<>'6000' or r->>'supplier_payments'<>'2500' then raise exception 'Cash summary supplier totals wrong';end if;
+ r:=public.get_daily_report((now() at time zone 'Asia/Baghdad')::date);if r#>>'{purchases,paid}'<>'6000' or r#>>'{purchases,debt_added}'<>'12000' or r#>>'{cash,outflows}'<>'8500' or r#>>'{cash,supplier_payments}'<>'2500' then raise exception 'Daily finance totals wrong';end if;
+ -- Untracked stock receipts stay compatible and never invent supplier debt/cash.
+ r:=public.post_purchase(gen_random_uuid(),items,'legacy','LEGACY','');
+ if r->>'accounting_mode'<>'untracked' or (select balance from public.cash_accounts)<>91500 or (select balance from public.supplier_balances)<>10000 then raise exception 'Legacy receipt behavior changed';end if;
+ begin perform public.post_supplier_purchase((r->>'id')::uuid,items,s,0,'LEGACY','');raise exception 'Legacy receipt silently financed';exception when raise_exception then if sqlerrm<>'purchase_request_conflict' then raise;end if;end;
+ perform public.post_cash_entry(gen_random_uuid(),'withdrawal',91500,'empty cash');
+ begin perform public.post_supplier_purchase(gen_random_uuid(),items,s,1,'','');raise exception 'No-cash purchase allowed';exception when raise_exception then if sqlerrm<>'cash_insufficient_balance' then raise;end if;end;
+ begin perform public.post_supplier_entry(gen_random_uuid(),s,'payment',1,'no cash');raise exception 'No-cash payment allowed';exception when raise_exception then if sqlerrm<>'cash_insufficient_balance' then raise;end if;end;
+ if (select count(*) from public.purchases)<>4 or (select quantity_units from public.product_stock)<>4000 or (select balance from public.supplier_balances)<>10000 or (select count(*) from public.supplier_entries)<>4 then raise exception 'Failed finance mutated stock/debt/receipts';end if;
+ if (select sum(delta) from public.supplier_entries)<>(select balance from public.supplier_balances) then raise exception 'Supplier ledger/cache disagree';end if;
+ begin update public.supplier_balances set balance=0;raise exception 'Direct supplier balance edit allowed';exception when insufficient_privilege then null;end;
+ begin delete from public.supplier_entries;raise exception 'Ledger deletion allowed';exception when insufficient_privilege then null;end;
+ begin update public.suppliers set owner_id=current_setting('sp.b')::uuid;raise exception 'Supplier ownership edit allowed';exception when insufficient_privilege then null;end;
+end $$;
+reset role;
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('sp.b'),'role','authenticated')::text,true);
+set local role authenticated;
+do $$ begin
+ if (select count(*) from public.supplier_debt_catalog)<>0 or (select count(*) from public.supplier_entries)<>0 then raise exception 'Supplier RLS leak';end if;
+ begin perform public.post_supplier_entry(gen_random_uuid(),current_setting('sp.s')::uuid,'charge',1,'other owner');raise exception 'Cross-owner entry allowed';exception when raise_exception then if sqlerrm<>'supplier_unavailable' then raise;end if;end;
+ begin perform public.post_supplier_purchase(gen_random_uuid(),jsonb_build_array(jsonb_build_object('product_id',current_setting('sp.p'),'quantity_units',1000,'unit_cost',4000)),current_setting('sp.s')::uuid,0,'','');raise exception 'Cross-owner purchase allowed';exception when raise_exception then if sqlerrm<>'supplier_unavailable' then raise;end if;end;
+ begin perform public.get_supplier_statement(current_setting('sp.s')::uuid);raise exception 'Cross-owner statement allowed';exception when raise_exception then if sqlerrm<>'supplier_unavailable' then raise;end if;end;
+end $$;
+reset role;
+set local role anon;
+do $$ begin
+ begin perform public.post_supplier_entry(gen_random_uuid(),gen_random_uuid(),'charge',1,'anon');raise exception 'Anonymous supplier entry';exception when insufficient_privilege then null;end;
+ begin perform public.get_supplier_statement(gen_random_uuid());raise exception 'Anonymous supplier statement';exception when insufficient_privilege then null;end;
+end $$;
+reset role;
+select 'PASS: supplier RLS, manual charges, full/partial/cash purchases, immutable snapshots, idempotency, overpayment/caps, cash/debt/stock rollback, legacy compatibility, statements and reports' as verification;
+rollback;

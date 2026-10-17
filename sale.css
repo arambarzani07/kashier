@@ -3,3 +3,5 @@
 .complete-sale:not(:disabled){background:#1762c8}.sale-page.posting .complete-sale:not(:disabled){background:#a36f11}input:read-only{background:#f5f7fa;color:#65748a}
 
 .payment-panel select{width:100%;padding:12px;border:1px solid #ccd5e1;border-radius:8px;font:inherit;background:#fff;margin-bottom:14px}.payment-panel [hidden]{display:none!important}#credit-customer{margin-bottom:16px}#customer-search-button{margin-top:8px}#selected-customer{font-weight:bold}
+
+#purchase-supplier{margin:12px 0;padding:12px 0;border-block:1px solid #e0e7f1}#supplier-search-button{margin-top:10px}#selected-supplier{font-weight:bold}#purchase-finance-status{font-size:12px;color:#b27615;line-height:1.8}
