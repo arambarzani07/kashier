@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>کاشێر — کاڵا فرۆشتن</title>
-  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="sale.css"><link rel="stylesheet" href="catalog.css">
+  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="sale.css"><link rel="stylesheet" href="catalog.css"><link rel="stylesheet" href="sale-holds.css">
   <script src="preferences.js" defer></script><script src="config.js" defer></script><script src="data.js" defer></script><script src="sale-math.js" defer></script><script src="sale.js" defer></script>
 <link rel="stylesheet" href="preferences.css"></head>
 <body class="sale-page">
@@ -16,7 +16,7 @@
       <p id="scan-status" role="status" class="inline-status" hidden></p>
       <div id="sale-results" class="sale-results" aria-label="ئەنجامی گەڕانی کاڵا"></div><div class="table-wrap"><table><caption class="sr-only">کاڵاکانی مسودەی فرۆشتن</caption><thead><tr><th scope="col">کاڵا</th><th scope="col">بڕ</th><th scope="col">نرخ / دینار</th><th scope="col">کۆ / دینار</th><th scope="col"><span class="sr-only">کردار</span></th></tr></thead><tbody id="cart-rows"></tbody></table></div>
       <div id="empty-cart" class="empty-cart"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6M9 20h.01M18 20h.01"/></svg><h2>لیستەکە بەتالە</h2><p>بە دوگمەی «زیادکردنی کاڵا» دەست پێ بکە.</p></div>
-      <div class="cart-footer"><span id="item-count">٠ کاڵا</span><button id="clear-cart" class="danger" disabled>پاککردنەوەی مسودە</button></div>
+      <div class="sale-hold-actions"><button id="hold-sale" class="secondary" disabled>هەڵگرتنی سەبەتە</button><button id="held-sales" class="secondary">سەبەتە هەڵگیراوەکان (٠)</button></div><div class="cart-footer"><span id="item-count">٠ کاڵا</span><button id="clear-cart" class="danger" disabled>پاککردنەوەی مسودە</button></div>
     </section>
     <aside class="payment-panel" aria-labelledby="payment-heading">
       <div class="payment-title"><span class="eyebrow">پوختەی مسودە</span><h2 id="payment-heading">هەژماری پارە</h2></div>
@@ -37,6 +37,8 @@
   </main>
   <dialog id="item-dialog" aria-labelledby="item-title"><div class="dialog-heading"><h2 id="item-title">زیادکردنی کاڵا بۆ مسودە</h2><button id="close-item" aria-label="داخستن">×</button></div><form id="item-form"><label for="item-name">ناوی کاڵا</label><input id="item-name" required maxlength="150" autocomplete="off"><label for="item-barcode">بارکۆد <span class="optional">(ئارەزوومەندانە)</span></label><input id="item-barcode" maxlength="64" dir="ltr" autocomplete="off"><div class="form-pair"><div><label for="item-quantity">بڕ</label><input id="item-quantity" type="number" min="0.001" max="10000" step="0.001" value="1" required inputmode="decimal"></div><div><label for="item-price">نرخی یەکە / دینار</label><input id="item-price" type="number" min="1" max="1000000000" step="1" required inputmode="numeric"></div></div><p id="item-error" class="field-error" hidden></p><button type="submit" class="primary">زیادکردن بۆ لیست</button></form></dialog>
   <dialog id="clear-dialog" aria-labelledby="clear-title"><h2 id="clear-title">مسودەکە پاک بکرێتەوە؟</h2><p>هەموو کاڵا و زانیارییەکانی ئەم مسودەیە لەم تابە دەسڕێنەوە.</p><div class="confirm-actions"><button id="cancel-clear" class="secondary">گەڕانەوە</button><button id="confirm-clear" class="danger-solid">پاککردنەوە</button></div></dialog>
+  <dialog id="hold-dialog" aria-labelledby="hold-title"><h2 id="hold-title">هەڵگرتنی سەبەتەی ئێستا</h2><p>سەبەتە لەم تابەی وێبگەڕدا دەمێنێتەوە؛ بە داخستن یان دەرچوون لە هەژمار لەدەست دەچێت. هیچ فرۆشتن، پارە یان رزەرڤکردنی کۆگا تۆمار نابێت.</p><form id="hold-form"><label for="hold-name">ناوی سەبەتە / کڕیار</label><input id="hold-name" maxlength="80" required autocomplete="off"><p id="hold-error" class="field-error" role="status" hidden></p><div class="confirm-actions"><button id="hold-cancel" type="button" class="secondary">گەڕانەوە</button><button type="submit" class="primary">هەڵگرتن و سەبەتەی نوێ</button></div></form></dialog>
+  <dialog id="holds-dialog" aria-labelledby="holds-title"><div class="dialog-heading"><h2 id="holds-title">سەبەتە هەڵگیراوەکان</h2><button id="holds-close" aria-label="داخستن">×</button></div><p>تا ١٠ سەبەتە هەڵدەگیرێت. گەڕاندنەوەی سەبەتەیەک، مسودەی ئێستات هەڵدەگرێت و جێگایان دەگۆڕێتەوە. نرخ و کۆگا لە کاتی تۆمارکردنی فرۆشتن پشکنین دەکرێن.</p><p id="holds-status" role="status" hidden></p><div id="holds-list"></div><button id="holds-reset" class="danger-solid" hidden>پاککردنەوەی سەبەتە نادروستەکان</button></dialog>
   <section id="print-area" class="print-area" aria-label="مسودەی چاپ"></section>
 </body>
 </html>
