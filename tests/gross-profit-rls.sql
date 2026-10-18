@@ -58,7 +58,7 @@ do $$declare p uuid:=current_setting('gp.product')::uuid;t uuid:=current_setting
  perform public.post_purchase(gen_random_uuid(),jsonb_build_array(jsonb_build_object('product_id',h,'quantity_units',1000,'unit_cost',500)),'','','');
  y:=public.post_cash_sale(gen_random_uuid(),jsonb_build_array(jsonb_build_object('product_id',h,'quantity_units',1000,'expected_price',1000)),0,1000,'','historical');perform set_config('gp.historical_sale',y->>'id',true);
  begin perform public.get_gross_profit_report(today,today+366);raise exception 'range accepted';exception when raise_exception then if sqlerrm<>'profit_invalid_range' then raise;end if;end;
- x:=public.export_owner_data();if x->>'version'<>'5' or (select count(*) from jsonb_object_keys(x->'tables'))<>25 or not(x->'tables'?'inventory_cost_movements') then raise exception 'cost export incomplete';end if;
+ x:=public.export_owner_data();if x->>'version'<>'6' or (select count(*) from jsonb_object_keys(x->'tables'))<>27 or not(x->'tables'?'inventory_cost_movements') then raise exception 'cost export incomplete';end if;
  begin update public.inventory_cost_state set value_iqd=0;raise exception 'state tamper';exception when insufficient_privilege then null;end;
  begin delete from public.inventory_cost_movements;raise exception 'cost delete';exception when insufficient_privilege then null;end;
 end $$;
@@ -79,5 +79,5 @@ do $$begin begin perform public.get_gross_profit_report(current_date,current_dat
 reset role;set local role anon;
 do $$begin begin perform public.get_gross_profit_report(current_date,current_date);raise exception 'anon read';exception when insufficient_privilege then null;end;end $$;
 reset role;
-select 'PASS: forward weighted average, replay, original return costs, cumulative fractional rounding, purchase returns, unknown opening/return/adjustment, legacy coverage, export v5, owner isolation/grants' as verification;
+select 'PASS: forward weighted average, replay, original return costs, cumulative fractional rounding, purchase returns, unknown opening/return/adjustment, legacy coverage, export v6, owner isolation/grants' as verification;
 rollback;
