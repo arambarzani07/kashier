@@ -18,5 +18,6 @@ function report(v,owner,actor,from,to){
  for(const [key,n] of Object.entries(sums))if(signed(v.summary?.[key])!==n)fail();return v;
 }
 function csv(v){const cell=x=>'"'+String(x).replaceAll('"','""')+'"',safe=x=>/^[=+\-@\t\r\n]/.test(String(x))?"'"+x:String(x),prefix=k=>k==='collection'?'D-':k.includes('refund')?'R-':'K-';return '\ufeff'+[['کاتی بەغدا','جۆر','ژمارەی بەڵگە','ئەنجامدەر','بڕ / دینار','گۆڕانی کاش / دینار'],...v.rows.map(r=>[new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Baghdad',dateStyle:'short',timeStyle:'medium'}).format(new Date(r.created_at)),kinds[r.kind],prefix(r.kind)+r.number,safe(r.actor_name),r.amount,r.delta])].map(r=>r.map(cell).join(',')).join('\r\n');}
-root.StaffCash={range,report,csv,kinds,signed};if(typeof module==='object'&&module.exports)module.exports=root.StaffCash;
+function ownerReport(v,owner,member,from,to){if(v?.scope!=='owner-cashier-cash-activity-v1'||v.viewer_id!==owner)fail();report({...v,scope:'cashier-cash-activity-v1'},owner,member,from,to);return v;}
+root.StaffCash={range,report,ownerReport,csv,kinds,signed};if(typeof module==='object'&&module.exports)module.exports=root.StaffCash;
 })(globalThis);
