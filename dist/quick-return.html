@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ckb" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#1253c8">
+  <title>کاشێر — گەڕاندنەوەی خێرا</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="quick-return.css">
+  <script src="preferences.js" defer></script>
+  <script src="config.js" defer></script>
+  <script src="data.js" defer></script>
+  <script src="return-lookup-data.js" defer></script>
+  <script src="quick-return.js" defer></script>
+  <link rel="stylesheet" href="preferences.css">
+</head>
+<body class="quick-return-page">
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">K</span><strong>کاشێر</strong></div>
+    <span>گەڕاندنەوەی خێرا</span>
+    <a href="index.html">سەرەکی ←</a>
+  </header>
+  <main class="quick-return-layout">
+    <section class="quick-return-search" aria-labelledby="quick-return-title">
+      <div class="quick-return-heading">
+        <div><h1 id="quick-return-title">پسوولە بسکەنە یان ژمارەکەی بنووسە</h1><p>بارکۆدی پسوولە بە شێوەی <bdi dir="ltr">K-123</bdi> ـە. سکانەر وەک کیبۆرد کار دەکات؛ دوای سکان Enter بنێرە.</p></div>
+        <a href="returns.html" class="secondary-link">هەموو گەڕاندنەوەکان</a>
+      </div>
+      <form id="quick-return-form" autocomplete="off">
+        <label for="receipt-code">ژمارە / بارکۆدی پسوولە</label>
+        <div class="quick-return-input-row">
+          <input id="receipt-code" name="receipt-code" type="text" inputmode="text" enterkeyhint="search" maxlength="24" placeholder="K-123" autocomplete="off" autocapitalize="characters" spellcheck="false" autofocus required>
+          <button id="find-receipt" type="submit" class="primary">دۆزینەوە</button>
+        </div>
+      </form>
+      <p id="quick-return-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="quick-return-result" class="quick-return-result" hidden aria-labelledby="quick-return-result-title">
+      <div class="quick-return-result-head">
+        <div><span class="eyebrow">پسوولەی دۆزراوە</span><h2 id="quick-return-result-title"></h2></div>
+        <span id="quick-return-state" class="quick-return-state"></span>
+      </div>
+      <dl class="quick-return-meta">
+        <div><dt>بەروار</dt><dd id="quick-return-date"></dd></div>
+        <div><dt>کڕیار</dt><dd id="quick-return-customer"></dd></div>
+        <div><dt>شێوازی فرۆشتن</dt><dd id="quick-return-mode"></dd></div>
+        <div><dt>کۆی پسوولە</dt><dd id="quick-return-total"></dd></div>
+      </dl>
+      <p id="quick-return-note" class="quick-return-note"></p>
+      <div id="quick-return-actions" class="quick-return-actions">
+        <a id="open-receipt" class="secondary" href="#">بینینی پسوولە</a>
+        <a id="partial-return-action" class="primary" href="#" hidden>گەڕاندنەوەی بەشی</a>
+        <a id="full-return-action" class="danger-link" href="#" hidden>گەڕاندنەوەی تەواو</a>
+        <a id="return-document-action" class="secondary" href="#" hidden>چاپی تۆماری گەڕاندنەوە</a>
+      </div>
+    </section>
+
+    <aside class="quick-return-help">
+      <strong>یاسای پاراستنی حساب</strong>
+      <p>ئەم پەڕەیە خۆی هیچ گەڕاندنەوەیەک تۆمار ناکات. تەنها پسوولەی سەرچاوە بە exact receipt number دەدۆزێتەوە و دواتر دەباتت بۆ هەمان فۆرمی Full/Partial Return ـی پشتڕاستکراو.</p>
+    </aside>
+  </main>
+</body>
+</html>

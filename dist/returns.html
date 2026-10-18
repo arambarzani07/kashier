@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ckb" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#1253c8">
+  <title>کاشێر — گەڕاندنەوەکان</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="catalog.css">
+  <link rel="stylesheet" href="returns.css">
+  <script src="preferences.js" defer></script>
+  <script src="config.js" defer></script>
+  <script src="data.js" defer></script>
+  <script src="returns-data.js" defer></script>
+  <script src="returns.js" defer></script>
+  <link rel="stylesheet" href="preferences.css">
+</head>
+<body class="returns-page">
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">K</span><strong>کاشێر</strong></div>
+    <span>گەڕاندنەوەکان</span>
+    <a class="home-link" href="index.html">سەرەکی ←</a>
+  </header>
+  <main class="returns-main">
+    <section class="returns-heading">
+      <div><span class="eyebrow">تۆماری پارێزراوی فرۆشتن</span><h1>گەڕاندنەوەی کاڵا و پارە</h1><p>Full Reversal و Partial Return لە یەک شوێن. تۆماری فرۆشتنی سەرەکی هیچ‌کات ناسڕێتەوە.</p></div>
+      <a class="secondary" href="receipts.html">وەسڵە فرۆشراوەکان</a>
+    </section>
+
+    <form id="returns-filter" class="returns-filter" autocomplete="off">
+      <label>جۆر<select id="returns-kind"><option value="all">هەموو</option><option value="full">گەڕاندنەوەی تەواو</option><option value="partial">گەڕاندنەوەی بەشی</option></select></label>
+      <label>لە بەروار<input id="returns-from" type="date"></label>
+      <label>تا بەروار<input id="returns-to" type="date"></label>
+      <label class="returns-query">گەڕان<input id="returns-query" type="search" maxlength="100" placeholder="ژمارەی پسوولە، ژمارەی گەڕاندنەوە یان ناوی کڕیار"></label>
+      <div class="returns-filter-actions"><button class="primary" type="submit">گەڕان</button><button class="secondary" id="returns-clear" type="button">پاککردنەوە</button></div>
+    </form>
+
+    <section class="returns-summary" aria-label="پوختەی فلتەر">
+      <article><span>کۆی تۆمار</span><strong id="returns-total">—</strong></article>
+      <article><span>پەڕە</span><strong id="returns-page-label">—</strong></article>
+    </section>
+
+    <section class="returns-list" aria-labelledby="returns-list-title">
+      <div class="section-heading"><div><span class="eyebrow">بەروار بە پێی بغداد</span><h2 id="returns-list-title">تۆمارەکان</h2></div><button id="returns-refresh" class="secondary" type="button">نوێکردنەوە</button></div>
+      <p id="returns-status" class="inline-status" role="status" aria-live="polite"></p>
+      <div class="table-wrap">
+        <table>
+          <caption class="sr-only">لیستی گەڕاندنەوەکانی فرۆشتن</caption>
+          <thead><tr><th>ژمارە</th><th>بەروار</th><th>جۆر</th><th>پسوولەی سەرچاوە</th><th>کڕیار</th><th>کۆی گەڕاندنەوە</th><th>کاش</th><th>قەرز</th><th>هۆکار</th><th>کردار</th></tr></thead>
+          <tbody id="returns-rows"></tbody>
+        </table>
+      </div>
+      <p id="returns-empty" class="empty-state" hidden>هیچ گەڕاندنەوەیەک بەم فلتەرە نەدۆزرایەوە.</p>
+      <div class="catalog-pagination"><button id="returns-previous" class="secondary" type="button">پێشوو</button><span id="returns-count"></span><button id="returns-next" class="secondary" type="button">داهاتوو</button></div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,11 @@
+(function(root){'use strict';
+const key='kashier.device-preferences.v1',defaults=Object.freeze({density:'comfortable',text:'normal',contrast:'standard',motion:'system',receiptPaper:'80'}),allowed={density:['comfortable','compact'],text:['normal','large'],contrast:['standard','high'],motion:['system','reduce'],receiptPaper:['58','80','a4']},listeners=new Set();
+function read(){let saved;try{saved=JSON.parse(root.localStorage.getItem(key)||'null');}catch{}const value={...defaults};if(saved?.version===1)for(const k of Object.keys(defaults))if(allowed[k].includes(saved[k]))value[k]=saved[k];return value;}
+let state=read();
+function apply(){const doc=root.document;if(!doc)return;for(const [attr,value] of Object.entries({'data-ui-text':state.text,'data-ui-contrast':state.contrast,'data-ui-motion':state.motion,'data-receipt-paper':state.receiptPaper}))doc.documentElement.setAttribute(attr,value);doc.body?.classList.toggle('compact',state.density==='compact');if(doc.querySelector('.receipt-layout')){let style=doc.getElementById('receipt-paper-preference');if(!style){style=doc.createElement('style');style.id='receipt-paper-preference';doc.head.append(style);}style.textContent=state.receiptPaper==='a4'?'@page{size:A4 portrait;margin:10mm}':'@page{size:auto;margin:4mm}';}}
+function notify(){apply();for(const listener of listeners)listener({...state});}
+function set(patch){if(!patch||typeof patch!=='object'||Array.isArray(patch))throw Error('هەڵبژاردن نادروستە.');for(const [k,v] of Object.entries(patch))if(!Object.hasOwn(allowed,k)||!allowed[k].includes(v))throw Error('هەڵبژاردن پشتگیری ناکرێت.');const next={...state,...patch};try{root.localStorage.setItem(key,JSON.stringify({version:1,...next}));}catch{throw Error('ڕێکخستنەکان نەپارێزران؛ هەڵگرتنی داتای وێبگەڕەکەت بەردەست نییە.');}state=next;notify();return {...state};}
+function reset(){try{root.localStorage.removeItem(key);}catch{throw Error('گەڕاندنەوەی ڕێکخستنەکان سەرکەوتوو نەبوو.');}state={...defaults};notify();return {...state};}
+function subscribe(callback){listeners.add(callback);return ()=>listeners.delete(callback);}
+root.KashierPreferences={get:()=>({...state}),set,reset,subscribe};root.addEventListener?.('storage',event=>{if(event.key===key||event.key===null){state=read();notify();}});apply();
+})(globalThis);
