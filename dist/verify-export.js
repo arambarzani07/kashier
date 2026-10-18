@@ -6,3 +6,5 @@ $('#verify-form').addEventListener('submit',async event=>{event.preventDefault()
 for(const [id,event] of [['verify-file','change'],['verify-hash','input']])$('#'+id).addEventListener(event,()=>{clear();status('بۆ فایل یان کۆدی نوێ دووبارە پشکنین بکە.');});
 const savedHash=new URLSearchParams(location.hash.slice(1)).get('sha256');if(savedHash&&/^[0-9a-f]{64}$/i.test(savedHash))$('#verify-hash').value=savedHash;
 if(!KashierData.loggedIn())location.replace('auth.html?next=verify-export.html');
+
+window.addEventListener('pagehide',()=>{clear();$('#verify-file').value='';$('#verify-hash').value='';status('');});window.addEventListener('pageshow',e=>{if(e.persisted)location.reload();});
