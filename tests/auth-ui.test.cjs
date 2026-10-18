@@ -17,4 +17,4 @@ test('owner cash drilldown survives sign in while foreign query keys remain reje
 
 test('restore destination survives login and rejects unexpected restore parameters',async()=>{for(const next of ['restore.html','restore.html?owner=foreign']){const x=setup({next});x.fill();x.submit();await tick();assert.equal(x.location.href,next==='restore.html'?next:'index.html');}});
 
-test('daily close survives login but owner query parameters are rejected',async()=>{for(const next of ['daily-close.html','daily-close.html?owner=foreign']){const x=setup({next});x.fill();x.submit();await tick();assert.equal(x.location.href,next==='daily-close.html'?next:'index.html');}});
+test('daily close survives login but owner query parameters are rejected',async()=>{for(const next of ['daily-close.html','daily-close.html?day=2026-05-04','daily-close-history.html','daily-close.html?owner=foreign']){const x=setup({next});x.fill();x.submit();await tick();assert.equal(x.location.href,!next.includes('owner=')?next:'index.html');}});

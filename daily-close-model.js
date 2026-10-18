@@ -7,4 +7,5 @@ function row(r,owner,d,p){if(!S.uuid(r?.id)||r.owner_id!==owner||r.day!==d||!S.d
 function preview(v,owner,d){day(d);if(v?.scope!=='daily-close-preview-v1'||v.owner_id!==owner||v.day!==d||v.currency!=='IQD'||v.timezone!=='Asia/Baghdad'||!hash(v.snapshot_hash))fail();cash(v.report,d);if(v.close!==null)row(v.close,owner,d);return v;}
 function receipt(v,owner,p){payload(p,owner);if(v?.scope!=='daily-close-receipt-v1'||v.owner_id!==owner)fail();return row(v.close,owner,p.day,p);}
 function csv(r,owner){row(r,owner,r.day);const cell=x=>'"'+String(x).replaceAll('"','""')+'"',note=/^[\s\uFEFF]*[=+\-@]/.test(r.note)?"'"+r.note:r.note;return '\ufeff'+[['ناسنامەی داخستن','ڕۆژ','باڵانسی ڕاپۆرت / دینار','ژمێردراو / دینار','جیاوازی / دینار','هۆکار','کاتی تۆمارکردن'],[r.id,r.day,r.expected,r.actual,r.difference,note,r.created_at]].map(a=>a.map(cell).join(',')).join('\r\n');}
-root.DailyClose={day,payload,row,preview,receipt,csv};if(typeof module==='object'&&module.exports)module.exports=root.DailyClose;})(globalThis);
+function selection(search){const q=new URLSearchParams(search);if(![...q.keys()].length)return null;if([...q.keys()].some(k=>k!=='day')||q.getAll('day').length!==1)fail();return day(q.get('day'));}
+root.DailyClose={selection,day,payload,row,preview,receipt,csv};if(typeof module==='object'&&module.exports)module.exports=root.DailyClose;})(globalThis);

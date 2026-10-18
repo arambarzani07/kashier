@@ -678,3 +678,11 @@ The server derives the owner from the JWT, rechecks the snapshot under sorted bu
 Owner exports now use v8 / `owner-daily-cash-close-v1` with 30 tables including `daily_cash_closes`. v7 remains readable/recoverable into an empty account, while v8 recovery preserves the close table and its snapshots. v7 exports are now labeled historical; recovery also refuses an account containing any close. No additional external access or employee posting grants are added.
 
 Validation: 703 Node tests; live daily-close suite covers owner isolation, anonymous/write denial, completed-day limit, reason requirement, stale hash, signed arithmetic, immutable save, replay/conflict, duplicate-day rejection, no cash mutation and v8 export. A 36-record v8 archive restored exactly with its close; prior 59/51/27-record v7 recovery suites passed. Security advisors found no new findings. Authenticated browser, physical cash counting and printer QA remain outstanding.
+
+### Daily close history
+
+`daily-close-history.html` lists only the signed-in owner's saved closes over an inclusive Baghdad date range of at most31 days. It displays each immutable day comparison and counts balanced/surplus/shortage days; it does not sum carried cash balances or treat repeated discrepancies as financial losses. A date link opens the matching detailed close and survives authentication; unresolved pending close requests take priority over URL selection. Unknown/duplicate query keys and invalid dates are rejected.
+
+The read-only RPC derives owner scope solely from the JWT, returns exact decimal strings and at most31 day-unique rows, and introduces no table or export-format change. Client validation checks ordering, unique IDs/days, saved arithmetic and summary counts. Print/CSV re-fetch the selected range; filter/account/navigation changes clear private rows and discard late results. Physical print and authenticated browser QA remain outstanding.
+
+Validation:712 Node tests passed; a rollback-only database fixture returned three saved closes with one balanced, one surplus and one shortage, denied anonymous/foreign-owner reads and overlong ranges, and preserved cash records. Actual history output passed the client validator.
