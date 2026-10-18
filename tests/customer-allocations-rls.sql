@@ -36,7 +36,7 @@ do $$ declare c uuid:=current_setting('ca.customer')::uuid;ch uuid:=current_sett
  perform public.post_sale_reversal(gen_random_uuid(),(sale->>'id')::uuid,'allowed');
  begin perform public.allocate_customer_payment(gen_random_uuid(),c,v_pay,v_charge,1,'reversed invoice');raise exception 'reversed charge allocated';exception when raise_exception then if sqlerrm<>'allocation_charge_exceeded' then raise;end if;end;
  x:=public.get_customer_allocations(c);if not exists(select 1 from jsonb_array_elements(x->'entries') e where e->>'id'=v_charge::text and e->>'available'='0' and e->>'reversed'='1000') then raise exception 'reversed charge snapshot wrong';end if;
- x:=public.export_owner_data();if x->>'version'<>'6' or (select count(*) from jsonb_object_keys(x->'tables'))<>27 or not (x->'tables' ? 'customer_allocation_reversals') then raise exception 'export omitted new records';end if;
+ x:=public.export_owner_data();if x->>'version'<>'7' or (select count(*) from jsonb_object_keys(x->'tables'))<>29 or not (x->'tables' ? 'customer_allocation_reversals') then raise exception 'export omitted new records';end if;
  begin delete from public.customer_payment_allocations;raise exception 'direct delete accepted';exception when insufficient_privilege then null;end;
  begin update public.customer_allocation_reversals set reason='tamper';raise exception 'direct update accepted';exception when insufficient_privilege then null;end;
 end $$;

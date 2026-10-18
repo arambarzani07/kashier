@@ -29,7 +29,7 @@ do $$declare p uuid:=current_setting('cb.product')::uuid;b uuid:=current_setting
  perform public.post_stock_adjustment(gen_random_uuid(),p,2000,v,3000,'new uncosted stock');select max(movement_no) into v from public.stock_movements where product_id=p;
  perform public.confirm_inventory_cost_basis(gen_random_uuid(),p,3000,v,0,'verified donated stock total');
  x:=public.get_inventory_cost_basis(p);if x->'product'->>'value_iqd'<>'0' or jsonb_array_length(x->'history')<>3 then raise exception 'zero or audit missing';end if;
- x:=public.export_owner_data();if x->>'version'<>'6' or (select count(*) from jsonb_object_keys(x->'tables'))<>27 or x->'counts'->>'inventory_cost_bases'<>'3' then raise exception 'export basis missing';end if;
+ x:=public.export_owner_data();if x->>'version'<>'7' or (select count(*) from jsonb_object_keys(x->'tables'))<>29 or x->'counts'->>'inventory_cost_bases'<>'3' then raise exception 'export basis missing';end if;
  begin delete from public.inventory_cost_bases;raise exception 'direct delete';exception when insufficient_privilege then null;end;
  begin update public.inventory_cost_basis_cancellations set reason='rewrite';raise exception 'direct update';exception when insufficient_privilege then null;end;
  begin insert into public.inventory_cost_bases(id) values(gen_random_uuid());raise exception 'direct insert';exception when insufficient_privilege then null;end;
