@@ -1,0 +1,26 @@
+begin;
+select set_config('vh.owner',gen_random_uuid()::text,true),set_config('vh.p',gen_random_uuid()::text,true),set_config('vh.q',gen_random_uuid()::text,true),set_config('vh.purchase',gen_random_uuid()::text,true),set_config('vh.return',gen_random_uuid()::text,true);
+insert into auth.users(id,email) values(current_setting('vh.owner')::uuid,'variance-history@example.invalid');
+select set_config('request.jwt.claims',json_build_object('sub',current_setting('vh.owner'),'role','authenticated')::text,true);set local role authenticated;
+insert into public.products(id,name,sale_price) values(current_setting('vh.p')::uuid,'Line one',1000),(current_setting('vh.q')::uuid,'Line two',1000);
+select public.post_purchase(current_setting('vh.purchase')::uuid,jsonb_build_array(jsonb_build_object('product_id',current_setting('vh.p')::uuid,'quantity_units',1000,'unit_cost',500),jsonb_build_object('product_id',current_setting('vh.q')::uuid,'quantity_units',1000,'unit_cost',1000)),'','','');
+select public.post_purchase_return(current_setting('vh.return')::uuid,current_setting('vh.purchase')::uuid,'only original second line',jsonb_build_array(jsonb_build_object('line_no',2,'quantity_units',500)));
+reset role;
+-- Synthetic boundary/history fixtures only; every change below rolls back.
+update public.purchase_returns set created_at='2026-01-01T21:00:00Z' where id=current_setting('vh.return')::uuid;
+update public.stock_movements set created_at='2026-01-01T21:00:00Z' where purchase_return_id=current_setting('vh.return')::uuid;
+update public.inventory_cost_movements set created_at='2026-01-01T21:00:00Z' where id=(select id from public.stock_movements where purchase_return_id=current_setting('vh.return')::uuid);
+set local role authenticated;
+do $$declare x jsonb;begin x:=public.get_purchase_return_variance('2026-01-02','2026-01-02');if x->>'count'<>'1' or x->'rows'->0->>'line_no'<>'2' or x->'rows'->0->>'name'<>'Line two' or x->'rows'->0->>'document_value'<>'500' or x->'rows'->0->>'stock_cost'<>'500' then raise exception 'partial original line mapping';end if;
+ if public.get_purchase_return_variance('2026-01-01','2026-01-01')->>'count'<>'0' then raise exception 'Baghdad midnight';end if;end $$;
+reset role;
+delete from public.inventory_cost_movements where id=(select id from public.stock_movements where purchase_return_id=current_setting('vh.return')::uuid);
+set local role authenticated;
+do $$declare x jsonb;begin x:=public.get_purchase_return_variance('2026-01-02','2026-01-02');if x->>'count'<>'1' or x->>'known_count'<>'0' or x->'rows'->0->>'coverage'<>'legacy-no-cost-snapshot' or x->'rows'->0->'variance'<>'null'::jsonb then raise exception 'legacy guessed or omitted';end if;end $$;
+reset role;
+update public.stock_movements set delta_units=-501 where purchase_return_id=current_setting('vh.return')::uuid;
+set local role authenticated;
+do $$begin begin perform public.get_purchase_return_variance('2026-01-02','2026-01-02');raise exception 'mismatch accepted';exception when raise_exception then if sqlerrm<>'variance_incomplete_history' then raise;end if;end;end $$;
+reset role;
+select 'PASS: original line numbers, Baghdad midnight, legacy coverage and malformed physical history refusal' as verification;
+rollback;
