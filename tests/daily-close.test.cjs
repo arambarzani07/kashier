@@ -13,3 +13,28 @@ test('pending or corrupted stored requests cannot be silently replaced',async()=
 test('late private reports after navigation/account changes remain hidden; guests redirect',async()=>{for(const how of ['navigation','account']){let resolve;const x=setup({read:()=>new Promise(r=>resolve=r)});await tick();if(how==='account')x.changeOwner(id);else x.events.pagehide();resolve(preview(true));await tick();assert.equal(x.get('#close-paper').hidden,true);}const x=setup({logged:false});await tick();assert.equal(x.location.redirect,'auth.html?next=daily-close.html');assert.equal(x.calls.length,0);});
 
 test('valid detail deep links preserve the requested day through sign in; pending requests keep priority',async()=>{const x=setup({search:'?day='+day});await tick();assert.equal(x.calls[0][1],day);const y=setup({logged:false,search:'?day='+day});await tick();assert.equal(decodeURIComponent(y.location.redirect),'auth.html?next=daily-close.html?day='+day);const z=setup({stored:JSON.stringify(payload()),search:'?day=2026-05-01'});await tick();assert.equal(z.calls[0][1],day);});
+
+test('definitive rejection requires a fresh preview and renewed acknowledgement before posting again',async()=>{
+ for(const code of ['close_snapshot_changed','close_difference_reason_required','close_completed_day_required','close_invalid_request','close_day_already_closed']){
+  let rejected=true;const x=setup({post:async()=>{if(rejected){const e=Error('Refresh required');e.saleCode=code;throw e;}return receipt();}});
+  await x.prepare();await x.save();
+  assert.equal(x.storage.size,0);assert.equal(x.get('#close-ack').checked,false);assert.equal(x.get('#close-save').disabled,true);assert.equal(x.get('#close-preview').textContent,'');
+  x.get('#close-ack').checked=true;await x.save();assert.equal(x.calls.filter(c=>c[0]==='post').length,1);
+  rejected=false;await x.load();assert.equal(x.get('#close-ack').checked,false);assert.equal(x.get('#close-save').disabled,true);
+  x.get('#close-ack').checked=true;x.get('#close-ack').events.change();await x.save();
+  assert.equal(x.calls.filter(c=>c[0]==='post').length,2);assert.equal(x.get('#close-paper').hidden,false);
+ }
+});
+test('editing counted cash or difference reason requires renewed acknowledgement',async()=>{
+ for(const field of ['actual','note']){
+  const x=setup();await x.prepare();assert.equal(x.get('#close-save').disabled,false);
+  x.get('#close-'+field).value=field==='actual'?'15001':'revised count';x.get('#close-'+field).events.input();
+  assert.equal(x.get('#close-ack').checked,false);assert.equal(x.get('#close-save').disabled,true);
+  await x.save();assert.equal(x.calls.filter(c=>c[0]==='post').length,0);
+ }
+});
+test('editing disabled inputs cannot discard an unresolved close request',async()=>{
+ const x=setup({post:async()=>{throw Error('Timeout');}});await x.prepare();await x.save();
+ const stored=[...x.storage.values()][0];x.get('#close-actual').events.input();
+ assert.equal([...x.storage.values()][0],stored);assert.equal(x.get('#close-day').disabled,true);
+});
