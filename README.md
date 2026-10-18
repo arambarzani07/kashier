@@ -519,3 +519,14 @@ All three RPCs enforce owner identity; authenticated clients can only read the t
 Migration: `20261017220549_audited_unknown_inventory_cost_basis.sql`. Rollback-only live checks cover stale quantity/version, exact totals, retry/conflicts, cancellation, movement locks, unchanged historical costs, future weighted-average COGS, true zero, owner/anonymous isolation and export v6. Node model/controller/export checks cover localized values, acknowledgement, audit invariants, storage/retry failures and account/navigation races. Browser and physical printing/scanning QA remain unperformed.
 
 Validation for this increment: **569 Node tests passed** plus the rollback-only basis, gross-profit and inventory-valuation live SQL suites. Security advisors found no new schema issues.
+
+
+## Waste and stock-count shortage cost report — 2026-10-18
+
+`inventory-loss.html` is linked from gross-profit, valuation, waste and stock-count screens. It reports recorded waste and negative count adjustments separately over up to 366 Baghdad calendar days, capped at 5,000 negative adjustment records. Product names/barcodes, quantities and reasons come from the original adjustment snapshot. Each source links to the saved adjustment and product history. Positive counts, sale COGS and purchase returns are excluded; count shortages are not automatically classified as theft or a particular cause.
+
+The report reads immutable historical moving-average cost snapshots, including genuine rounded zero costs. Existing movements without cost snapshots remain explicitly unknown. Per-kind and combined totals distinguish known-only costs from complete costs; unknown costs are never zero-filled. Quantities across unrelated products are not totalled. These losses are not subtracted by the separate gross-sale-margin report; this is not net-profit accounting.
+
+`get_inventory_loss_report(date,date)` is a stable security-invoker RPC under existing owner RLS. Missing/inconsistent physical adjustment history rejects the report; missing legacy cost metadata remains visible with unknown coverage. Exact decimal source numbers/costs are validated with BigInt. Print/CSV use the same validated displayed snapshot, clear on filter/account/navigation changes and protect CSV text formulas. Reads create no stock, cash, debt or costing records; owner export remains v6 with 27 tables. Migration: `20261018043114_inventory_loss_cost_report.sql`.
+
+Validation: 578 Node tests passed. Rollback-only live SQL checks passed for waste/count subtotals, zero/unknown/legacy coverage, saved names, retry deduplication, Baghdad midnight, missing/malformed history, date ranges, no writes and owner/no-UID/anonymous isolation. A real database response passed the client validator. No new security advisor findings. Browser and physical print QA remain unperformed.
