@@ -38,3 +38,24 @@ test('editing disabled inputs cannot discard an unresolved close request',async(
  const stored=[...x.storage.values()][0];x.get('#close-actual').events.input();
  assert.equal([...x.storage.values()][0],stored);assert.equal(x.get('#close-day').disabled,true);
 });
+
+test('close comparison shows balanced, surplus and shortage from local digits before any post',async()=>{
+ const x=setup();await tick();
+ for(const [input,label,difference] of [['١٤٧٠٠','یەکسانە','0'],['۱۵۰۰۰','زیادە','+300'],['١٤٦٠٠','کەمە','-100']]){
+  x.get('#close-actual').value=input;x.get('#close-actual').events.input();
+  const output=x.get('#close-comparison');assert.equal(output.hidden,false);assert.ok(output.textContent.includes(label));assert.ok(output.textContent.includes('جیاوازی: '+difference+' دینار'));
+  assert.equal(x.calls.filter(c=>c[0]==='post').length,0);assert.equal(x.storage.size,0);assert.equal(x.get('#close-ack').checked,false);
+ }
+ x.get('#close-actual').value='1.5';x.get('#close-actual').events.input();assert.doesNotMatch(x.get('#close-comparison').textContent,/جیاوازی:/);
+ x.get('#close-actual').value='';x.get('#close-actual').events.input();assert.equal(x.get('#close-comparison').hidden,true);
+});
+test('unsaved comparison clears on save, changed dates, navigation and changed accounts',async()=>{
+ for(const how of ['save','date','navigation','owner']){
+  const x=setup();await x.prepare();x.get('#close-actual').events.input();assert.equal(x.get('#close-comparison').hidden,false);
+  if(how==='save'){x.get('#close-ack').checked=true;await x.save();assert.equal(x.get('#close-paper').hidden,false);}
+  else if(how==='date')x.get('#close-day').events.input();
+  else if(how==='navigation')x.events.pagehide();
+  else{x.changeOwner(id);x.get('#close-actual').events.input();}
+  assert.equal(x.get('#close-comparison').hidden,true);assert.equal(x.get('#close-comparison').textContent,'');
+ }
+});
