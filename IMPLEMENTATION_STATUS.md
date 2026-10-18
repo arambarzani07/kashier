@@ -12,3 +12,5 @@ Remaining major online work:
 - Complete browser flow QA, physical printing/scanning QA, and regression checks for real shop workflows before calling the online system finished.
 
 The profit dashboard tile now opens the gross-profit report. Cashier access is implemented through scoped RPCs; manager read access is implemented; broader staff write permissions remain to be implemented. Do not report the whole system as complete. No offline app shell, offline posting queue or offline/online stock reconciliation has been started.
+
+Owner cash overview now links each validated employee to their detailed cash report with the same Baghdad date range. Detail links validate dates and membership against the signed-in owner roster before fetching; valid guest links survive authentication. Unknown, repeated or invalid selection parameters do not auto-fetch.
