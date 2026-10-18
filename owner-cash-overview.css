@@ -1,0 +1,1 @@
+#staff-cash-paper table{min-width:1050px}#staff-cash-rows td:first-child{white-space:normal;min-width:140px}@media print{@page{size:A4 landscape;margin:10mm}#staff-cash-paper table{min-width:0;font-size:9px}#staff-cash-paper th,#staff-cash-rows td{white-space:normal;padding:6px 4px}#staff-cash-rows td:first-child{min-width:0}}
