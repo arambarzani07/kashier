@@ -34,7 +34,7 @@ do $$declare x jsonb;begin
  if(select quantity_units from public.product_stock where product_id=current_setting('st.product')::uuid)<>8000 or(select balance from public.cash_accounts)<>2000 or(select count(*) from public.sales)<>2 then raise exception 'atomic stock/cash/replay';end if;
  if(select actor_id from public.sales where id=current_setting('st.sale')::uuid)<>current_setting('st.member')::uuid or(select actor_id from public.sales where id=current_setting('st.owner_sale')::uuid)<>auth.uid() then raise exception 'owner/cashier attribution';end if;
  if(select -c.value_delta from public.inventory_cost_movements c join public.stock_movements m on m.id=c.id where m.sale_id=current_setting('st.sale')::uuid)<>500 then raise exception 'shared cost tracking';end if;
- x:=public.export_owner_data();if x->>'version'<>'7' or(select count(*) from jsonb_object_keys(x->'tables'))<>29 then raise exception 'staff export';end if;
+ x:=public.export_owner_data();if x->>'version'<>'8' or(select count(*) from jsonb_object_keys(x->'tables'))<>30 then raise exception 'staff export';end if;
  perform public.save_store_cashier(gen_random_uuid(),current_setting('st.member')::uuid,'Renamed cashier','Store A',true,false,2);
  if(select actor_name from public.sales where id=current_setting('st.sale')::uuid)<>'Cashier A' then raise exception 'historic name changed';end if;
 end $$;

@@ -17,7 +17,7 @@ do $$declare raw text:=current_setting('rs.raw');d jsonb:=raw::jsonb;x jsonb;v j
  if v->>'status'<>'committed' or v->>'record_count'<>'59' or v->>'sha256'<>h then raise exception 'receipt incorrect';end if;
  if public.restore_owner_data(rid,raw,h,true)<>v then raise exception 'replay changed receipt';end if;
  x:=public.export_owner_data();expected:=d->'tables';expected:=jsonb_set(expected,'{store_cashiers}',(select jsonb_agg(r||jsonb_build_object('enabled',false,'accepted_at',null,'can_discount',false,'can_credit',false,'can_repay',false,'can_refund',false,'can_partial_refund',false) order by r->>'id') from jsonb_array_elements(expected->'store_cashiers') r));
- if x->'tables'<>expected or x->'counts'<>d->'counts' then raise exception 'restored tables differ from original exact values';end if;
+ if ((x->'tables')-'daily_cash_closes')<>expected or ((x->'counts')-'daily_cash_closes')<>d->'counts' then raise exception 'restored tables differ from original exact values';end if;
  begin perform public.restore_owner_data(gen_random_uuid(),raw,h,true);raise exception 'nonempty overwrite accepted';exception when others then if sqlerrm<>'restore_account_not_empty' then raise;end if;end;
  raw:=raw||' ';begin perform public.restore_owner_data(rid,raw,encode(sha256(convert_to(raw,'UTF8')),'hex'),true);raise exception 'UUID conflict accepted';exception when others then if sqlerrm<>'restore_request_conflict' then raise;end if;end;
  -- A normal posting after commit must run inventory costing, not the restore gate.

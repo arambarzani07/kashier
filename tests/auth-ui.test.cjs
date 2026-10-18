@@ -16,3 +16,5 @@ test('staff and scoped store destinations survive login while unknown parameters
 test('owner cash drilldown survives sign in while foreign query keys remain rejected',async()=>{const route='owner-cash.html?member=00000000-0000-4000-8000-000000000002&from=2026-10-18&to=2026-10-18';for(const next of [route,route+'&owner=foreign',route+'&next=https://evil.invalid']){const x=setup({next});x.fill();x.submit();await tick();assert.equal(x.location.href,next===route?route:'index.html');}});
 
 test('restore destination survives login and rejects unexpected restore parameters',async()=>{for(const next of ['restore.html','restore.html?owner=foreign']){const x=setup({next});x.fill();x.submit();await tick();assert.equal(x.location.href,next==='restore.html'?next:'index.html');}});
+
+test('daily close survives login but owner query parameters are rejected',async()=>{for(const next of ['daily-close.html','daily-close.html?owner=foreign']){const x=setup({next});x.fill();x.submit();await tick();assert.equal(x.location.href,next==='daily-close.html'?next:'index.html');}});
