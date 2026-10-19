@@ -4,11 +4,11 @@
 
 ## Verified release
 
-Runtime commit: `0916fe31c75264add8d776f2da9aa906b60f8605` (Sorani validation, journal safeguards and original-account guards for cash/customer-debt workflows).
+Runtime commit: `126b12cb986a6826f0090ddd355e5fb102f565a6` (purchase journal recovery and original-account guards, building on the earlier cash/customer-debt safeguards).
 Production: https://kashier-hazel.vercel.app
 Earlier financial workflow checks below ran on runtime `296e2124f2234425155db9677534bce57eba9b99`; later releases add Sorani debt validation, delay new purchase-payment retry journals until confirmation, and stop payment when journals cannot be safely recovered or saved.
 
-- Full release check passed: 750 Node tests across 78 files, static references and source/output parity.
+- Full release check passed: 755 Node tests across 78 files, static references and source/output parity.
 - Live configuration audit passed: 30 public tables with RLS, 84 public invoker RPCs denying anonymous execution, four invoker views, no anonymous relation/column grants or client TRUNCATE grants, and no direct client access to private restore receipts.
 - Thirteen live database suites below passed. They run in temporary test accounts inside transactions ending in ROLLBACK. Follow-up verification found zero surviving fixture accounts. These tests exercise database functions under simulated JWT claims; they do not test actual browser sign-in, network/session behavior or printer/scanner hardware. PostgreSQL sequences can consume numbers even in rolled-back tests; numbering gaps are not duplicated transactions.
 
@@ -140,7 +140,7 @@ The same fail-open journal pattern was found in manual cash and customer-debt pa
 - Draft edits, supplier selections, clear actions and purchase submissions require the original signed-in account. Late supplier responses are discarded after account changes. A purchase response or definitive error received under another account cannot erase the original retry UUID or navigate to its receipt; the original account can replay the same request.
 - Five new UI regression tests cover malformed journals, storage failures, account switching before/during posting, original-account replay and stale supplier responses/buttons. The catalogue scan fixture now explicitly records its ordinary draft as `posting: null`, matching the application format.
 - Full release check passed: 755 tests across 78 files, static references and source/dist parity. These are local UI/database-model checks; authenticated browser interruption/recovery and physical-shop acceptance gates remain open. This change makes no live financial writes.
-- Deployment evidence for this source change will be recorded after the production release is confirmed.
+- Production deployment `dpl_2NG1WZJ3EKdaR9S4WZG8X5XSEfMv` reached READY for commit `126b12c`; static HTML/JS build took about 13 seconds. The stable production purchase asset returned HTTP 200 with fail-closed journal handling, exact write/readback and original-account response guards. Vercel's runtime-error query for the preceding hour found no errors; no project drains are configured. Client-side error observability and authenticated browser acceptance remain open.
 
 | Gate | Acceptance evidence needed | Status |
 | --- | --- | --- |
