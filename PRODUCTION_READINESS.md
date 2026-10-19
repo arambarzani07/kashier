@@ -30,7 +30,7 @@ The subsequent security-audit commit changes documentation/tests only.
 
 ## Authenticated browser acceptance — partial
 
-Checked against the stable production URL on 2026-10-19 using the secure sign-in flow. A fresh rendered daily-close page confirmed successful authentication. This does not establish a separate staff identity or prove that the account is disposable.
+Checked against the stable production URL on 2026-10-19 using the secure sign-in flow. A fresh rendered daily-close page confirmed successful authentication. The user subsequently explicitly identified this as a test account; no separate staff identity has been tested.
 
 - Daily-close preview loaded for the completed Baghdad day 2026-10-18, showing an expected balance of 0 IQD.
 - Entering `١٢٣` displayed a numeric counted amount of 123 and signed surplus of +123 before saving.
@@ -38,13 +38,21 @@ Checked against the stable production URL on 2026-10-19 using the secure sign-in
 - Cleared all draft values without saving. History loaded for 2026-10-01 through 2026-10-18 with zero saved closes.
 - A range starting 2026-08-01 was rejected with the Sorani maximum-31-days message and disabled print/CSV; restoring the valid range reloaded the empty report.
 
-No sale, collection, payment, return or close was submitted. These checks prove preview/validation behavior only; posting, retry recovery, non-empty receipts and separate staff boundaries remain unverified in the browser. Financial-write acceptance must use an explicitly designated disposable test account.
+The initial checks above submitted no financial records. After the user explicitly designated the signed-in account as a test account, the following browser writes were completed:
+
+- Existing soap item `10101010` started at stock 0, sale price 1,500 IQD.
+- Stock-only purchase `P-413` / `895ad85c-3805-4947-bb0d-591d799fb80b`: 10 units × 1,000 IQD = 10,000 IQD. The receipt explicitly records no cash/debt effect.
+- Cash sale `K-473` / `90830334-a069-4e7f-b931-b6b9d269b06a`: 1 unit × 1,500 IQD; tender 5,000; change 3,500. The fresh stock page showed 9 remaining.
+- Fresh daily report showed one cash sale, 1,500 cash inflow and 1,500 closing cash balance; stock-only purchase had zero paid cash and zero new supplier debt. Existing customer debt of 1,000 was unchanged.
+- Full-return submission reached its browser confirmation boundary. The browser runtime refused dialog access with `retained_data_restricted`; explicit navigation to the retained canonical origin restored page observation. A further fresh daily report confirmed zero returns, zero refunds and cash balance still 1,500. Return acceptance remains BLOCKED by browser automation, not established as an application failure.
+
+Test purchase and sale remain recorded for review. Credit sale, collection, supplier payment, completed return, close posting, export/restore, interruption recovery and separate staff boundaries still need browser evidence.
 
 ## Required acceptance before real-shop use
 
 | Gate | Acceptance evidence needed | Status |
 | --- | --- | --- |
-| Authenticated browser workflows | Login and read-only close/history checks passed; cash/credit sale, collection, supplier payment, return, export/checksum and empty-account recovery still need browser evidence | PARTIAL |
+| Authenticated browser workflows | Login, stock-only purchase, cash sale, stock/cash reconciliation and read-only close/history checks passed; credit/collection, supplier payment, completed return, export/checksum and empty-account recovery remain | PARTIAL |
 | Cashier/manager browser boundaries | Separate identities, consent, allowed actions, denied actions and owner suspension | NOT RUN |
 | Interruptions and retry in browser | Refresh/back navigation/account change during pending requests; identical UUID recovery without duplicated financial entries | NOT RUN |
 | Physical receipt and labels | Actual shop printer, Kurdish rendering, paper dimensions, totals, long names and barcode readability | NOT RUN |
@@ -59,4 +67,4 @@ The INFO advisory on private restore receipts having RLS without policies reflec
 
 Staff credit-sale returns, returns of other actors' receipts, staff purchasing/inventory writes, broader staff financial reporting, shift cash handover, net-profit accounting and offline operation remain unimplemented. Do not enable or describe these as supported. Gross profit is coverage-aware; it must not be described as net profit. Same-owner archive recovery is restricted to an empty account in the same database and is not a migration or merge.
 
-No launch approval or real-shop readiness claim is implied by this report. No real customer/store records were created for these checks.
+No launch approval or real-shop readiness claim is implied by this report. Database suites created no lasting fixture accounts. Browser acceptance subsequently created the explicitly authorized test-account records listed above; they remain for review.
