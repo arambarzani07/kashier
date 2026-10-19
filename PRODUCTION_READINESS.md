@@ -4,11 +4,11 @@
 
 ## Verified release
 
-Runtime commit: `3d1fae5e43e8aa74c44475a8040ea6ec0b593265` (Sorani validation and purchase/cash/customer-debt journal safeguards).
+Runtime commit: `0916fe31c75264add8d776f2da9aa906b60f8605` (Sorani validation, journal safeguards and original-account guards for cash/customer-debt workflows).
 Production: https://kashier-hazel.vercel.app
 Earlier financial workflow checks below ran on runtime `296e2124f2234425155db9677534bce57eba9b99`; later releases add Sorani debt validation, delay new purchase-payment retry journals until confirmation, and stop payment when journals cannot be safely recovered or saved.
 
-- Full release check passed: 744 Node tests across 78 files, static references and source/output parity.
+- Full release check passed: 750 Node tests across 78 files, static references and source/output parity.
 - Live configuration audit passed: 30 public tables with RLS, 84 public invoker RPCs denying anonymous execution, four invoker views, no anonymous relation/column grants or client TRUNCATE grants, and no direct client access to private restore receipts.
 - Thirteen live database suites below passed. They run in temporary test accounts inside transactions ending in ROLLBACK. Follow-up verification found zero surviving fixture accounts. These tests exercise database functions under simulated JWT claims; they do not test actual browser sign-in, network/session behavior or printer/scanner hardware. PostgreSQL sequences can consume numbers even in rolled-back tests; numbering gaps are not duplicated transactions.
 
@@ -121,6 +121,15 @@ The same fail-open journal pattern was found in manual cash and customer-debt pa
 - Normal unsent drafts remain editable; valid pending requests still recover with identical payloads. Six regressions cover corrupted journals, storage failures, read-only refresh and ordinary drafts. Full release verification passed: 744 tests and source/dist parity.
 - No live financial records were changed. Browser refresh/recovery acceptance remains open because the authenticated cloud browser cannot resume safely; these checks use the local UI harness.
 - Deployment `dpl_3cMdVf2poAmVRtxWws2FPJ65HWbo` reached READY for production commit `3d1fae5`; static HTML/JS build completed in about 13 seconds. Both stable production JS assets returned HTTP 200 with the new guards. Runtime error logs, drains and monitoring configuration were not inspected in this release; asset verification is not a runtime error scan.
+
+## Original-account guards for cash and debt — 2026-10-19
+
+- Manual cash and customer-debt pages now capture their initial owner. Saving drafts, opening financial forms, submitting/retrying, applying loaded ledger data, showing receipts and printing require that same signed-in owner.
+- Detecting a different account clears displayed ledger/profile/summary details, closes old financial dialogs and disables posting. The original owner's pending request remains stored under its existing key.
+- Account changes while an API response is pending cannot clear the original retry identity or show its success receipt in the other account. Returning to the original owner permits replay of the identical payload/UUID. This does not cancel a request already sent to the server; its result may need reconciliation under that owner.
+- Six new UI regressions cover pre-submit and pending-retry switches, late reads, and switching during a post then recovering as the original owner. Full release/static verification passed with 750 tests across 78 files.
+- Local harness and deployed-source verification do not replace authenticated browser account-switch testing, which remains open. No live business records were written and server permissions were not changed.
+- Production deployment `dpl_GRckcHFaY6aGNFARZJiosTpQdXbF` reached READY for commit `0916fe3`; static HTML/JS build took about 15 seconds. Both stable JS assets returned HTTP 200 with the original-account guards. Vercel's grouped runtime-error query for the preceding hour found no errors; zero project drains are configured. This server-side query does not capture client-side JS or direct Supabase failures, so client observability remains a gap.
 
 ## Required acceptance before real-shop use
 
