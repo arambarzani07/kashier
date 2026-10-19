@@ -2,6 +2,8 @@
 
 **Current operating mode: maintenance for access-system redesign, requested by the owner on 2026-10-20.** The live site now routes requests to a self-contained maintenance page rather than serving the previous login, staff or transaction UI. Existing source is retained for redesign/rollback. Business records, authentication and database authorization are preserved; this is not anonymous access or removal of database protections. Already-open clients and existing authenticated API access are not revoked by this routing change. The earlier readiness evidence below describes the preceding application runtime, not a current launch approval.
 
+Maintenance release `4c57dcc0f37f1bdb3225274d95f925f97b10cdd2`, deployment `dpl_CoidDktofT3J9vdG8P3TqDg8cBhb`, reached production READY in about 12 seconds. Full release check passed (757 tests, 78 files; 61 static pages and source/dist parity). Stable-alias requests to `/`, `/auth.html`, `/staff.html`, `/sale.html`, `/config.js` and `/maintenance.html` all returned the self-contained maintenance HTML with no application scripts; rewritten paths returned `Cache-Control: no-store`. A fresh browser navigation visibly confirmed the maintenance screen. No database or user-session mutation was made. Runtime-error scan for the preceding hour found none; no project drains/client monitoring destination are configured.
+
 **Decision: not yet cleared for real-shop operation.** The evidence below supports the implemented online backend; authenticated browser acceptance is partial and physical shop checks remain open. Offline operation is not implemented.
 
 ## Verified release
