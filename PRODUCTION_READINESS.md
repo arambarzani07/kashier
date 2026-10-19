@@ -62,13 +62,23 @@ Test purchase and sales remain recorded for review.
 - Fresh stock showed 9 units (8 + 1). Fresh daily report showed two purchases totaling 11,000, initial purchase cash paid 250, supplier debt created 750, zero subsequent supplier payments, and closing cash 2,750 (3,000 − 250). Customer debt remained 1,000.
 - Prepared, but did not submit, a 750 IQD payment against P-414 with a Sorani test note. Source inspection confirmed that subsequent supplier payments use a native confirm dialog, the same browser capability previously blocked for returns. Manual browser handoff is needed to complete that acceptance step; no payment success is claimed.
 
-Supplier payment completion, completed return, close posting, export/restore, interruption recovery and separate staff boundaries still need browser evidence.
+- Following the user's explicit request, clicked Submit Payment for 750. Native dialog access was again rejected by the browser runtime. After permitted canonical-origin recovery, a fresh purchase finance panel still showed subsequent payments 0 and outstanding 750. Its retry draft retained the same request identity; no supplier payment was completed.
+
+### Posted daily close and history — 2026-10-19
+
+- Posted the completed Baghdad day 2026-10-18 with expected 0, test counted amount `٠` (0), difference 0 and an explicit Sorani note stating this is a QA document, not a physical till count.
+- Saved close ID: `e1ca33e2-3f0e-4a18-b46b-1843cd191d12`; created at `2026-10-19T14:53:13.257144+00:00`.
+- Fresh rendered receipt reported success and no cash transaction, with amount/note/acknowledgment/save controls disabled. Print and CSV controls were enabled. This verifies UI locking, not an attempted server-side tamper.
+- Navigated to history: exactly one saved close appeared, classified balanced, with date 2026-10-18, expected/counted/difference all zero and the saved QA note. The date link pointed to that day's detail page.
+- CSV-download observation failed with the browser runtime's `retained_data_restricted` error and reset its kernel before a file path was returned. Rebinding the existing tab was refused because native credential state could not safely resume. CSV completion and subsequent detail navigation remain UNKNOWN; no further browser recovery was attempted. This is an automation limitation, not evidence of an application CSV failure.
+
+Supplier payment completion, completed return, CSV/export/restore, interruption recovery and separate staff boundaries still need browser evidence. Physical till reconciliation remains untested; the saved zero close is explicitly test data.
 
 ## Required acceptance before real-shop use
 
 | Gate | Acceptance evidence needed | Status |
 | --- | --- | --- |
-| Authenticated browser workflows | Login, stock-only/tracked purchases, cash/partial-credit sales, collection, stock/cash/debt reconciliation and read-only close/history checks passed; supplier payment, completed return, export/checksum and empty-account recovery remain | PARTIAL |
+| Authenticated browser workflows | Login, stock-only/tracked purchases, cash/partial-credit sales, collection, stock/cash/debt reconciliation and posted close/history checks passed; supplier payment, completed return, export/checksum and empty-account recovery remain | PARTIAL |
 | Cashier/manager browser boundaries | Separate identities, consent, allowed actions, denied actions and owner suspension | NOT RUN |
 | Interruptions and retry in browser | Refresh/back navigation/account change during pending requests; identical UUID recovery without duplicated financial entries | NOT RUN |
 | Physical receipt and labels | Actual shop printer, Kurdish rendering, paper dimensions, totals, long names and barcode readability | NOT RUN |
