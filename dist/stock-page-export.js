@@ -1,0 +1,6 @@
+(function(root){'use strict';
+function quantity(units,signed=false){if(!Number.isSafeInteger(units)||Math.abs(units)>1000000000000||(!signed&&units<0))throw Error('بڕی کۆگا نادروستە.');const n=Math.abs(units),fraction=String(n%1000).padStart(3,'0').replace(/0+$/,'');return (units<0?'-':signed&&units>0?'+':'')+Math.floor(n/1000)+(fraction?'.'+fraction:'');}
+function cell(value){let text=String(value??'');if(/^[\s\u0000-\u0020]*[=+@-]/.test(text)||/^[\t\r\n]/.test(text))text="'"+text;return '"'+text.replace(/"/g,'""')+'"';}
+function csv(s){if(!s||!Array.isArray(s.headers)||!Array.isArray(s.rows)||s.rows.length>50||!Number.isSafeInteger(s.page)||s.page<1||!Number.isSafeInteger(s.total)||s.total<0||s.rows.some(r=>!Array.isArray(r)||r.length!==s.headers.length))throw Error('پەڕەی کۆگا ئامادە نییە.');const prefix=['کاتی خوێندنەوە','جۆری لیست','پەڕە','کۆی ئەنجامەکان','ژمارەی ڕیزی ئەم پەڕەیە','گەڕان','فلتەر','سنووری بڕ','ناسنامەی کاڵا'];return '\ufeff'+[[...prefix,...s.headers],...s.rows.map(r=>[s.read_at,s.kind,s.page,s.total,s.rows.length,s.query,s.mode,s.limit,s.product,...r])].map(r=>r.map(cell).join(',')).join('\r\n')+'\r\n';}
+root.StockPageExport={quantity,csv};if(typeof module==='object'&&module.exports)module.exports=root.StockPageExport;
+})(globalThis);

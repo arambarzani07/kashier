@@ -18,3 +18,37 @@ test('restored pending request can be retried even if snapshot fails; tampered r
 test('unknown acknowledgement keeps request and account change prevents further writes',async()=>{const x=setup({write:async()=>({id:'wrong'})});await tick();x.submit();await tick();assert.equal(x.store.size,1);x.owner(id(99));x.get('#allocation-retry').click();await tick();assert.equal(x.calls.length,1);assert.equal(x.get('#allocation-content').hidden,true);});
 test('late reads cannot restore private data after navigation, and back-forward restoration reloads auth',async()=>{let resolve;const x=setup({read:()=>new Promise(r=>resolve=r)});x.events.pagehide();resolve(fixture());await tick();assert.equal(x.get('#allocation-content').hidden,true);x.events.pageshow({persisted:true});assert.equal(x.loc.reloaded,true);const y=setup({loggedIn:false});await tick();assert.match(y.loc.redirect,/auth.html/);});
 test('allocation reversal requires explicit reason and sends original allocation ID without money posting',async()=>{const x=setup();await tick();const row=x.get('#allocation-history').children[0],button=row.children[5].children[0];button.click();assert.equal(x.get('#allocation-reverse-dialog').open,true);x.get('#allocation-reason').value='wrong invoice';x.get('#allocation-reverse-form').events.submit({preventDefault(){}});await tick();assert.equal(x.calls.length,1);assert.equal(x.calls[0].p_allocation,allocation);assert.equal(x.calls[0].p_reason,'wrong invoice');assert.equal(x.store.size,0);});
+test('local whole-IQD input preserves exact value and canonicalizes digit sets and leading zeroes',()=>{
+ for(const value of ['1000','١٠٠٠','۱۰۰۰',' ٠۱0۰٠ '])assert.equal(model.inputAmount(value),'1000');
+ assert.equal(model.inputAmount('۱۰۰۰۰۰۰۰۰۰۰۰۰۰۰'),'100000000000000');
+ for(const value of ['', '٠','۰','100000000000001','0000000000000001','1,000','١٬٠٠٠','1.5','١٫٥','-1','+1','1e3','1 000','1\n000',1000,null])assert.throws(()=>model.inputAmount(value));
+ // Local input tolerance must never weaken validation of server or persisted money.
+ for(const value of ['١٠٠٠','۱۰۰۰','01000'])assert.throws(()=>model.money(value));
+});
+test('localized form submits and persists canonical IQD before an uncertain response and retry',async()=>{
+ for(const amount of ['١٠٠٠','۱۰۰۰','٠۱0۰٠']){
+  const x=setup({write:async()=>{throw Error('network');}});await tick();
+  x.get('#allocation-payment').value=payment;x.get('#allocation-charge').value=charge;
+  x.get('#allocation-amount').value=amount;x.get('#allocation-note').value='assign';
+  x.get('#allocation-form').events.submit({preventDefault(){}});await tick();
+  assert.equal(x.calls.length,1);assert.equal(x.calls[0].p_amount,'1000');
+  assert.equal(JSON.parse(x.store.get(x.key)).payload.p_amount,'1000');
+  x.get('#allocation-retry').click();await tick();assert.deepEqual(x.calls[1],x.calls[0]);
+ }
+});
+test('localized amounts retain capacity checks and invalid separators never create a request',async()=>{
+ for(const amount of ['١٠٠١','۱۰۰۱','٠','1,000','١٬٠٠٠','١٫٥']){
+  const x=setup();await tick();x.get('#allocation-payment').value=payment;x.get('#allocation-charge').value=charge;
+  x.get('#allocation-amount').value=amount;x.get('#allocation-note').value='assign';
+  x.get('#allocation-form').events.submit({preventDefault(){}});await tick();
+  assert.equal(x.calls.length,0);assert.equal(x.store.size,0);
+ }
+});
+test('native amount constraint accepts local digit keyboards and distributed assets match',()=>{
+ const html=fs.readFileSync(require.resolve('../customer-allocations.html'),'utf8');
+ const input=html.match(/<input id="allocation-amount"[^>]+>/)[0],pattern=new RegExp('^(?:'+input.match(/pattern="([^"]+)"/)[1]+')$','v');
+ for(const value of ['1000','١٠٠٠','۱۰۰۰','١۰0٠'])assert.equal(pattern.test(value),true);
+ for(const value of ['','1,000','١٬٠٠٠','1.5','-1'])assert.equal(pattern.test(value),false);
+ assert.match(input,/aria-describedby="allocation-amount-help allocation-limit"/);
+ for(const name of ['customer-allocations-model.js','customer-allocations.js','customer-allocations.html'])assert.equal(fs.readFileSync(require.resolve('../'+name),'utf8'),fs.readFileSync(require.resolve('../dist/'+name),'utf8'));
+});

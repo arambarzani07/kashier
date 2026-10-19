@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ckb" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#1253c8">
+  <title>کاشێر — گەڕاندنەوەکانی کڕین</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="catalog.css">
+  <link rel="stylesheet" href="returns.css">
+  <link rel="stylesheet" href="purchase-returns.css">
+  <script src="preferences.js" defer></script>
+  <script src="config.js" defer></script>
+  <script src="data.js" defer></script>
+  <script src="purchase-returns-data.js" defer></script>
+  <script src="purchase-returns.js" defer></script>
+  <link rel="stylesheet" href="preferences.css">
+</head>
+<body class="returns-page">
+  <header class="topbar"><div class="brand"><span class="brand-mark">K</span><strong>کاشێر</strong></div><span>گەڕاندنەوەکانی کڕین</span><a class="home-link" href="index.html">سەرەکی ←</a></header>
+  <main class="returns-main">
+    <section class="returns-heading"><div><span class="eyebrow">Purchase Returns Center</span><h1>ناوەندی گەڕاندنەوەکانی کڕین</h1><p>Full Return و Partial Return لە یەک شوێن. بۆ کڕینی قەرزدار، بڕی گەڕاندنەوە سەرەتا قەرزی ماوە هەڵدەوەشێنێتەوە و زیادەکە پارەی گەڕاوە بۆ قاسە دەبێت.</p></div><a class="secondary" href="purchase-receipts.html">پسوولەکانی کڕین</a></section>
+    <form id="purchase-returns-filter" class="returns-filter purchase-returns-filter" autocomplete="off">
+      <label>جۆر<select id="purchase-returns-kind"><option value="all">هەموو</option><option value="full">گەڕاندنەوەی تەواو</option><option value="partial">گەڕاندنەوەی بەشی</option></select></label>
+      <label>لە بەروار<input id="purchase-returns-from" type="date"></label><label>تا بەروار<input id="purchase-returns-to" type="date"></label><label>دابینکەر<input id="purchase-returns-supplier" type="search" maxlength="100" placeholder="ناوی دابینکەر"></label><label>بڕی کەم<input id="purchase-returns-min" type="number" min="0" max="100000000000000" step="1" inputmode="numeric" placeholder="0"></label><label>بڕی زۆر<input id="purchase-returns-max" type="number" min="0" max="100000000000000" step="1" inputmode="numeric" placeholder="—"></label><label class="returns-query">گەڕان<input id="purchase-returns-query" type="search" maxlength="100" placeholder="ژمارەی پسوولە، گەڕاندنەوە، فاتورە یان هۆکار"></label><div class="returns-filter-actions"><button class="primary" type="submit">گەڕان</button><button class="secondary" id="purchase-returns-clear" type="button">پاککردنەوە</button></div>
+    </form>
+    <section class="returns-summary purchase-returns-summary" aria-label="پوختەی فلتەر"><article><span>کۆی تۆمار</span><strong id="purchase-returns-total">—</strong></article><article><span>پەڕە</span><strong id="purchase-returns-page-label">—</strong></article><article><span>کۆی بڕی ئەم پەڕەیە</span><strong id="purchase-returns-page-total">—</strong></article><article><span>قەرزی هەڵوەشاوەی ئەم پەڕەیە</span><strong id="purchase-returns-page-debt">—</strong></article><article><span>پارەی گەڕاوەی ئەم پەڕەیە</span><strong id="purchase-returns-page-cash">—</strong></article></section>
+    <section class="returns-list" aria-labelledby="purchase-returns-list-title"><div class="section-heading"><div><span class="eyebrow">بەروار بە پێی بغداد</span><h2 id="purchase-returns-list-title">تۆمارەکان</h2></div><button id="purchase-returns-refresh" class="secondary" type="button">نوێکردنەوە</button></div><a href="purchase-variance.html">جیاوازی بەهای گەڕاندنەوەی کڕین</a><p id="purchase-returns-status" class="inline-status" role="status" aria-live="polite"></p><div class="table-wrap"><table class="purchase-returns-table"><caption class="sr-only">لیستی گەڕاندنەوەکانی کڕین</caption><thead><tr><th>ژمارە</th><th>بەروار</th><th>جۆر</th><th>پسوولەی سەرچاوە</th><th>فاتورە</th><th>دابینکەر</th><th>کۆی گەڕاندنەوە</th><th>قەرزی هەڵوەشاوە</th><th>پارەی گەڕاوە</th><th>شێوازی حساب</th><th>هۆکار</th><th>کردار</th></tr></thead><tbody id="purchase-returns-rows"></tbody></table></div><p id="purchase-returns-empty" class="empty-state" hidden>هیچ گەڕاندنەوەی کڕین بەم فلتەرە نەدۆزرایەوە.</p><div class="catalog-pagination"><button id="purchase-returns-previous" class="secondary" type="button">پێشوو</button><span id="purchase-returns-count"></span><button id="purchase-returns-next" class="secondary" type="button">داهاتوو</button></div></section>
+  </main>
+</body>
+</html>

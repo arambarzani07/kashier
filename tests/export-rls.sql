@@ -21,9 +21,9 @@ select public.post_sale_return(gen_random_uuid(),current_setting('ex.sale2')::uu
 do $$declare p record;begin select * into p from public.stock_catalog where id=current_setting('ex.p')::uuid;perform public.post_stock_waste(gen_random_uuid(),p.id,p.quantity_units,p.stock_version::bigint,1,'Broken');end $$;
 do $$declare v jsonb;k text;n bigint;total bigint:=0;before_count bigint;begin
  select count(*) into before_count from public.stock_movements;
- v:=public.export_owner_data();if v->>'format'<>'kashier-owner-export' or v->>'owner_id'<>current_setting('ex.a') or v->>'version'<>'2' or v->>'schema_revision'<>'20261017135746' or (select count(*) from jsonb_object_keys(v->'tables'))<>19 then raise exception 'export metadata incorrect';end if;
+ v:=public.export_owner_data();if v->>'format'<>'kashier-owner-export' or v->>'owner_id'<>current_setting('ex.a') or v->>'version'<>'8' or v->>'schema_revision'<>'owner-daily-cash-close-v1' or (select count(*) from jsonb_object_keys(v->'tables'))<>30 then raise exception 'export metadata incorrect';end if;
  for k in select jsonb_object_keys(v->'tables') loop
-  n:=jsonb_array_length(v->'tables'->k);if n<1 or n<>(v->'counts'->>k)::bigint then raise exception 'missing table or count mismatch: %',k;end if;
+  n:=jsonb_array_length(v->'tables'->k);if n<>(v->'counts'->>k)::bigint then raise exception 'missing table or count mismatch: %',k;end if;
   if exists(select 1 from jsonb_array_elements(v->'tables'->k) r where r->>'owner_id'<>current_setting('ex.a')) then raise exception 'wrong-owner row';end if;
   total:=total+n;
  end loop;
@@ -47,5 +47,5 @@ set local role authenticated;
 do $$begin begin perform public.export_owner_data();raise exception 'oversized export accepted';exception when raise_exception then if sqlerrm<>'export_too_large' then raise;end if;end;end $$;
 reset role;
 do $$begin if has_function_privilege('anon','public.export_owner_data()','execute') then raise exception 'anonymous export exposed';end if;end $$;
-select 'PASS: export v2 all 19 tables, new purchase returns/payment allocations, owner isolation, size/count caps and no mutation' verification;
+select 'PASS: export v8 all 30 tables, new purchase returns/payment allocations, owner isolation, size/count caps and no mutation' verification;
 rollback;

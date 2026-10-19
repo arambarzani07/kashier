@@ -1,0 +1,6 @@
+(function(root){'use strict';
+const fields=['cash_balance','customer_balance','supplier_balance','product_count','low_stock_count','expired_count'];
+function validate(data,owner){if(!data||data.scope!=='owner-dashboard-v1'||data.owner_id!==owner||data.currency!=='IQD'||data.timezone!=='Asia/Baghdad'||typeof data.generated_at!=='string'||!/^\d{4}-\d{2}-\d{2}T/.test(data.generated_at)||!Number.isFinite(Date.parse(data.generated_at)))throw Error('پوختەی هەژمار پشتڕاست نەکرایەوە.');const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Baghdad',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(data.generated_at)),part=t=>parts.find(p=>p.type===t).value;if(data.today!==part('year')+'-'+part('month')+'-'+part('day'))throw Error('ڕۆژی پوختە یەک ناگرێتەوە.');for(const k of fields)if(typeof data[k]!=='string'||!/^(0|[1-9]\d{0,29})$/.test(data[k]))throw Error('بڕی پوختە نادروستە.');if(BigInt(data.low_stock_count)>BigInt(data.product_count)||BigInt(data.expired_count)>BigInt(data.product_count))throw Error('ژمارەی ئاگادارییەکان یەک ناگرێتەوە.');return data;}
+function format(value){return new Intl.NumberFormat('en-US').format(BigInt(value));}
+root.DashboardModel={fields,validate,format};if(typeof module==='object'&&module.exports)module.exports=root.DashboardModel;
+})(globalThis);

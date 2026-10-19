@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "node scripts/release-check.cjs",
+  "outputDirectory": "dist",
+  "routes": [
+    {
+      "src": "/(?!maintenance\\.html$)(.*)",
+      "dest": "/maintenance.html",
+      "headers": { "Cache-Control": "no-store" }
+    },
+    { "handle": "filesystem" }
+  ]
+}

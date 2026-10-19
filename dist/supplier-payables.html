@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ckb" dir="rtl">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#1253c8">
+  <title>کاشێر — قەرزە ماوەکانی دابینکەر</title>
+  <link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="catalog.css"><link rel="stylesheet" href="returns.css"><link rel="stylesheet" href="supplier-payables.css"><link rel="stylesheet" href="preferences.css">
+  <script src="preferences.js" defer></script><script src="config.js" defer></script><script src="data.js" defer></script><script src="supplier-payables-data.js" defer></script><script src="supplier-payables.js" defer></script>
+</head>
+<body class="returns-page">
+<header class="topbar"><div class="brand"><span class="brand-mark">K</span><strong>کاشێر</strong></div><span>قەرزە ماوەکانی دابینکەر</span><a class="home-link" href="index.html">سەرەکی ←</a></header>
+<main class="returns-main">
+  <section class="returns-heading"><div><span class="eyebrow">Supplier Payables Center</span><h1>ناوەندی قەرزە ماوەکانی کڕین</h1><p>تەنها پسوولە قەرزدارە کراوەکان. پارەدان و گەڕاندنەوەی قەرزدار خۆکار لە outstanding ـی هەمان پسوولە کەم دەبنەوە.</p></div><div class="payables-links"><a class="secondary" href="suppliers.html">دابینکەرەکان</a><a class="secondary" href="purchase-receipts.html">پسوولەکانی کڕین</a></div></section>
+  <form id="supplier-payables-filter" class="returns-filter supplier-payables-filter" autocomplete="off">
+    <label>دابینکەر<input id="supplier-payables-supplier" type="search" maxlength="100" placeholder="ناوی دابینکەر"></label>
+    <label>قەرزی کەم<input id="supplier-payables-min" type="number" min="0" max="100000000000000" step="1" inputmode="numeric" placeholder="0"></label>
+    <label>قەرزی زۆر<input id="supplier-payables-max" type="number" min="0" max="100000000000000" step="1" inputmode="numeric" placeholder="—"></label>
+    <label class="payables-query">گەڕان<input id="supplier-payables-query" type="search" maxlength="100" placeholder="ژمارەی پسوولە، فاتورە یان دابینکەر"></label>
+    <div class="returns-filter-actions"><button class="primary" type="submit">گەڕان</button><button class="secondary" id="supplier-payables-clear" type="button">پاککردنەوە</button></div>
+  </form>
+  <section class="returns-summary supplier-payables-summary" aria-label="پوختەی قەرزەکان">
+    <article><span>پسوولەی قەرزدار</span><strong id="supplier-payables-count-total">—</strong></article>
+    <article><span>قەرزی سەرەتایی</span><strong id="supplier-payables-original">—</strong></article>
+    <article><span>پارەدانی دواتر</span><strong id="supplier-payables-paid">—</strong></article>
+    <article><span>قەرزی هەڵوەشاوە</span><strong id="supplier-payables-reversed">—</strong></article>
+    <article><span>قەرزی ماوە</span><strong id="supplier-payables-outstanding">—</strong></article>
+  </section>
+  <section class="returns-list" aria-labelledby="supplier-payables-title">
+    <div class="section-heading"><div><span class="eyebrow">کۆنترین قەرز لە سەرەتا</span><h2 id="supplier-payables-title">پسوولە قەرزدارەکان</h2></div><button id="supplier-payables-refresh" class="secondary" type="button">نوێکردنەوە</button></div>
+    <p id="supplier-payables-status" class="inline-status" role="status" aria-live="polite"></p>
+    <div class="table-wrap"><table class="supplier-payables-table"><caption class="sr-only">لیستی پسوولە قەرزدارەکانی دابینکەر</caption><thead><tr><th>پسوولە</th><th>بەروار</th><th>دابینکەر</th><th>فاتورە</th><th>کۆی کڕین</th><th>پارەی سەرەتایی</th><th>قەرزی سەرەتایی</th><th>پارەدانی دواتر</th><th>قەرزی هەڵوەشاوە</th><th>قەرزی ماوە</th><th>کردار</th></tr></thead><tbody id="supplier-payables-rows"></tbody></table></div>
+    <p id="supplier-payables-empty" class="empty-state" hidden>هیچ پسوولەی قەرزدار بەم فلتەرە نەدۆزرایەوە.</p>
+    <div class="catalog-pagination"><button id="supplier-payables-previous" class="secondary" type="button">پێشوو</button><span id="supplier-payables-count"></span><button id="supplier-payables-next" class="secondary" type="button">داهاتوو</button></div>
+  </section>
+</main>
+</body>
+</html>
