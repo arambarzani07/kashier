@@ -133,6 +133,15 @@ The same fail-open journal pattern was found in manual cash and customer-debt pa
 
 ## Required acceptance before real-shop use
 
+### Online purchase recovery hardening — 2026-10-19
+
+- Purchase drafts now fail closed when storage is unreadable, malformed, missing required fields or contains a pending request that disagrees with the saved item quantities, costs, supplier, finance mode, paid amount, invoice or note. The original stored value remains intact and cannot be cleared by the purchase-clear action.
+- Exact journal write/readback is required before every send, including a pending retry. A silent storage failure cannot send a purchase.
+- Draft edits, supplier selections, clear actions and purchase submissions require the original signed-in account. Late supplier responses are discarded after account changes. A purchase response or definitive error received under another account cannot erase the original retry UUID or navigate to its receipt; the original account can replay the same request.
+- Five new UI regression tests cover malformed journals, storage failures, account switching before/during posting, original-account replay and stale supplier responses/buttons. The catalogue scan fixture now explicitly records its ordinary draft as `posting: null`, matching the application format.
+- Full release check passed: 755 tests across 78 files, static references and source/dist parity. These are local UI/database-model checks; authenticated browser interruption/recovery and physical-shop acceptance gates remain open. This change makes no live financial writes.
+- Deployment evidence for this source change will be recorded after the production release is confirmed.
+
 | Gate | Acceptance evidence needed | Status |
 | --- | --- | --- |
 | Authenticated browser workflows | Login, stock-only/tracked purchases, cash/partial-credit sales, collection, stock/cash/debt reconciliation and posted close/history checks passed; supplier payment, completed return, export/checksum and empty-account recovery remain | PARTIAL |
