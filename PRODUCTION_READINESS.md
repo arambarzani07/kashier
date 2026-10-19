@@ -4,11 +4,11 @@
 
 ## Verified release
 
-Runtime commit: `126b12cb986a6826f0090ddd355e5fb102f565a6` (purchase journal recovery and original-account guards, building on the earlier cash/customer-debt safeguards).
+Runtime commit: `3e68ae9edd9730e58d02279661afeb105796945b` (purchase draft quantity/cost persistence before blur, building on journal recovery and original-account guards).
 Production: https://kashier-hazel.vercel.app
 Earlier financial workflow checks below ran on runtime `296e2124f2234425155db9677534bce57eba9b99`; later releases add Sorani debt validation, delay new purchase-payment retry journals until confirmation, and stop payment when journals cannot be safely recovered or saved.
 
-- Full release check passed: 755 Node tests across 78 files, static references and source/output parity.
+- Full release check passed: 757 Node tests across 78 files, static references and source/output parity.
 - Live configuration audit passed: 30 public tables with RLS, 84 public invoker RPCs denying anonymous execution, four invoker views, no anonymous relation/column grants or client TRUNCATE grants, and no direct client access to private restore receipts.
 - Thirteen live database suites below passed. They run in temporary test accounts inside transactions ending in ROLLBACK. Follow-up verification found zero surviving fixture accounts. These tests exercise database functions under simulated JWT claims; they do not test actual browser sign-in, network/session behavior or printer/scanner hardware. PostgreSQL sequences can consume numbers even in rolled-back tests; numbering gaps are not duplicated transactions.
 
@@ -150,7 +150,8 @@ The same fail-open journal pattern was found in manual cash and customer-debt pa
 - Two regression tests cover persistence before blur across same-tab reload, keeping input identity, exact combined quantity/cost arithmetic and blocking submission while another numeric field remains invalid. Full release verification passed: 757 tests across 78 files and static/source-dist parity.
 - Fresh Supabase security advisory still reports leaked-password protection disabled, plus the intentional INFO-only deny-direct-access restore table. Project organization is on Free (`tier_free`). Official password-security docs state leaked-password protection requires Pro or above. No paid upgrade, billing commitment or authentication configuration change was made; the connector provides no Auth-configuration mutation capability.
 - Browser retry acceptance for an in-flight financial request and actual network interruption remain open. The available browser surface does not provide network-disconnect controls. Separate staff authentication/consent and physical printer/scanner/scale/till checks remain open. Centralized client error monitoring is still not configured; no local-only diagnostic capture is presented as production monitoring.
-- Deployment and repeated browser refresh/back evidence will be recorded after release verification.
+- Production deployment `dpl_GEQ9F3aZqfZRm697FVMP1R14YHVt` reached READY for exact commit `3e68ae9`; static HTML/JS build took about 13 seconds. Authenticated stable-alias browser verification passed: entering cost 1,250 and reloading immediately retained cost 1,250; entering quantity 2.5 and reloading retained both values and total 3,125. Navigating home then using browser Back retained the same draft, mode and QA note. The agent-created unsent QA draft was then cleared through the app's draft-clear dialog; no purchase was submitted and no business record was deleted.
+- Vercel's preceding-hour runtime-error scan found none; project drains remain empty. An attempted browser console-log read was denied by native retained-credential protection, so no successful client console scan is claimed. Ordinary page access resumed through permitted canonical-origin navigation. Centralized client monitoring remains an open gate.
 
 ### Online purchase recovery hardening — 2026-10-19
 
@@ -165,11 +166,11 @@ The same fail-open journal pattern was found in manual cash and customer-debt pa
 | --- | --- | --- |
 | Authenticated browser workflows | Login, stock-only/tracked purchases, cash/partial-credit sales, collection, stock/cash/debt reconciliation and posted close/history checks passed; supplier payment, completed return, export/checksum and empty-account recovery remain | PARTIAL |
 | Cashier/manager browser boundaries | Separate identities, consent, allowed actions, denied actions and owner suspension | NOT RUN |
-| Interruptions and retry in browser | Refresh/back navigation/account change during pending requests; identical UUID recovery without duplicated financial entries | NOT RUN |
+| Interruptions and retry in browser | Ordinary purchase draft refresh/back recovery passed; actual network interruption, account change during pending requests and identical UUID recovery without duplicated entries remain | PARTIAL |
 | Physical receipt and labels | Actual shop printer, Kurdish rendering, paper dimensions, totals, long names and barcode readability | NOT RUN |
 | Physical scan workflow | Actual scanner and supported item barcodes; scale-label behavior must be explicitly verified before weighted goods are used | NOT RUN |
 | Real till reconciliation | Opening cash plus recorded inflows minus outflows agrees with counted cash; differences have a recorded explanation | NOT RUN |
-| Security setting | Existing leaked-password protection warning reviewed/resolved in Auth settings | OPEN |
+| Security setting | Leaked-password warning remains; organization is Free, official feature requires Pro or above; no billing/config change authorized or performed | BLOCKED — PLAN |
 
 Auth settings reference: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
 The INFO advisory on private restore receipts having RLS without policies reflects deliberate denial of direct client access; the scoped internal recovery functions remain the access path.
