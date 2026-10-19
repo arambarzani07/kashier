@@ -1,5 +1,7 @@
 # Kashier production readiness — 2026-10-19
 
+**Current operating mode: maintenance for access-system redesign, requested by the owner on 2026-10-20.** The live site now routes requests to a self-contained maintenance page rather than serving the previous login, staff or transaction UI. Existing source is retained for redesign/rollback. Business records, authentication and database authorization are preserved; this is not anonymous access or removal of database protections. Already-open clients and existing authenticated API access are not revoked by this routing change. The earlier readiness evidence below describes the preceding application runtime, not a current launch approval.
+
 **Decision: not yet cleared for real-shop operation.** The evidence below supports the implemented online backend; authenticated browser acceptance is partial and physical shop checks remain open. Offline operation is not implemented.
 
 ## Verified release
