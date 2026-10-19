@@ -55,13 +55,20 @@ Test purchase and sales remain recorded for review.
 - An attempted collection of 1,001 against the remaining 1,000 was blocked by native form validation before submission. Chrome initially displayed English `Value must be less than or equal to 1000.` Fixed in `ab6bfffd76444a6b9476fa9d336600c13692aefe`: capture native invalid events, suppress the browser bubble and show Sorani inline errors while preserving native constraints and financial guards. Two regressions cover overpayment, correction, missing fields and invalid numeric steps. Production deployment `dpl_GMHDq1UY8QubiruQT1rnkKvupyD9` reached READY. Browser verification against the stable production alias passed: 1,001 against debt 1,000 showed the Sorani overpayment message without the English bubble; empty amount and empty reason each showed Sorani instructions. Draft fields were cleared afterward. Refreshed profile retained 1,000 debt and three ledger entries; no additional financial entry was submitted.
 - Fresh stock showed 8 units. Fresh daily report showed exactly two sales (one cash, one credit), 3,000 sales total, 2,000 sale cash plus 1,000 collections, zero returns/outflows, 3,000 closing cash. Debt reconciled as 1,000 opening + 1,000 new − 1,000 collected = 1,000 closing. No additional collection from the overpayment attempt appeared.
 
-Supplier payment, completed return, close posting, export/restore, interruption recovery and separate staff boundaries still need browser evidence.
+### Tracked supplier purchase — 2026-10-19
+
+- Created explicitly labeled test supplier `4015b842-3ed4-4280-8c67-3e93a8a9a7fe`, starting at zero debt.
+- Purchase `P-414` / `df6e4ddd-d9a5-4091-85d8-1eb4717f81f8`: one soap × 1,000 IQD, 250 initial cash payment and 750 supplier debt. Fresh supplier profile showed exactly one purchase-debt row `D-121` for 750.
+- Fresh stock showed 9 units (8 + 1). Fresh daily report showed two purchases totaling 11,000, initial purchase cash paid 250, supplier debt created 750, zero subsequent supplier payments, and closing cash 2,750 (3,000 − 250). Customer debt remained 1,000.
+- Prepared, but did not submit, a 750 IQD payment against P-414 with a Sorani test note. Source inspection confirmed that subsequent supplier payments use a native confirm dialog, the same browser capability previously blocked for returns. Manual browser handoff is needed to complete that acceptance step; no payment success is claimed.
+
+Supplier payment completion, completed return, close posting, export/restore, interruption recovery and separate staff boundaries still need browser evidence.
 
 ## Required acceptance before real-shop use
 
 | Gate | Acceptance evidence needed | Status |
 | --- | --- | --- |
-| Authenticated browser workflows | Login, stock-only purchase, cash/partial-credit sales, collection, stock/cash/debt reconciliation and read-only close/history checks passed; supplier payment, completed return, export/checksum and empty-account recovery remain | PARTIAL |
+| Authenticated browser workflows | Login, stock-only/tracked purchases, cash/partial-credit sales, collection, stock/cash/debt reconciliation and read-only close/history checks passed; supplier payment, completed return, export/checksum and empty-account recovery remain | PARTIAL |
 | Cashier/manager browser boundaries | Separate identities, consent, allowed actions, denied actions and owner suspension | NOT RUN |
 | Interruptions and retry in browser | Refresh/back navigation/account change during pending requests; identical UUID recovery without duplicated financial entries | NOT RUN |
 | Physical receipt and labels | Actual shop printer, Kurdish rendering, paper dimensions, totals, long names and barcode readability | NOT RUN |
