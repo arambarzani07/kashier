@@ -4,11 +4,11 @@
 
 ## Verified release
 
-Runtime commit: `ab6bfffd76444a6b9476fa9d336600c13692aefe` (Sorani debt-form validation).
+Runtime commit: `1374b937f88a58aa3a44de3bb1ed63f66940ff92` (Sorani debt validation and purchase-payment cancellation journal fix).
 Production: https://kashier-hazel.vercel.app
-Earlier financial workflow checks below ran on runtime `296e2124f2234425155db9677534bce57eba9b99`; the current release changes debt-form validation display only.
+Earlier financial workflow checks below ran on runtime `296e2124f2234425155db9677534bce57eba9b99`; later releases add Sorani debt validation and delay new purchase-payment retry journals until the user confirms.
 
-- Full release check passed: 732 Node tests across 78 files, static references and source/output parity.
+- Full release check passed: 735 Node tests across 78 files, static references and source/output parity.
 - Live configuration audit passed: 30 public tables with RLS, 84 public invoker RPCs denying anonymous execution, four invoker views, no anonymous relation/column grants or client TRUNCATE grants, and no direct client access to private restore receipts.
 - Thirteen live database suites below passed. They run in temporary test accounts inside transactions ending in ROLLBACK. Follow-up verification found zero surviving fixture accounts. These tests exercise database functions under simulated JWT claims; they do not test actual browser sign-in, network/session behavior or printer/scanner hardware. PostgreSQL sequences can consume numbers even in rolled-back tests; numbering gaps are not duplicated transactions.
 
@@ -90,6 +90,16 @@ Read-only database RPCs ran as the test owner with simulated authenticated JWT c
 - Current inventory valuation contained one product, 9 units at total value 9,000 IQD, with complete known cost coverage. This reconciles 11 purchased units at 1,000 each minus two sold units at cost 1,000 each.
 - Frontend validators rejected altered summary totals (margin 1,001 and stock value 9,001). Both CSV model outputs contained the expected summary/detail row counts and source receipts/product barcode. No browser download is claimed.
 - The 1,000 margin is gross profit before expenses, not net profit. It is distinct from cash balance 2,750, customer debt 1,000 and supplier debt 750.
+
+## Purchase-payment cancellation fix — 2026-10-19
+
+Source review found that a new purchase-payment journal was saved before the native confirmation. Cancelling therefore left a false pending request and could block correcting the amount/note after reload.
+
+- New requests are now journaled only after confirmation. Cancelling shows a Sorani cancellation message and leaves no new pending journal or network call.
+- Previously submitted ambiguous requests retain their original journal/UUID when retry confirmation is cancelled. Retrying again reuses exactly the same payload.
+- Confirmation remains required. A journal-storage failure after approval still blocks sending.
+- Three new UI regressions cover cancel/edit/reload, ambiguous retry cancellation/identity preservation, and storage failure. Full release check passed with 735 tests across 78 files.
+- This fix does not clear old ambiguous journals, submit the outstanding 750 payment, or resolve the cloud browser's native dialog restriction. Deployment `dpl_6nvPADDny5Jn367j9GWSkMhfR8JW` reached READY; the stable production asset returned HTTP 200 with confirmation preceding journal save and both Sorani cancellation messages. Browser acceptance of this change remains blocked.
 
 ## Required acceptance before real-shop use
 
