@@ -1,6 +1,6 @@
 # Kashier production readiness — 2026-10-19
 
-**Decision: not yet cleared for real-shop operation.** The evidence below supports the implemented online backend; authenticated browser acceptance and physical shop checks remain open. Offline operation is not implemented.
+**Decision: not yet cleared for real-shop operation.** The evidence below supports the implemented online backend; authenticated browser acceptance is partial and physical shop checks remain open. Offline operation is not implemented.
 
 ## Verified release
 
@@ -28,11 +28,23 @@ The subsequent security-audit commit changes documentation/tests only.
 | restore-installments-rls.sql | Restoration preserving installment relationships | PASS |
 | gross-profit-rls.sql | Forward-cost gross profit and explicit unknown historical cost coverage | PASS |
 
+## Authenticated browser acceptance — partial
+
+Checked against the stable production URL on 2026-10-19 using the secure sign-in flow. A fresh rendered daily-close page confirmed successful authentication. This does not establish a separate staff identity or prove that the account is disposable.
+
+- Daily-close preview loaded for the completed Baghdad day 2026-10-18, showing an expected balance of 0 IQD.
+- Entering `١٢٣` displayed a numeric counted amount of 123 and signed surplus of +123 before saving.
+- Adding an explanation and acknowledgment enabled Save. Changing the amount to `١٢٤` updated the surplus to +124, cleared acknowledgment and disabled Save.
+- Cleared all draft values without saving. History loaded for 2026-10-01 through 2026-10-18 with zero saved closes.
+- A range starting 2026-08-01 was rejected with the Sorani maximum-31-days message and disabled print/CSV; restoring the valid range reloaded the empty report.
+
+No sale, collection, payment, return or close was submitted. These checks prove preview/validation behavior only; posting, retry recovery, non-empty receipts and separate staff boundaries remain unverified in the browser. Financial-write acceptance must use an explicitly designated disposable test account.
+
 ## Required acceptance before real-shop use
 
 | Gate | Acceptance evidence needed | Status |
 | --- | --- | --- |
-| Authenticated browser workflows | Owner login; cash/credit sale; customer collection; supplier payment; own-cash return; close/history; export/checksum; and recovery in an empty test account | NOT RUN |
+| Authenticated browser workflows | Login and read-only close/history checks passed; cash/credit sale, collection, supplier payment, return, export/checksum and empty-account recovery still need browser evidence | PARTIAL |
 | Cashier/manager browser boundaries | Separate identities, consent, allowed actions, denied actions and owner suspension | NOT RUN |
 | Interruptions and retry in browser | Refresh/back navigation/account change during pending requests; identical UUID recovery without duplicated financial entries | NOT RUN |
 | Physical receipt and labels | Actual shop printer, Kurdish rendering, paper dimensions, totals, long names and barcode readability | NOT RUN |
