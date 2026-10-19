@@ -9,6 +9,7 @@ let items = [], posting = null, busy = false, total = 0, searchNumber = 0, block
 const active=()=>Boolean(purchaseOwner)&&KashierData.loggedIn()&&KashierData.userId()===purchaseOwner;
 const journalWarning='تۆماری پارێزراوی کڕین نەخوێندرایەوە؛ بۆ ڕێگریکردن لە دووبارەبوونەوە، کڕینی نوێ وەستێنرا. پەیوەندی بە پشتگیری بکە.';
 const uuid=value=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+const invalidInputs=new Set();
 function sameOwner(){if(active())return true;searchNumber++;supplierRequest++;$('#purchase-results').replaceChildren();$('#supplier-results').replaceChildren();$('#purchase-clear-dialog').close();status('#purchase-post-status','هەژمارەکە گۆڕاوە؛ لە هەژماری سەرەتای کڕین بەردەوام بە.');controls();return false;}
 function node(tag, text) { const element = document.createElement(tag); if (text !== undefined) element.textContent = text; return element; }
 function status(selector, text) { if(blocked&&(selector==='#purchase-status'||selector==='#purchase-post-status'))text=journalWarning;$(selector).textContent = text; $(selector).hidden = !text; }
@@ -29,20 +30,25 @@ function controls() {
   $('#purchase-help').textContent = locked ? 'دۆخی کڕین هێشتا پشتڕاست نییە. هەمان داواکاری دووبارە دەنێردرێتەوە، بەبێ زیادکردنی دووبارەی کۆگا.' : tracked()?'کۆگا، پارەی دراو و قەرزی ماوە پێکەوە تۆمار دەکرێن.':'ئەم شێوازە تەنها کۆگا زیاد دەکات؛ پارەدان و قەرز تۆمار ناکات.';
 }
 function render() {
+  invalidInputs.clear();
   $('#purchase-rows').replaceChildren();
   items.forEach((item, index) => {
-    const row = node('tr'), name = node('td'); name.append(node('strong', item.name)); if (item.barcode) name.append(node('small', item.barcode)); row.append(name);
+    const row = node('tr'), name = node('td'), lineTotalCell=node('td',format(SaleMath.lineTotal(item))); name.append(node('strong', item.name)); if (item.barcode) name.append(node('small', item.barcode)); row.append(name);
     for (const kind of ['quantity', 'price']) {
       const cell = node('td'), input = node('input'); input.type = 'number'; input.min = kind === 'quantity' ? '0.001' : '1'; input.max = kind === 'quantity' ? '10000' : '1000000000'; input.step = kind === 'quantity' ? '0.001' : '1'; input.value = kind === 'quantity' ? item.quantityUnits / 1000 : item.price || ''; input.inputMode = kind === 'quantity' ? 'decimal' : 'numeric'; input.setAttribute('data-lock', ''); input.setAttribute('aria-label', (kind === 'quantity' ? 'بڕی ' : 'نرخی کڕینی ') + item.name);
-      input.addEventListener('change', () => {
+      function edit(commit) {
         if (blocked||posting||!sameOwner()) return;
-        try { if (!input.checkValidity()) throw new Error('بڕ یان نرخی کڕین نادروستە.'); const value = kind === 'quantity' ? SaleMath.quantityUnits(input.value) : SaleMath.money(input.value, 1000000000); if (kind === 'price' && value < 1) throw new Error('نرخی کڕین دەبێت زیاتر لە سفر بێت.'); items[index] = { ...item, [kind === 'quantity' ? 'quantityUnits' : 'price']: value }; status('#purchase-status', ''); render(); }
-        catch (error) { status('#purchase-status', error.message); input.value = kind === 'quantity' ? item.quantityUnits / 1000 : item.price || ''; }
-      }); cell.append(input); row.append(cell);
+        try { if (!input.checkValidity()) throw new Error('بڕ یان نرخی کڕین نادروستە.'); const value = kind === 'quantity' ? SaleMath.quantityUnits(input.value) : SaleMath.money(input.value, 1000000000); if (kind === 'price' && value < 1) throw new Error('نرخی کڕین دەبێت زیاتر لە سفر بێت.'); items[index] = { ...items[index], [kind === 'quantity' ? 'quantityUnits' : 'price']: value };invalidInputs.delete(input);lineTotalCell.textContent=format(SaleMath.lineTotal(items[index]));status('#purchase-status', invalidInputs.size?'بڕ یان نرخی کڕین نادروستە.':''); updateTotals(); }
+        catch (error) { status('#purchase-status', error.message);if(commit){invalidInputs.delete(input);input.value=kind==='quantity'?items[index].quantityUnits/1000:items[index].price||'';}else invalidInputs.add(input);updateTotals(); }
+      }
+      input.addEventListener('input',()=>edit(false));input.addEventListener('change',()=>edit(true));cell.append(input); row.append(cell);
     }
-    row.append(node('td', format(SaleMath.lineTotal(item)))); const action = node('td'), remove = node('button', '×'); remove.className = 'delete-item'; remove.setAttribute('data-lock', ''); remove.setAttribute('aria-label', 'سڕینەوەی ' + item.name); remove.addEventListener('click', () => { if (!blocked&&!posting&&sameOwner()) { items.splice(index, 1); render(); } }); action.append(remove); row.append(action); $('#purchase-rows').append(row);
+    row.append(lineTotalCell); const action = node('td'), remove = node('button', '×'); remove.className = 'delete-item'; remove.setAttribute('data-lock', ''); remove.setAttribute('aria-label', 'سڕینەوەی ' + item.name); remove.addEventListener('click', () => { if (!blocked&&!posting&&sameOwner()) { items.splice(index, 1); render(); } }); action.append(remove); row.append(action); $('#purchase-rows').append(row);
   });
-  try { total = SaleMath.totals(items, 0, 0).subtotal; } catch (error) { total = null; status('#purchase-status', error.message); }
+  updateTotals();
+}
+function updateTotals(){
+  try { total = invalidInputs.size?null:SaleMath.totals(items, 0, 0).subtotal; } catch (error) { total = null; status('#purchase-status', error.message); }
   $('#purchase-total').textContent = total === null ? '—' : format(total); $('#purchase-count').textContent = format(items.length) + ' کاڵا'; $('#purchase-empty').hidden = items.length > 0; save(); controls();
 }
 function add(product) {

@@ -143,6 +143,15 @@ The same fail-open journal pattern was found in manual cash and customer-debt pa
 
 ## Required acceptance before real-shop use
 
+### Purchase draft refresh and security follow-up — 2026-10-20
+
+- Authenticated browser testing exposed an ordinary-draft defect: entering purchase unit cost 1,000 and immediately reloading retained the product/note but restored cost zero. Numeric fields previously saved only on `change` rather than each valid `input`.
+- Valid quantity/cost inputs now update the model, line total and durable journal immediately without replacing the focused DOM inputs. Editing quantity preserves the most recent cost and vice versa. Invalid intermediate input disables posting until corrected or reverted on commit, even when another field is subsequently valid. Only last valid values are persisted.
+- Two regression tests cover persistence before blur across same-tab reload, keeping input identity, exact combined quantity/cost arithmetic and blocking submission while another numeric field remains invalid. Full release verification passed: 757 tests across 78 files and static/source-dist parity.
+- Fresh Supabase security advisory still reports leaked-password protection disabled, plus the intentional INFO-only deny-direct-access restore table. Project organization is on Free (`tier_free`). Official password-security docs state leaked-password protection requires Pro or above. No paid upgrade, billing commitment or authentication configuration change was made; the connector provides no Auth-configuration mutation capability.
+- Browser retry acceptance for an in-flight financial request and actual network interruption remain open. The available browser surface does not provide network-disconnect controls. Separate staff authentication/consent and physical printer/scanner/scale/till checks remain open. Centralized client error monitoring is still not configured; no local-only diagnostic capture is presented as production monitoring.
+- Deployment and repeated browser refresh/back evidence will be recorded after release verification.
+
 ### Online purchase recovery hardening — 2026-10-19
 
 - Purchase drafts now fail closed when storage is unreadable, malformed, missing required fields or contains a pending request that disagrees with the saved item quantities, costs, supplier, finance mode, paid amount, invoice or note. The original stored value remains intact and cannot be cleared by the purchase-clear action.
