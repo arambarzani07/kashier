@@ -4,11 +4,11 @@
 
 ## Verified release
 
-Runtime commit: `296e2124f2234425155db9677534bce57eba9b99`.
+Runtime commit: `ab6bfffd76444a6b9476fa9d336600c13692aefe` (Sorani debt-form validation).
 Production: https://kashier-hazel.vercel.app
-The subsequent security-audit commit changes documentation/tests only.
+Earlier financial workflow checks below ran on runtime `296e2124f2234425155db9677534bce57eba9b99`; the current release changes debt-form validation display only.
 
-- Full release check passed: 730 Node tests across 78 files, static references and source/output parity.
+- Full release check passed: 732 Node tests across 78 files, static references and source/output parity.
 - Live configuration audit passed: 30 public tables with RLS, 84 public invoker RPCs denying anonymous execution, four invoker views, no anonymous relation/column grants or client TRUNCATE grants, and no direct client access to private restore receipts.
 - Thirteen live database suites below passed. They run in temporary test accounts inside transactions ending in ROLLBACK. Follow-up verification found zero surviving fixture accounts. These tests exercise database functions under simulated JWT claims; they do not test actual browser sign-in, network/session behavior or printer/scanner hardware. PostgreSQL sequences can consume numbers even in rolled-back tests; numbering gaps are not duplicated transactions.
 
@@ -52,7 +52,7 @@ Test purchase and sales remain recorded for review.
 
 - Partial-credit sale `K-474` / `97c0d246-a09c-45c8-ba70-f9c0551f008c`: one soap at 1,500 IQD, 500 cash received, 1,000 new debt. Fresh customer profile showed balance moving from 1,000 to 2,000 and sale debt entry `D-10560`.
 - Collection `D-10561` / `71b91071-83a9-4f43-a46a-d2b60754cb7a`: 1,000 IQD, cash movement `8b58a322-b4d0-451c-9f75-4f52610f3079`. Fresh profile showed 1,000 remaining debt and exactly three ledger rows including the original historical charge.
-- An attempted collection of 1,001 against the remaining 1,000 was blocked by native form validation before submission. OPEN localization finding: Chrome displayed English `Value must be less than or equal to 1000.` The financial guard worked, but the message needs Sorani localization.
+- An attempted collection of 1,001 against the remaining 1,000 was blocked by native form validation before submission. Chrome initially displayed English `Value must be less than or equal to 1000.` Fixed in `ab6bfffd76444a6b9476fa9d336600c13692aefe`: capture native invalid events, suppress the browser bubble and show Sorani inline errors while preserving native constraints and financial guards. Two regressions cover overpayment, correction, missing fields and invalid numeric steps. Production deployment `dpl_GMHDq1UY8QubiruQT1rnkKvupyD9` reached READY. Browser verification against the stable production alias passed: 1,001 against debt 1,000 showed the Sorani overpayment message without the English bubble; empty amount and empty reason each showed Sorani instructions. Draft fields were cleared afterward. Refreshed profile retained 1,000 debt and three ledger entries; no additional financial entry was submitted.
 - Fresh stock showed 8 units. Fresh daily report showed exactly two sales (one cash, one credit), 3,000 sales total, 2,000 sale cash plus 1,000 collections, zero returns/outflows, 3,000 closing cash. Debt reconciled as 1,000 opening + 1,000 new − 1,000 collected = 1,000 closing. No additional collection from the overpayment attempt appeared.
 
 Supplier payment, completed return, close posting, export/restore, interruption recovery and separate staff boundaries still need browser evidence.
