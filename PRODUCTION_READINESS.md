@@ -4,11 +4,11 @@
 
 ## Verified release
 
-Runtime commit: `f45c6e04e1cc2ec5142550170e4e80938d39397a` (Sorani validation and purchase-payment journal safeguards).
+Runtime commit: `3d1fae5e43e8aa74c44475a8040ea6ec0b593265` (Sorani validation and purchase/cash/customer-debt journal safeguards).
 Production: https://kashier-hazel.vercel.app
 Earlier financial workflow checks below ran on runtime `296e2124f2234425155db9677534bce57eba9b99`; later releases add Sorani debt validation, delay new purchase-payment retry journals until confirmation, and stop payment when journals cannot be safely recovered or saved.
 
-- Full release check passed: 738 Node tests across 78 files, static references and source/output parity.
+- Full release check passed: 744 Node tests across 78 files, static references and source/output parity.
 - Live configuration audit passed: 30 public tables with RLS, 84 public invoker RPCs denying anonymous execution, four invoker views, no anonymous relation/column grants or client TRUNCATE grants, and no direct client access to private restore receipts.
 - Thirteen live database suites below passed. They run in temporary test accounts inside transactions ending in ROLLBACK. Follow-up verification found zero surviving fixture accounts. These tests exercise database functions under simulated JWT claims; they do not test actual browser sign-in, network/session behavior or printer/scanner hardware. PostgreSQL sequences can consume numbers even in rolled-back tests; numbering gaps are not duplicated transactions.
 
@@ -110,6 +110,17 @@ Source review found that a failed journal read or malformed JSON was silently in
 - Journal writes must be read back exactly before a request is sent. Silent failed writes block posting. Overlong notes are rejected before journaling.
 - Three new regressions cover corrupt journal values, unavailable reads/silent write loss and valid pending-request recovery after reload. All 738 tests and static parity checks passed.
 - No old browser journal was cleared and no outstanding supplier payment was submitted. Deployment `dpl_A3kPEg24zPkBrJRZjS8wTRb8CR16` reached READY and the stable production asset returned HTTP 200 with strict journal reads and exact write-readback verification. Native dialog/browser acceptance remains open.
+
+## Cash and customer-debt journal safeguards — 2026-10-19
+
+The same fail-open journal pattern was found in manual cash and customer-debt pages: an invalid saved pending request could be discarded while allowing a replacement request. Both pages now block financial submission when saved storage is unreadable or malformed, preserving its original contents.
+
+- Pending cash requests must retain the exact UUID, kind, amount and reason; customer-debt requests must additionally retain the selected customer. Changed payloads and malformed identifiers cannot be silently replaced.
+- New requests require exact journal write/readback before the data API is called. Silent failed writes and read failures cannot send a transaction.
+- A persistent Sorani warning survives read-only ledger refresh. Editing a blocked form cannot overwrite the saved journal, and invoking its submit handler cannot bypass the guard.
+- Normal unsent drafts remain editable; valid pending requests still recover with identical payloads. Six regressions cover corrupted journals, storage failures, read-only refresh and ordinary drafts. Full release verification passed: 744 tests and source/dist parity.
+- No live financial records were changed. Browser refresh/recovery acceptance remains open because the authenticated cloud browser cannot resume safely; these checks use the local UI harness.
+- Deployment `dpl_3cMdVf2poAmVRtxWws2FPJ65HWbo` reached READY for production commit `3d1fae5`; static HTML/JS build completed in about 13 seconds. Both stable production JS assets returned HTTP 200 with the new guards. Runtime error logs, drains and monitoring configuration were not inspected in this release; asset verification is not a runtime error scan.
 
 ## Required acceptance before real-shop use
 
