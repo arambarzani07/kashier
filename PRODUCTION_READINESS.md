@@ -72,7 +72,15 @@ Test purchase and sales remain recorded for review.
 - Navigated to history: exactly one saved close appeared, classified balanced, with date 2026-10-18, expected/counted/difference all zero and the saved QA note. The date link pointed to that day's detail page.
 - CSV-download observation failed with the browser runtime's `retained_data_restricted` error and reset its kernel before a file path was returned. Rebinding the existing tab was refused because native credential state could not safely resume. CSV completion and subsequent detail navigation remain UNKNOWN; no further browser recovery was attempted. This is an automation limitation, not evidence of an application CSV failure.
 
-Supplier payment completion, completed return, CSV/export/restore, interruption recovery and separate staff boundaries still need browser evidence. Physical till reconciliation remains untested; the saved zero close is explicitly test data.
+### Live export plus local verification — 2026-10-19
+
+- Called `export_owner_data()` for the explicitly designated test owner in a READ ONLY transaction with authenticated role and simulated JWT claims, ending ROLLBACK. This tests the database export path, not browser authentication/download.
+- The JSON v8 archive contained 29 records across all 30 table keys, including the posted daily close. Its original JSON text was preserved for local validation (17,043 UTF-8 bytes).
+- Ran the production `ExportFile.prepare`, `verify`, relationship checks and checksum-sidecar reader against that archive. SHA-256: `320f416b6abc63fe7fe54114c97612ebda90e5d2a6c42fb7383449ff1472e781`.
+- Archive balances matched fresh browser evidence: stock 9 units, cash 2,750 IQD, customer debt 1,000, supplier debt 750, one daily close. It contained exactly two sales, two purchases, three customer ledger entries and zero subsequent supplier payment allocations.
+- Exact-byte roundtrip and sidecar verification passed. Appending one newline was rejected with the original digest; verification under a different owner was rejected. No data was restored or changed by this audit.
+
+Supplier payment completion, completed return, browser CSV/export/download/restore, interruption recovery and separate staff boundaries still need browser evidence. Physical till reconciliation remains untested; the saved zero close is explicitly test data.
 
 ## Required acceptance before real-shop use
 
