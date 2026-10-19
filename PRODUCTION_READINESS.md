@@ -82,6 +82,15 @@ Test purchase and sales remain recorded for review.
 
 Supplier payment completion, completed return, browser CSV/export/download/restore, interruption recovery and separate staff boundaries still need browser evidence. Physical till reconciliation remains untested; the saved zero close is explicitly test data.
 
+## Live gross-profit and inventory-value reconciliation — 2026-10-19
+
+Read-only database RPCs ran as the test owner with simulated authenticated JWT claims in a READ ONLY transaction ending ROLLBACK. The actual production frontend models validated both returned reports locally; this does not establish browser UI/download acceptance.
+
+- Gross-profit report for 2026-10-19 contained exactly cash receipt K-473 and partial-credit receipt K-474: revenue 3,000 IQD, known COGS 2,000, gross margin 1,000. Both cost lines had known coverage; no unknown cost was treated as zero.
+- Current inventory valuation contained one product, 9 units at total value 9,000 IQD, with complete known cost coverage. This reconciles 11 purchased units at 1,000 each minus two sold units at cost 1,000 each.
+- Frontend validators rejected altered summary totals (margin 1,001 and stock value 9,001). Both CSV model outputs contained the expected summary/detail row counts and source receipts/product barcode. No browser download is claimed.
+- The 1,000 margin is gross profit before expenses, not net profit. It is distinct from cash balance 2,750, customer debt 1,000 and supplier debt 750.
+
 ## Required acceptance before real-shop use
 
 | Gate | Acceptance evidence needed | Status |
