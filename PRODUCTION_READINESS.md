@@ -4,11 +4,11 @@
 
 ## Verified release
 
-Runtime commit: `1374b937f88a58aa3a44de3bb1ed63f66940ff92` (Sorani debt validation and purchase-payment cancellation journal fix).
+Runtime commit: `f45c6e04e1cc2ec5142550170e4e80938d39397a` (Sorani validation and purchase-payment journal safeguards).
 Production: https://kashier-hazel.vercel.app
-Earlier financial workflow checks below ran on runtime `296e2124f2234425155db9677534bce57eba9b99`; later releases add Sorani debt validation and delay new purchase-payment retry journals until the user confirms.
+Earlier financial workflow checks below ran on runtime `296e2124f2234425155db9677534bce57eba9b99`; later releases add Sorani debt validation, delay new purchase-payment retry journals until confirmation, and stop payment when journals cannot be safely recovered or saved.
 
-- Full release check passed: 735 Node tests across 78 files, static references and source/output parity.
+- Full release check passed: 738 Node tests across 78 files, static references and source/output parity.
 - Live configuration audit passed: 30 public tables with RLS, 84 public invoker RPCs denying anonymous execution, four invoker views, no anonymous relation/column grants or client TRUNCATE grants, and no direct client access to private restore receipts.
 - Thirteen live database suites below passed. They run in temporary test accounts inside transactions ending in ROLLBACK. Follow-up verification found zero surviving fixture accounts. These tests exercise database functions under simulated JWT claims; they do not test actual browser sign-in, network/session behavior or printer/scanner hardware. PostgreSQL sequences can consume numbers even in rolled-back tests; numbering gaps are not duplicated transactions.
 
@@ -100,6 +100,16 @@ Source review found that a new purchase-payment journal was saved before the nat
 - Confirmation remains required. A journal-storage failure after approval still blocks sending.
 - Three new UI regressions cover cancel/edit/reload, ambiguous retry cancellation/identity preservation, and storage failure. Full release check passed with 735 tests across 78 files.
 - This fix does not clear old ambiguous journals, submit the outstanding 750 payment, or resolve the cloud browser's native dialog restriction. Deployment `dpl_6nvPADDny5Jn367j9GWSkMhfR8JW` reached READY; the stable production asset returned HTTP 200 with confirmation preceding journal save and both Sorani cancellation messages. Browser acceptance of this change remains blocked.
+
+## Corrupt payment-journal safeguards — 2026-10-19
+
+Source review found that a failed journal read or malformed JSON was silently interpreted as no pending payment, allowing a new request identity despite an unknown prior outcome.
+
+- Missing storage entry alone means no draft. Unreadable storage, invalid JSON, null/array/invalid journal fields now stop payment with a Sorani support message. The stored value is preserved.
+- Failed finance/journal loading hides the payment form; the submit path independently refuses an invalid journal even if triggered directly.
+- Journal writes must be read back exactly before a request is sent. Silent failed writes block posting. Overlong notes are rejected before journaling.
+- Three new regressions cover corrupt journal values, unavailable reads/silent write loss and valid pending-request recovery after reload. All 738 tests and static parity checks passed.
+- No old browser journal was cleared and no outstanding supplier payment was submitted. Deployment `dpl_A3kPEg24zPkBrJRZjS8wTRb8CR16` reached READY and the stable production asset returned HTTP 200 with strict journal reads and exact write-readback verification. Native dialog/browser acceptance remains open.
 
 ## Required acceptance before real-shop use
 
