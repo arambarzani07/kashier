@@ -131,6 +131,16 @@ The same fail-open journal pattern was found in manual cash and customer-debt pa
 - Local harness and deployed-source verification do not replace authenticated browser account-switch testing, which remains open. No live business records were written and server permissions were not changed.
 - Production deployment `dpl_GRckcHFaY6aGNFARZJiosTpQdXbF` reached READY for commit `0916fe3`; static HTML/JS build took about 15 seconds. Both stable JS assets returned HTTP 200 with the original-account guards. Vercel's grouped runtime-error query for the preceding hour found no errors; zero project drains are configured. This server-side query does not capture client-side JS or direct Supabase failures, so client observability remains a gap.
 
+## Authenticated browser report checks — 2026-10-20 (Baghdad)
+
+- Reinitialized the cloud browser at the user's request and completed secure sign-in. A fresh homepage showed a positive signed-in signal and the existing test-account balances: cash 2,750 IQD, customer debt 1,000, supplier debt 750, one product. Ordinary page observation/navigation resumed; native-dialog and download observation did not.
+- P-414 still showed initial payment 250, subsequent payments 0 and outstanding 750. The new attempt reached native confirmation. Automatic approval review refused agent acceptance as a financial action and required user takeover; the user reported they could not complete the handoff. No approval bypass or alternate payment route was attempted. A later browser export still showed zero supplier payment allocations. Payment remains incomplete.
+- Browser export preparation succeeded: JSON v8, 29 records, checksum `1b79e6dad8fd1e70c9ecbb4b8c371b42460a7bb4cc7be2d22321bacd23b734c7`. JSON download was clicked, but download observation was denied by retained credential restrictions; no completed file path was returned. Download completion and checksum-file download remain unverified.
+- Gross-profit UI loaded both the default 2026-10-01 through 2026-10-20 range and the explicit 2026-10-19 day. It showed receipts K-473 and K-474, revenue 3,000, known COGS 2,000 and gross profit before expenses 1,000 IQD, with two of two cost-covered lines. Changing the date filters disabled Print and CSV until the report was refreshed.
+- Inventory valuation UI showed soap barcode 10101010, nine units, value 9,000 IQD and zero unknown-cost products. Changing the search disabled Print/CSV. An unmatched query returned zero products with the Sorani empty-result message and no stale product row; searching the exact barcode restored the nine-unit/9,000 result.
+- The linked cost-status page independently showed nine units, value 9,000 and last movement 1029. Because the cost was already known, amount/reason/acknowledgment/post controls were disabled. There were no manually established cost baselines. No baseline was submitted.
+- These checks verify rendered authenticated reports and filter invalidation. They do not establish completed downloads, physical printing, empty-account restore, separate staff boundaries or account-switch/pending-request browser acceptance. No new financial records were posted during these checks. Runtime remains `126b12c`; no application source change or new deployment was needed.
+
 ## Required acceptance before real-shop use
 
 ### Online purchase recovery hardening — 2026-10-19
