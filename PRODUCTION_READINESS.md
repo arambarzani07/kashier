@@ -46,13 +46,22 @@ The initial checks above submitted no financial records. After the user explicit
 - Fresh daily report showed one cash sale, 1,500 cash inflow and 1,500 closing cash balance; stock-only purchase had zero paid cash and zero new supplier debt. Existing customer debt of 1,000 was unchanged.
 - Full-return submission reached its browser confirmation boundary. The browser runtime refused dialog access with `retained_data_restricted`; explicit navigation to the retained canonical origin restored page observation. A further fresh daily report confirmed zero returns, zero refunds and cash balance still 1,500. Return acceptance remains BLOCKED by browser automation, not established as an application failure.
 
-Test purchase and sale remain recorded for review. Credit sale, collection, supplier payment, completed return, close posting, export/restore, interruption recovery and separate staff boundaries still need browser evidence.
+Test purchase and sales remain recorded for review.
+
+### Credit sale and collection — 2026-10-19
+
+- Partial-credit sale `K-474` / `97c0d246-a09c-45c8-ba70-f9c0551f008c`: one soap at 1,500 IQD, 500 cash received, 1,000 new debt. Fresh customer profile showed balance moving from 1,000 to 2,000 and sale debt entry `D-10560`.
+- Collection `D-10561` / `71b91071-83a9-4f43-a46a-d2b60754cb7a`: 1,000 IQD, cash movement `8b58a322-b4d0-451c-9f75-4f52610f3079`. Fresh profile showed 1,000 remaining debt and exactly three ledger rows including the original historical charge.
+- An attempted collection of 1,001 against the remaining 1,000 was blocked by native form validation before submission. OPEN localization finding: Chrome displayed English `Value must be less than or equal to 1000.` The financial guard worked, but the message needs Sorani localization.
+- Fresh stock showed 8 units. Fresh daily report showed exactly two sales (one cash, one credit), 3,000 sales total, 2,000 sale cash plus 1,000 collections, zero returns/outflows, 3,000 closing cash. Debt reconciled as 1,000 opening + 1,000 new − 1,000 collected = 1,000 closing. No additional collection from the overpayment attempt appeared.
+
+Supplier payment, completed return, close posting, export/restore, interruption recovery and separate staff boundaries still need browser evidence.
 
 ## Required acceptance before real-shop use
 
 | Gate | Acceptance evidence needed | Status |
 | --- | --- | --- |
-| Authenticated browser workflows | Login, stock-only purchase, cash sale, stock/cash reconciliation and read-only close/history checks passed; credit/collection, supplier payment, completed return, export/checksum and empty-account recovery remain | PARTIAL |
+| Authenticated browser workflows | Login, stock-only purchase, cash/partial-credit sales, collection, stock/cash/debt reconciliation and read-only close/history checks passed; supplier payment, completed return, export/checksum and empty-account recovery remain | PARTIAL |
 | Cashier/manager browser boundaries | Separate identities, consent, allowed actions, denied actions and owner suspension | NOT RUN |
 | Interruptions and retry in browser | Refresh/back navigation/account change during pending requests; identical UUID recovery without duplicated financial entries | NOT RUN |
 | Physical receipt and labels | Actual shop printer, Kurdish rendering, paper dimensions, totals, long names and barcode readability | NOT RUN |
