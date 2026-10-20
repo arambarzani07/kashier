@@ -145,6 +145,17 @@
  .export-layout label:has(>input[type=checkbox]){display:flex;align-items:flex-start;gap:12px}.export-layout input[type=checkbox]{width:19px;height:19px;flex-shrink:0;margin-top:5px}
  .export-layout :is(#restore-state,#restore-check,#restore-submit){margin-block:10px}
  .export-layout :is(#restore-receipt,.export-meta dd){overflow-wrap:anywhere}
+ :is(#sales-report-form,#profit-form,#valuation-form){gap:16px;margin-block:20px;align-items:flex-end}
+ :is(#sales-report-form,#profit-form,#valuation-form)>div{min-width:0;flex:1 1 210px}
+ :is(#sales-report-form,#profit-form,#valuation-form) label{font-size:14px;color:#435b75}
+ :is(#sales-report-form,#profit-form,#valuation-form) input:not([type=checkbox]){width:100%;min-width:0;font-size:16px;min-height:46px;border:1px solid #c4cedb;border-radius:5px;padding:10px 12px;background:#fff;color:#243449}
+ .statement-controls .valuation-check{min-height:46px;align-items:center;gap:10px;margin:0}.valuation-check input[type=checkbox]{min-height:19px;width:19px;height:19px;flex-shrink:0}
+ :is(.profit-actions,.valuation-actions){padding-top:18px;margin-top:18px;border-top:1px solid #e0e6ee;gap:10px}
+ :is(.profit-actions,.valuation-actions) a{display:inline-flex;align-items:center;min-height:44px;border:1px solid #dce2e9;border-radius:5px;padding:8px 12px;font-size:13px;color:#344b66;text-decoration:none;background:#fff}
+ :is(.profit-summary,.valuation-summary,#sales-report-summary)>div{min-width:0;border-color:#dce2e9;border-radius:6px;background:#f4f6f9}
+ :is(.profit-summary,.valuation-summary,#sales-report-summary) dt{font-size:13px;line-height:1.9;color:#56697f}
+ :is(.profit-summary,.valuation-summary,#sales-report-summary) dd{overflow-wrap:anywhere;font-variant-numeric:tabular-nums;line-height:1.7}
+ :is(.profit-coverage,.valuation-coverage){font-size:14px;line-height:1.9;border:1px solid #ead8ac;border-inline-start:3px solid #b68b3e;border-radius:5px;background:#fcf7e9;color:#73541c}
  :is(.catalog-layout,.cash-main){max-width:1600px;margin-inline:auto;background:transparent}
  :is(.cash-totals span,.statement-totals span,.returns-summary span){font-size:13px;color:#56697f}
  :is(.count-actions,.confirm-actions,.returns-filter-actions,.catalog-pagination){gap:10px;flex-wrap:wrap}

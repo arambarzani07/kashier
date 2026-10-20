@@ -1,1 +1,13 @@
 #import-file{display:block;width:100%;margin-top:10px;font:inherit}#import-template{display:inline-block;margin-bottom:18px;color:#2459ad}#import-preview{padding:24px;background:white;border:1px solid #dce3ee;border-radius:8px}#import-preview p{font-size:13px;line-height:1.9}#import-pending{padding:14px;background:#fff4d9;color:#775000;border-radius:5px}#import-status{white-space:pre-wrap}#import-preview [hidden]{display:none!important}#import-rows td:nth-child(3){direction:ltr;unicode-bidi:plaintext}#import-discard{background:#eef2f8;color:#384d6d}@media(max-width:600px){#import-preview{padding:14px}}
+@media screen{
+ .import-steps{list-style:none;padding:0;margin:24px 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;counter-reset:import-step}
+ .import-steps li{counter-increment:import-step;min-width:0;border:1px solid #dce2e9;border-radius:7px;padding:18px;background:#fafbfd}
+ .import-steps li::before{content:counter(import-step,decimal-leading-zero);display:grid;place-items:center;width:30px;height:30px;border:1px solid #cdd7e3;border-radius:4px;color:#60748d;font:12px Arial;margin-bottom:14px}
+ .import-steps h2{font-size:16px;margin:0 0 10px;color:#344b66}.import-steps p{font-size:13px;color:#56697f;line-height:1.9;margin:0;overflow-wrap:anywhere}
+ .import-steps bdi{display:block;font:13px/1.8 monospace;margin-block:10px;padding:8px;background:#eef2f7;border-radius:4px;overflow-wrap:anywhere}
+ #import-template{min-height:44px;display:inline-flex;align-items:center;border:1px solid #d0dae6;background:#f0f3f7;color:#344b66;border-radius:5px;padding:10px 14px;text-decoration:none;font-size:14px}
+ #import-file{min-width:0;width:100%;padding:12px;border:1px solid #c4cedb;border-radius:5px;background:#fff;font-size:16px}
+ #import-file::file-selector-button{font:inherit;min-height:40px;margin-inline-end:12px;padding:8px 12px;border:1px solid #ccd6e2;border-radius:4px;background:#f0f3f7;color:#344b66}
+ #import-preview{border-radius:7px;border-color:#dce2e9}
+ @media(max-width:760px){.import-steps{grid-template-columns:1fr;gap:12px}.import-steps li{padding:16px}}
+}
