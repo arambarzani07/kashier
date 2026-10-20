@@ -142,3 +142,14 @@ The previous `main` deployment failed because the Vercel project build command r
 ## Gate 1: isolated schema replay harness (2026-10-20)
 
 Added a GitHub Actions runner with disposable PostgreSQL 17 and a minimal Supabase Auth stub to replay the 72 historic migration files and compare relation/function/policy/trigger counts. This is a **schema-only test**, not a backup, not a real restore, and does not authorize release. See `ACCESS_X_RECOVERY_GATE.md`. Test status must be checked in the Actions run, not inferred from the existence of this document. Production backup inventory and isolated *real-data* restore remain unavailable/unverified.
+
+## Gate 1 — isolated replay and semantic equivalence (VERIFIED 2026-10-20)
+
+- **PASS, isolated GitHub PostgreSQL 17:** all 72 unchanged migration scripts replay on an empty temporary DB, with one atomic transaction per migration. This validates reproducibility of the application schema without connecting to live production. Run: https://github.com/arambarzani07/kashier/actions/runs/39385583050
+- **PASS, 221/221** exact fingerprints of effective \`anon\`/\`authenticated\` access, column/table/function privileges and RLS policy role scope.
+- **PASS, 214/214** exact catalog definition fingerprints of the remaining application functions, relations, policies and schema catalog keys.
+- **PASS, 7/7** lexical SQL-token equivalence: residual function-definition string differences consist of whitespace formatting and two explicit optional \`AS\` aliases in the cash statement. The verifier preserves SQL string literal text and only normalizes those two reviewed alias locations.
+- **PASS, 530/530** general Node CI assertions (https://github.com/arambarzani07/kashier/actions/runs/39385582938), including deliberate metadata tampering regression tests that must fail.
+- The older \`access-x-schema-fingerprint.sql\` *raw* hash check remains available for direct production drift monitoring. It is **not appropriate as the isolated replay acceptance gate**, because raw role OIDs/ACL format and whitespace-dependent SQL output differ between Supabase and scratch Postgres; it was replaced in the disposable CI job by specific effective privilege + structural + token checks.
+- Still **NOT VERIFIED:** whether a restorable real production backup exists; no offsite encrypted DB export, successful real-data restore, isolated end-to-end Auth recreation, or financial balance restoration has been demonstrated. **Production authorization and cashier activation remain blocked**.
+

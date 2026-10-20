@@ -69,3 +69,9 @@ A new CI gate is replacing the raw ACL/OID/whitespace-sensitive fingerprint comp
 The old raw fingerprint check deliberately reports differences due to database-specific raw ACL role identifiers, and formatting/optional AS tokens; it is retained for diagnosing live-catalog drift but is not a valid binary test of equivalent freshly replayed environments. The CI gate must pass on a clean isolated replay and must fail if any relevant semantic grant, definition or function token changes.
 
 None of these checks substitutes for a real **encrypted production backup and an isolated restore rehearsal**. Recovery Gate C and production release remain blocked. No migration, owner ID, financial record or production auth permission was modified.
+
+## Validation update — 2026-10-20
+
+The seven reviewed source differences were conclusively checked against `pg_get_functiondef()` output on both live production and replay; **all seven SQL token streams are equivalent**, preserving literal contents and with only two narrowly defined optional SELECT alias `AS` tokens normalized. No production SQL was changed. The isolated CI now enforces **72/72 historical migrations, 221 effective role/ACL/policy fingerprints, 214 byte-equal structural metadata fingerprints and 7 token-equal function definitions**. The run passed at https://github.com/arambarzani07/kashier/actions/runs/39385583050. The general Node suite was **530/530** at https://github.com/arambarzani07/kashier/actions/runs/39385582938.
+
+Previous sections recording the original raw fingerprint mismatch are retained as audit history; those raw string/OID differences do not represent discovered business-logic drift. The stricter semantic replay pipeline is green. **Real-data backup and restore Gate C is still open and remains a production release blocker.**
