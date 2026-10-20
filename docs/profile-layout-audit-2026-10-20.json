@@ -1,0 +1,142 @@
+[
+  {
+    "screen": "customer-preview.html",
+    "width": 320,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "customer-preview.html",
+    "width": 390,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "customer-preview.html",
+    "width": 768,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "customer-preview.html",
+    "width": 1280,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "supplier-preview.html",
+    "width": 320,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "supplier-preview.html",
+    "width": 390,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "supplier-preview.html",
+    "width": 768,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "supplier-preview.html",
+    "width": 1280,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "cash-preview.html",
+    "width": 320,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "cash-preview.html",
+    "width": 390,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "cash-preview.html",
+    "width": 768,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "cash-preview.html",
+    "width": 1280,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "export-preview.html",
+    "width": 320,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "export-preview.html",
+    "width": 390,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "export-preview.html",
+    "width": 768,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "export-preview.html",
+    "width": 1280,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "restore-preview.html",
+    "width": 320,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "restore-preview.html",
+    "width": 390,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "restore-preview.html",
+    "width": 768,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "restore-preview.html",
+    "width": 1280,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  }
+]
