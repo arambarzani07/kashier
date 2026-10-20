@@ -10,7 +10,9 @@ The live `tests/access-rls.sql` suite passed with all fixtures rolled back: dire
 
 Existing readiness limitations remain: no offline mode, no physical printer/scanner/till acceptance, incomplete end-to-end backup restore and separate authenticated staff browser acceptance, and no centralized client error monitoring. Supabase's existing leaked-password-protection warning remains; no paid-plan change was made. Private access tables deliberately deny direct client access and therefore show informational RLS-without-policy notices.
 
-Release/browser evidence for the rebuilt UI is recorded after deployment. The maintenance evidence and older application tests below are historical and do not establish readiness of this new access flow for real-shop operation.
+Release `7900c48fed8be1cc6c9bd4b8a29cfca01ce513f3`, deployment `dpl_2gvXruvMacXNu62WJHsGvAZ5UYjS`, reached production READY on Node 24 in 16.6 seconds. Edge Function `access` version 2 is ACTIVE. Stable `/auth.html` returned HTTP 200 with the new username form and no signup control; the browser visibly confirmed the layout, guest `staff.html` redirected to login, and the existing-owner button switched to email migration. No credentials were entered or real account enrolled. Browser logs contained only browser-extension metadata errors, not observed application errors. A direct terminal POST smoke request could not reach the Supabase host (SSL connection timeout), so it is not recorded as an endpoint success. Runtime-error scan for the preceding hour found none; drains remain unconfigured. The additional live legacy-session gate and its rolled-back regression suite passed after this frontend release.
+
+The maintenance evidence and older application tests below are historical and do not establish readiness of this new access flow for real-shop operation.
 
 ## Previous maintenance release (historical)
 
