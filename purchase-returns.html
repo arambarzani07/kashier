@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="catalog.css">
   <link rel="stylesheet" href="returns.css">
   <link rel="stylesheet" href="purchase-returns.css">
-  <script src="preferences.js" defer></script>
+  <script src="preferences.js" defer></script><script src="kurdish-ui.js" defer></script>
   <script src="config.js" defer></script>
   <script src="data.js" defer></script>
   <script src="purchase-returns-data.js" defer></script>
@@ -17,9 +17,9 @@
   <link rel="stylesheet" href="preferences.css">
 <script src="access-model.js" defer></script><script src="access-guard.js" defer></script><link rel="stylesheet" href="access-guard.css"><link rel="stylesheet" href="workspace-theme.css"><link rel="stylesheet" href="formal-theme.css"><link rel="stylesheet" href="unified-design.css"></head>
 <body class="returns-page" data-design="unified">
-  <header class="topbar"><div class="brand"><span class="brand-mark">K</span><strong>کاشێر</strong></div><span>گەڕاندنەوەکانی کڕین</span><a class="home-link" href="index.html">سەرەکی ←</a></header>
+  <header class="topbar"><div class="brand"><span class="brand-mark">ک</span><strong>کاشێر</strong></div><span>گەڕاندنەوەکانی کڕین</span><a class="home-link" href="index.html">سەرەکی ←</a></header>
   <main class="returns-main">
-    <section class="returns-heading"><div><span class="eyebrow">Purchase Returns Center</span><h1>ناوەندی گەڕاندنەوەکانی کڕین</h1><p>Full Return و Partial Return لە یەک شوێن. بۆ کڕینی قەرزدار، بڕی گەڕاندنەوە سەرەتا قەرزی ماوە هەڵدەوەشێنێتەوە و زیادەکە پارەی گەڕاوە بۆ قاسە دەبێت.</p></div><a class="secondary" href="purchase-receipts.html">پسوولەکانی کڕین</a></section>
+    <section class="returns-heading"><div><span class="eyebrow">ناوەندی گەڕاندنەوەی کڕین</span><h1>ناوەندی گەڕاندنەوەکانی کڕین</h1><p>گەڕاندنەوەی تەواو و گەڕاندنەوەی بەشێک لە یەک شوێن. بۆ کڕینی قەرزدار، بڕی گەڕاندنەوە سەرەتا قەرزی ماوە هەڵدەوەشێنێتەوە و زیادەکە پارەی گەڕاوە بۆ قاسە دەبێت.</p></div><a class="secondary" href="purchase-receipts.html">پسوولەکانی کڕین</a></section>
     <form id="purchase-returns-filter" class="returns-filter purchase-returns-filter ui-panel" autocomplete="off">
       <label>جۆر<select id="purchase-returns-kind"><option value="all">هەموو</option><option value="full">گەڕاندنەوەی تەواو</option><option value="partial">گەڕاندنەوەی بەشی</option></select></label>
       <label>لە بەروار<input id="purchase-returns-from" type="date"></label><label>تا بەروار<input id="purchase-returns-to" type="date"></label><label>دابینکەر<input id="purchase-returns-supplier" type="search" maxlength="100" placeholder="ناوی دابینکەر"></label><label>بڕی کەم<input id="purchase-returns-min" type="number" min="0" max="100000000000000" step="1" inputmode="numeric" placeholder="0"></label><label>بڕی زۆر<input id="purchase-returns-max" type="number" min="0" max="100000000000000" step="1" inputmode="numeric" placeholder="—"></label><label class="returns-query">گەڕان<input id="purchase-returns-query" type="search" maxlength="100" placeholder="ژمارەی پسوولە، گەڕاندنەوە، فاتورە یان هۆکار"></label><div class="returns-filter-actions ui-actions"><button class="primary" type="submit">گەڕان</button><button class="secondary" id="purchase-returns-clear" type="button">پاککردنەوە</button></div>

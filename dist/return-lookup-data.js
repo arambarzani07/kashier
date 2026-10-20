@@ -7,7 +7,7 @@
  function normalize(value){
   const input=String(value??'').trim().toUpperCase().replace(/\s+/g,'');
   const match=/^(?:K-?)?([0-9]{1,19})$/.exec(input);
-  if(!match)throw new Error('ژمارەی پسوولە بنووسە یان بارکۆدی K-123 بسکەنە.');
+  if(!match)throw new Error('ژمارەی پسوولە بنووسە یان بارکۆدی سەر پسوولە بسکەنە.');
   const receipt=BigInt(match[1]);
   if(receipt<1n||receipt>9223372036854775807n)throw new Error('ژمارەی پسوولە لە سنووری ڕێگەپێدراو نییە.');
   return receipt.toString();

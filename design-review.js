@@ -7,7 +7,7 @@
  const valid=()=>labels.has(screen.value)&&widths.has(width.value);
  function title(){frame.title='پێشبینینی دیزاین — '+labels.get(screen.value);}
  function busy(on){frame.setAttribute('aria-busy',String(on));}
- function ready(){status.textContent=labels.get(loaded)+' · '+width.value+' px · بارکرا';}
+ function ready(){status.textContent=labels.get(loaded)+' · '+width.value+' پیکسڵ · بارکرا';}
  function loading(){busy(true);status.textContent='لە بارکردندایە: '+labels.get(pending);}
  function current(){
   try{

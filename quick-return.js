@@ -2,7 +2,7 @@
 const $=selector=>document.querySelector(selector);
 let requestNumber=0;
 const money=value=>new Intl.NumberFormat('en-US').format(BigInt(String(value??0)))+' دینار';
-const when=value=>new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Baghdad',dateStyle:'medium',timeStyle:'short'}).format(new Date(value));
+const when=value=>new Intl.DateTimeFormat('ckb-IQ-u-ca-gregory-nu-latn',{timeZone:'Asia/Baghdad',dateStyle:'medium',timeStyle:'short'}).format(new Date(value));
 function hideActions(){for(const id of ['partial-return-action','full-return-action','return-document-action'])$("#"+id).hidden=true;}
 function clearResult(){const box=$('#quick-return-result');box.hidden=true;hideActions();$('#quick-return-state').className='quick-return-state';}
 function setState(text,kind=''){$('#quick-return-state').textContent=text;$('#quick-return-state').className='quick-return-state'+(kind?' '+kind:'');}
@@ -23,11 +23,11 @@ function renderState(sale,reversal,returns,stateError){
  const note=$('#quick-return-note'),partial=$('#partial-return-action'),full=$('#full-return-action'),documentLink=$('#return-document-action'),discounted=BigInt(String(sale.discount??0))>0n;
  if(stateError){setState('دۆخ ناپشتڕاستە','warn');note.textContent='پسوولە دۆزرایەوە، بەڵام دۆخی گەڕاندنەوە پشتڕاست نەکرایەوە. بۆ پاراستنی حساب هیچ کردارێک لێرە چالاک ناکرێت؛ پسوولەکە بکەرەوە و نوێکردنەوە بکە.';return;}
  if(reversal){setState('گەڕێندراوەتەوە','done');note.textContent='ئەم فرۆشتنە پێشتر بە تەواوی گەڕێندراوەتەوە · R-'+reversal.reversal_no+' · '+money(reversal.cash_refund)+' کاش · '+money(reversal.debt_reversed)+' قەرز.';documentLink.href='return-document.html?source=sale&kind=full&id='+encodeURIComponent(reversal.id);documentLink.hidden=false;return;}
- if(returns.length){setState('Partial: '+returns.length,'warn');note.textContent='ئەم پسوولەیە '+returns.length+' گەڕاندنەوەی بەشی هەیە؛ کۆی پارەی گەڕاوە '+money(sumCash(returns))+' ـە. Full Return بە یاسای حسابداری قوفڵە.';if(sale.payment_mode==='cash'){partial.href=receiptHref(sale,'#partial-return-panel');partial.hidden=false;if(discounted)note.textContent+=' refund ـی بەشی بە net allocation ـی داشکاندن حساب دەکرێت.';}else note.textContent+=' Partial Return ـی credit هێشتا قوفڵە.';return;}
+ if(returns.length){setState('گەڕاندنەوەی بەشێک: '+returns.length,'warn');note.textContent='ئەم پسوولەیە '+returns.length+' گەڕاندنەوەی بەشی هەیە؛ کۆی پارەی گەڕاوە '+money(sumCash(returns))+' ـە. گەڕاندنەوەی تەواو بە یاسای حسابداری قوفڵە.';if(sale.payment_mode==='cash'){partial.href=receiptHref(sale,'#partial-return-panel');partial.hidden=false;if(discounted)note.textContent+=' پارەی گەڕاندنەوەی بەشی بە دابەشکردنی داشکاندن لە بەهای خاوێن حساب دەکرێت.';}else note.textContent+=' گەڕاندنەوەی بەشێکی فرۆشتنی قەرز هێشتا قوفڵە.';return;}
  setState('ئامادە','');
  full.href=receiptHref(sale,'#reversal-panel');full.hidden=false;
- if(sale.payment_mode==='cash'){partial.href=receiptHref(sale,'#partial-return-panel');partial.hidden=false;note.textContent=discounted?'پسوولەکە داشکاندنی هەیە. Full و Partial Return هەردووکیان چالاکن؛ refund ـی بەشی بە net allocation ـی exact حساب دەکرێت.':'پسوولەکە هیچ گەڕاندنەوەیەکی پێشووی نییە. دەتوانیت Full یان Partial Return هەڵبژێریت.';}
- else note.textContent='ئەمە فرۆشتنی قەرزە. Full Return لەسەر guard ـی قەرز کار دەکات؛ Partial Return تا تەواوبوونی allocation ـی پارەدان قوفڵە.';
+ if(sale.payment_mode==='cash'){partial.href=receiptHref(sale,'#partial-return-panel');partial.hidden=false;note.textContent=discounted?'پسوولەکە داشکاندنی هەیە. گەڕاندنەوەی تەواو و بەشێک هەردووکیان چالاکن؛ پارەی گەڕاندنەوەی بەشی بە دابەشکردنی وردی بەهای خاوێن حساب دەکرێت.':'پسوولەکە هیچ گەڕاندنەوەیەکی پێشووی نییە. دەتوانیت گەڕاندنەوەی تەواو یان بەشێک هەڵبژێریت.';}
+ else note.textContent='ئەمە فرۆشتنی قەرزە. گەڕاندنەوەی تەواو بە پێی یاساکانی پاراستنی قەرز کار دەکات؛ گەڕاندنەوەی بەشێک تا تەواوبوونی دابەشکردنی پارەدان قوفڵە.';
 }
 async function findReceipt(event){
  event?.preventDefault();
@@ -44,7 +44,7 @@ async function findReceipt(event){
   const stateError=states.filter(item=>item.status==='rejected').map(item=>item.reason?.message||'').filter(Boolean).join(' ');
   renderState(sale,reversal,returns,stateError);
   status.textContent='K-'+sale.receipt_no+' دۆزرایەوە.';
- }catch(error){if(request!==requestNumber)return;status.textContent=error.message;clearResult();if(error.status===401){location.replace('auth.html?next='+encodeURIComponent('quick-return.html'));return;}input.focus();input.select();}
+ }catch(error){if(request!==requestNumber)return;status.textContent=(globalThis.KashierLocale?.message(error.message)??error.message);clearResult();if(error.status===401){location.replace('auth.html?next='+encodeURIComponent('quick-return.html'));return;}input.focus();input.select();}
  finally{if(request===requestNumber){button.disabled=false;input.disabled=false;}}
 }
 if(!KashierData.loggedIn())location.replace('auth.html?next='+encodeURIComponent('quick-return.html'));
