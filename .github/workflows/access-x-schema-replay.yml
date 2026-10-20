@@ -7,6 +7,8 @@ on:
     paths:
       - 'supabase/migrations/**'
       - 'tests/access-x-replay-bootstrap.sql'
+      - 'tests/access-x-replay-inspect.sql'
+      - 'tests/access-x-schema-fingerprint.sql'
       - 'scripts/access-x-schema-replay.sh'
       - '.github/workflows/access-x-schema-replay.yml'
 
