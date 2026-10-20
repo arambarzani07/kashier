@@ -3,27 +3,37 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#1253c8">
+  <meta name="theme-color" content="#146c70">
   <title>کاشێر — سەرەکی</title>
   <link rel="stylesheet" href="styles.css">
   <script src="preferences.js" defer></script><script src="config.js" defer></script><script src="data.js" defer></script><script src="account.js" defer></script>
   <script src="dashboard-model.js" defer></script><script src="dashboard.js" defer></script><link rel="stylesheet" href="dashboard.css">
-  <script src="app.js" defer></script><script src="returns-tile.js" defer></script><script src="quick-return-tile.js" defer></script><script src="purchase-returns-tile.js" defer></script>
-<link rel="stylesheet" href="preferences.css"><script src="access-model.js" defer></script><script src="access-guard.js" defer></script><link rel="stylesheet" href="access-guard.css"></head>
-<body>
+  <script src="home-navigation.js" defer></script><script src="app.js" defer></script><script src="returns-tile.js" defer></script><script src="quick-return-tile.js" defer></script><script src="purchase-returns-tile.js" defer></script>
+<link rel="stylesheet" href="preferences.css"><script src="access-model.js" defer></script><script src="access-guard.js" defer></script><link rel="stylesheet" href="access-guard.css"><link rel="stylesheet" href="home.css"><link rel="stylesheet" href="workspace-theme.css"></head>
+<body class="home-page">
   <header class="topbar">
     <div class="brand"><span class="brand-mark">K</span><strong>کاشێر</strong><span class="version">سیستەمی کاشێر</span></div>
     <div class="identity"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/></svg><span id="account-summary">هەژماری سیستەم</span></div>
     <div class="clock"><time id="date"></time><time id="time" dir="ltr"></time></div>
     <div class="utilities"><button id="search-toggle" aria-label="گەڕان لە بەشەکان" title="گەڕان لە بەشەکان">⌕</button><button id="fullscreen" aria-label="پڕکردنی شاشە" title="پڕکردنی شاشە">⛶</button></div>
-  <a href="staff.html">کارمەند و دوکانەکان</a></header>
-  <nav class="tabbar" aria-label="پەڕەکان"><span class="tab">سەرەکی <span class="tab-dot"></span></span></nav>
+  </header>
   <div class="workspace">
-    <aside class="rail"><span>داشبۆرد</span></aside>
+    <nav class="side-nav" aria-label="ڕێنیشاندەری سەرەکی"><p>شوێنی کارەکەت</p><a href="index.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>سەرەکی</span></a>
+<a href="sale.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h3l3 13h11l3-9H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg><span>فرۆشتن</span></a>
+<a href="products.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 9-5 9 5v11l-9 4-9-4V7m0 0 9 5 9-5M12 12v10M7 4l10 6"/></svg><span>کاڵاکان</span></a>
+<a href="stock.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 9-5 9 5v11l-9 4-9-4V7m0 0 9 5 9-5M12 12v10M7 4l10 6"/></svg><span>کۆگا</span></a>
+<a href="customers.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M5 9h1M18 15h1"/></svg><span>کڕیار و قەرز</span></a>
+<a href="suppliers.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5V3M8 7h8M8 11h8M8 15h4M16 14v5m-2-2h4"/></svg><span>دابینکەرەکان</span></a>
+<a href="staff.html" class="nav-admin"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M17 15a5 5 0 0 1 4 5"/></svg><span>کارمەندان و دەسەڵات</span></a>
+<a href="export.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16a5 5 0 0 1 0-10 7 7 0 0 1 13 3 4 4 0 0 1-1 8M12 12v10m-4-4 4 4 4-4"/></svg><span>باکئەپ</span></a>
+<a href="settings.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 3-1 3-3 1-2 5 2 5 3 1 1 3h6l1-3 3-1 2-5-2-5-3-1-1-3H9"/><circle cx="12" cy="12" r="3"/></svg><span>ڕێکخستن</span></a><p class="nav-footnote">کاشێر<br>بەڕێوەبردنی ڕۆژانەی دوکان</p></nav>
     <main id="main">
-      <div class="search-panel" id="search-panel" hidden><label for="search">گەڕان لە بەشەکان</label><input id="search" type="search" placeholder="ناوی بەشێک بنووسە…" autocomplete="off"><button id="clear-search">پاککردنەوە</button></div>
-      <h1 class="sr-only">بەشەکانی سیستەمی کاشێر</h1>
-      <section class="account-panel" aria-label="هەژمار و دەستپێکردن"><div class="account-detail"><strong id="account-status" role="status" aria-live="polite">پشکنینی هەژمار…</strong><span id="account-email" dir="ltr"></span></div><div class="account-actions"><a href="account-settings.html">ڕێکخستنی هەژمار</a><a id="account-login" href="auth.html?next=index.html">چوونەژوورەوە</a><a id="account-create" href="auth.html?next=index.html">خاوەنی هەژماری کۆن</a><button id="account-retry" hidden>پشکنینەوە</button><button id="account-logout" hidden>دەرچوون</button></div><p id="account-help">بۆ مامەڵەکان، بە هەژماری کاشێر بچۆ ژوورەوە.</p><nav class="getting-started" aria-label="دەستپێکردن"><span>دەستپێکردن:</span><a href="price-check.html">پشکنینی نرخ</a><a href="products.html?new=1">١. ناساندنی کاڵا</a><a href="purchase.html">٢. کڕین و پڕکردنی کۆگا</a><a href="sale.html">٣. فرۆشتن</a></nav></section>
+<div class="home-intro"><div><span class="home-eyebrow">KASHIER · شوێنی کار</span><h1>کارەکانی ئەمڕۆت لێرە دەست پێ دەکەن.</h1><p>بەشەکەت هەڵبژێرە و ڕاستەوخۆ دەست بە کار بکە.</p></div><a class="home-primary" href="sale.html"><span aria-hidden="true">＋</span>فرۆشتنی نوێ</a></div>
+      <section class="account-panel" aria-label="هەژمار و دەستپێکردن"><div class="account-detail"><strong id="account-status" role="status" aria-live="polite">پشکنینی هەژمار…</strong><span id="account-email" dir="ltr"></span></div><div class="account-actions"><a href="account-settings.html">ڕێکخستنی هەژمار</a><a id="account-login" href="auth.html?next=index.html">چوونەژوورەوە</a><a id="account-create" href="auth.html?next=index.html">خاوەنی هەژماری کۆن</a><button id="account-retry" hidden>پشکنینەوە</button><button id="account-logout" hidden>دەرچوون</button></div><details><summary>ڕێنمایی هەژمار و دەستپێکردن</summary><p id="account-help">بۆ مامەڵەکان، بە هەژماری کاشێر بچۆ ژوورەوە.</p><nav class="getting-started" aria-label="دەستپێکردن"><span>دەستپێکردن:</span><a href="price-check.html">پشکنینی نرخ</a><a href="products.html?new=1">١. ناساندنی کاڵا</a><a href="purchase.html">٢. کڕین و پڕکردنی کۆگا</a><a href="sale.html">٣. فرۆشتن</a></nav></details></section>
+<nav class="quick-links" aria-label="دەستگەیشتنی خێرا"><a href="staff.html" class="quick-link team"><span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M17 15a5 5 0 0 1 4 5"/></svg></span><span><strong>کارمەندان و دەسەڵات</strong><small>هەژمار و مۆڵەتەکان</small></span></a>
+<a href="products.html" class="quick-link"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 9-5 9 5v11l-9 4-9-4V7m0 0 9 5 9-5M12 12v10M7 4l10 6"/></svg></span><span><strong>کاڵاکان</strong><small>گەڕان و بەڕێوەبردن</small></span></a>
+<a href="purchase.html" class="quick-link"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5V3M8 7h8M8 11h8M8 15h4M16 14v5m-2-2h4"/></svg></span><span><strong>کڕینی کاڵا</strong><small>تۆمارکردنی کڕینی نوێ</small></span></a>
+<a href="cash.html" class="quick-link"><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M5 9h1M18 15h1"/></svg></span><span><strong>سندوق</strong><small>بینینی حسابی پارە</small></span></a></nav>
       <section id="home-summary" class="home-summary" aria-labelledby="home-summary-title" hidden><div class="home-summary-heading"><h2 id="home-summary-title">پوختەی ئێستای هەژمار</h2><button id="home-summary-refresh" type="button">نوێکردنەوە</button></div><p id="home-summary-status" role="status" aria-live="polite"></p><p id="home-summary-meta"></p><div id="home-summary-grid" class="home-summary-grid" hidden>
 <a href="cash.html"><span>باڵانسی سندوق / دینار</span><strong id="home-cash_balance">—</strong></a>
 <a href="customer-balances.html"><span>قەرزی ماوەی کڕیارەکان / دینار</span><strong id="home-customer_balance">—</strong></a>
@@ -32,8 +42,9 @@
 <a href="stock.html?mode=reorder"><span>لە سنووری تایبەت یان خوارتر</span><strong id="home-low_stock_count">—</strong></a>
 <a href="expiry.html"><span>بەسەرچوو بە بەرواری تۆمارکراو — بە کۆگا</span><strong id="home-expired_count">—</strong></a>
 </div><p class="home-summary-note">باڵانسەکان کۆی حسابی ئێستان، ڕاپۆرتی فرۆشتنی ئەمڕۆ نین. ئاگاداری کەمبوونەوە تەنها بۆ کاڵای سنووردارە؛ بەسەرچوون ڕۆژی ئەمڕۆ ناگرێتەوە و بڕی وجبە دیاری ناکات.</p></section>
-      <div class="tile-grid" id="tiles"></div>
+<section class="modules-section" aria-labelledby="modules-title"><div class="modules-heading"><div><h2 id="modules-title">بەشەکانی سیستەم</h2><p><span id="module-count"></span> · بەشەکان بە پێی کارەکەت ڕێکخراون</p></div><div class="search-panel" id="search-panel"><label for="search" class="sr-only">گەڕان لە بەشەکان</label><input id="search" type="search" placeholder="گەڕان لە بەشەکان…" autocomplete="off"><button type="button" id="clear-search" aria-label="پاککردنەوەی گەڕان">×</button></div></div><nav class="module-categories" aria-label="پۆلێنکردنی بەشەکان"><button type="button" data-module-group="all" aria-pressed="true">هەموو بەشەکان</button><button type="button" data-module-group="sales" aria-pressed="false">فرۆشتن</button><button type="button" data-module-group="inventory" aria-pressed="false">کاڵا و کۆگا</button><button type="button" data-module-group="finance" aria-pressed="false">حساب و قەرز</button><button type="button" data-module-group="reports" aria-pressed="false">ڕاپۆرتەکان</button><button type="button" data-module-group="administration" aria-pressed="false">بەڕێوەبردن</button></nav><div class="tile-grid" id="tiles"></div>
       <p id="no-results" hidden role="status">هیچ بەشێک نەدۆزرایەوە.</p>
+</section>
       <footer><span>کاتالۆگ · کۆگا · فرۆشتن · قاسە · قەرز</span><span>بەشە چالاکەکان بە داتابەیسی هەژمارەکەتەوە پەیوەستن</span></footer>
     </main>
   </div>

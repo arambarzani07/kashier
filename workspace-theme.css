@@ -1,0 +1,21 @@
+/* Shared screen styling only. Printed receipts and reports keep their own rules. */
+@media screen{
+ :root{--brand:#146c70;--ink:#203846;--muted:#657b89;--line:#dfe8ec;--canvas:#f3f6f8}
+ body{background:var(--canvas);color:var(--ink)}
+ .topbar{height:auto;min-height:64px;padding:12px 24px;gap:16px;background:#fff;color:var(--ink);border-bottom:1px solid var(--line);box-shadow:none}
+ .brand{gap:12px;flex-shrink:0}.brand strong{font-size:19px}.brand-mark{border:0;background:#146c70;color:#fff;border-radius:11px;padding:7px 11px;font-size:22px}.version{border-color:var(--line);color:var(--muted);opacity:1}
+ .topbar a,.sale-page .topbar a,.statement-page .topbar a{color:var(--brand);text-decoration:none;border:1px solid var(--line);border-radius:9px;padding:8px 12px;line-height:1.7;font-size:12px}
+ .clock{color:var(--muted);font-size:11px;gap:16px}.identity{font-size:12px;color:#526a77}.utilities button{width:36px;height:36px;border-radius:10px;background:#f0f5f6;color:#285962}
+ .tabbar{background:#f7f9fa;border-bottom:1px solid var(--line);height:42px}.tab{border-color:var(--line);color:var(--brand)}.tab-dot{background:var(--brand)}
+ button,input,select,textarea{touch-action:manipulation}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #2a9498;outline-offset:3px}
+ .sale-layout,.statement-layout{padding:24px;background:transparent}
+ .cart-panel,.payment-panel,.statement-controls,.statement-paper{border-color:var(--line);border-radius:14px;box-shadow:0 3px 16px #19304604}
+ .section-heading,.cart-footer,.payment-title{border-color:var(--line)}
+ .primary,.scan-form button,.statement-controls button:not(.secondary){background:var(--brand);border-radius:9px;color:#fff}
+ .secondary,.statement-controls .secondary{background:#edf5f5;color:#285d63;border-color:#d8e6e7;border-radius:9px}
+ .sale-page input,.sale-page textarea,.statement-controls input,.statement-controls select{border-color:#cfdee3;border-radius:8px;min-height:44px}
+ .grand-total{background:linear-gradient(125deg,#15515d,#146c70);border-radius:12px}.complete-sale:not(:disabled){background:var(--brand);border-radius:9px}
+ .statement-paper{border-top:3px solid #428e91}.statement-totals>div{border-color:var(--line);background:#f5f9fa;border-radius:9px}.statement-paper th,th{background:#f0f6f7;color:#526e7b}
+ .statement-paper a{color:#146c70}.home-link{border-radius:9px}
+ @media(max-width:760px){.topbar{padding:12px 16px;gap:10px;flex-wrap:wrap}.topbar>a{min-height:40px}.sale-layout,.statement-layout{padding:14px}.sale-page input,.statement-controls input,.statement-controls select{font-size:16px}.identity{display:none}.clock{margin-inline-start:auto}.cart-panel{min-height:440px}}
+}

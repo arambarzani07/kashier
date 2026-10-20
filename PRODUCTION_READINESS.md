@@ -2,6 +2,12 @@
 
 ## Username access v2
 
+### Navigation and visual organization
+
+The dashboard now has a clear primary navigation, prominent employee-administration shortcut, persistent module search and five task categories. All original modules and return shortcuts remain reachable; stock, employee administration and daily close now have direct dashboard entries. Shared screen-only styling unifies headers, forms, cards and report controls across 58 existing screens. Receipt/report print styles and financial logic are unchanged. Mobile layouts use a horizontal navigation strip and two-column module cards, with larger touch controls.
+
+`design-preview.html` is a public, navigation-only visual preview generated from the real dashboard. It deliberately omits Auth/database/account scripts and financial summaries; it is not a signed-in workspace or a source of business data. Real operational pages retain authentication and database permission enforcement.
+
 The owner approved direct employee accounts without invitations. The rebuilt login accepts a username and password, detects owner/manager/cashier on the server, forces temporary-password replacement, and routes staff to their own store. Existing owners authenticate once with their old email/password and choose a username without replacing their Auth user or business records. No username or password has been chosen for a real user by this implementation.
 
 `supabase/functions/access/index.ts` uses Supabase Auth for passwords and verifies authenticated callers with Auth. Credentials are excluded from all RPC bodies and database rows. Its public login action has database-backed attempt limits; administrative RPCs are service-only. Thirty existing public tables have an additional restrictive account gate and 82 invoker business RPCs check account/session state. The two old invitation RPCs are retired. Permission reductions and suspension are checked against live membership rows; session revocation checks real `auth.sessions` creation times, not user-editable metadata or stale role claims. Managed employees cannot use owner RPCs or create their own owner data.
