@@ -9,7 +9,8 @@ test('synthetic rehearsal refuses unapproved database or production credentials'
  assert.match(shell,/PGDATABASE" != "kashier_replay"/);
  assert.match(shell,/ACCESS_X_SYNTHETIC_DRILL" != "true"/);
  assert.match(shell,/createdb --template=template0 kashier_restore_check/);
- assert.match(shell,/pg_restore[\\s\\S]*--exit-on-error --single-transaction/);
+ assert.match(shell,/pg_restore --host=/);
+ assert.match(shell,/--exit-on-error --single-transaction/);
  assert.doesNotMatch(shell,/SUPABASE_(SERVICE_ROLE|DB_PASSWORD)|postgresql:\/\/|db\.[^.]+\.supabase\.co/);
  assert.doesNotMatch(shell,/upload-artifact|curl |wget /);
 });
