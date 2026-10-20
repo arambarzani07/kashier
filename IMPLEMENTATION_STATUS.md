@@ -18,3 +18,5 @@ The remaining installment/profit dashboard tiles still show unavailable-module U
 - Access X login UI (staged): source `auth.html` and `auth.js` replaced with modern Sorani RTL unified manager/cashier form; no self signup, no role/redirect choice and no legacy-token fallback. It requires an undeployed `/api/access-x/login` server-authoritative endpoint and has fixed currently-unimplemented role destinations. **Vercel stays maintenance-only, no real login possible yet.** See `ACCESS_X_LOGIN_UI.md`.
 
 - Access X login server (staged): server-side GoTrue password adapter, authoritative role/session contract and SameSite/HttpOnly cookie HTTP handler drafted and covered by isolated Node tests. **No backend route, live role resolver, durable rate limiter or session store is deployed.** Login remains maintenance-locked and real backup/restore remains unverified.
+
+- Access X login backend (staged 2026-10-20): secured server-only core and Supabase Auth provider adapter with 15 isolated tests, but NO deployed API or durable role/session adapters. See `ACCESS_X_LOGIN_BACKEND.md`. Backup/release gate still closed.

@@ -164,3 +164,9 @@ Added a GitHub Actions runner with disposable PostgreSQL 17 and a minimal Supaba
 ## Access X login source design checkpoint — STAGED (2026-10-20)
 
 Old self-signup/browser-based login entry was replaced with a standalone Sorani RTL two-role, no-registration UI at `auth.html`/`auth.js`. Server-verified manager/cashier session is mandatory for any redirect; unsupported role or absent backend denies login. The backend and role workspaces are NOT deployed; the Vercel maintenance gate remains in force. See `ACCESS_X_LOGIN_UI.md`.
+
+## Access X login backend checkpoint — staged 2026-10-20
+
+- Added framework-agnostic **server-only** HTTP login contract in `access-x/login-core.cjs` (disabled without explicit complete release gate + backend adapters), a dependency-free HTTPS Supabase Auth password / getUser adapter using only a publishable/anon key, and 15 isolated Node tests. Tests cover wrong origins, malformed requests, rate limits, generic invalid-credential behavior, authoritative primary owner and cashier proof, nonactive cashier activation, safe cookie flags, no password/token leaks, and maintenance-only routes.
+- **No endpoint was deployed, no session store/market registry/rate-limit adapter was implemented, no service-role key was added, no Auth account or financial record was changed**. All role/market authorities still require a reviewed server/database implementation. `vercel.json` stays maintenance-only. See `ACCESS_X_LOGIN_BACKEND.md`.
+- Next gate: real market/owner registry, durable rate limits + sessions, credential rotation, protected workspaces and successfully restored actual offsite backup. Never treat client UI or injected test adapters as production authorization.
