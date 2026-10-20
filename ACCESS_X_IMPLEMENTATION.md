@@ -126,3 +126,9 @@ The previous `main` deployment failed because the Vercel project build command r
 - **PASS**: `tests/access-x-two-role-preflight.sql` verified no existing delegated manager membership needs migration (live membership count: 0). This is a read-only preflight, **not** future-role enforcement; current manager member creation is still possible until the coordinated cutover.
 - Target business model, manager-created cashier without invitation, activation/security constraints and the full two-role permission matrix are in `ACCESS_X_ROLE_CONTRACT.md`.
 - Backup inventory and isolated restore remain **unverified**. No server Auth or RLS modification was applied; maintenance UI remains on.
+
+## Gate 2 development checkpoint — no-invitation provisioner (STAGED, not live)
+
+- Added `access-x/provisioning-core.cjs` pure Node server orchestration and `tests/access-x-provisioning-core.test.cjs` regression suite. Only authenticated primary managers with fresh identity verification can initiate requests. Untrusted role/owner/password fields are rejected. The service requires durable reservations and concurrency-safe compare-and-swap, generates the initial password on server, creates a cashier-only identity, and transitions ambiguous Auth/SQL outcomes to manual reconciliation without deleting or retrying blindly.
+- This is **not a working production endpoint**. The adapter interfaces are deliberately unimplemented and fail closed. No Supabase Auth user is created, no production SQL migration applied, no secrets provisioned, no Vercel runtime route added and no live cashier login enabled. See `access-x/README.md`.
+- Next prerequisites are backups/restore, exact schema replay, reviewed server-side durable reservation schema, provisioning endpoint and credential rotation policy; then a controlled test-environment deployment.
