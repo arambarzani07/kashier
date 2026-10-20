@@ -3,7 +3,7 @@
 // Public layout review: no Auth, database, account details or business numbers.
 const fs=require('node:fs'),path=require('node:path'),root=path.resolve(__dirname,'..');
 const allowed=new Set(['preferences.js','home-navigation.js','app.js','returns-tile.js','quick-return-tile.js','purchase-returns-tile.js']);
-const screens=[['index.html','design-preview.html','سەرەکی'],['staff.html','employees-preview.html','کارمەندان و دەسەڵات'],['sale.html','sale-preview.html','فرۆشتن'],['products.html','products-preview.html','کاڵاکان'],['purchase.html','purchase-preview.html','کڕین'],['statement.html','statement-preview.html','کەشف حساب'],['stocktake.html','stocktake-preview.html','جەرد'],['returns.html','returns-preview.html','گەڕاندنەوەکان'],['settings.html','settings-preview.html','ڕێکخستن']];
+const screens=[['index.html','design-preview.html','سەرەکی'],['staff.html','employees-preview.html','کارمەندان و دەسەڵات'],['sale.html','sale-preview.html','فرۆشتن'],['products.html','products-preview.html','کاڵاکان'],['purchase.html','purchase-preview.html','کڕین'],['statement.html','statement-preview.html','کەشف حساب'],['stocktake.html','stocktake-preview.html','جەرد'],['returns.html','returns-preview.html','گەڕاندنەوەکان'],['settings.html','settings-preview.html','ڕێکخستن'],['auth.html','auth-preview.html','چوونەژوورەوە']];
 function tabs(current){return '<nav class="preview-tabs" aria-label="پێشبینینی شاشەکان">'+screens.map(([,url,label])=>`<a href="${url}"${url===current?' aria-current="page"':''}>${label}</a>`).join('')+'<a href="design-review.html">پشکنینی قەبارەی شاشە</a></nav>';}
 let html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 html=html.replace(/<script\s+src="([^"]+)"[^>]*><\/script>/g,(tag,src)=>allowed.has(src)?tag:'');
