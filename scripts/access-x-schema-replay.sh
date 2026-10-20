@@ -24,7 +24,8 @@ number=0
 for file in "${files[@]}"; do
   number=$((number+1))
   echo "Apply schema $number/72: ${file##*/}" | tee -a "$report"
-  # One transaction per original migration is required for LOCK TABLE and atomic DDL.\n  # All migrations are historical and run only on the empty ephemeral database.
+  # One transaction per original migration is required for LOCK TABLE and atomic DDL.
+  # All migrations are historical and run only on the empty ephemeral database.
   if ! psql -X -v ON_ERROR_STOP=1 --single-transaction -q -f "$file" >> "$report" 2>&1; then
     echo "SCHEMA REPLAY FAILED at migration $number: ${file##*/}" | tee -a "$report"
     exit 1
@@ -38,7 +39,7 @@ if ! psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-replay-inspect.sql >> "$rep
 fi
 # Hash-only metadata diagnostics; no production connection, no customer data.
 psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-catalog-keys.sql >> "$report" 2>&1
-${anchor}
+psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-effective-rights.sql >> "$report" 2>&1
 grep '^AX_SEM|' "$report" | LC_ALL=C sort -u > /tmp/access-x-actual-rights.txt
 LC_ALL=C sort tests/access-x-semantic-rights-20261020.txt > /tmp/access-x-expected-rights.txt
 if [[ "$(wc -l < /tmp/access-x-actual-rights.txt)" -ne 221 ]] || ! diff -u /tmp/access-x-expected-rights.txt /tmp/access-x-actual-rights.txt >> "$report" 2>&1; then
