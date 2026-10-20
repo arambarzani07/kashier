@@ -11,6 +11,7 @@ on:
       - 'tests/access-x-schema-fingerprint.sql'
       - 'tests/access-x-catalog-keys.sql'
       - 'tests/access-x-effective-rights.sql'
+      - 'tests/access-x-compare-function-source.sql'
       - 'tests/access-x-semantic-rights-20261020.txt'
       - 'scripts/access-x-schema-replay.sh'
       - '.github/workflows/access-x-schema-replay.yml'

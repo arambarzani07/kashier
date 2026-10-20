@@ -52,6 +52,9 @@ echo "PASS: 221 stable effective rights and RLS policy targets match production 
 # catalog fingerprints with the reviewed production metadata snapshot.
 if ! psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-schema-fingerprint.sql >> "$report" 2>&1; then
   echo "FULL SCHEMA FINGERPRINT FAILED: inspect the isolated metadata, DO NOT write to production." | tee -a "$report"
+  # Metadata-only differences in seven reviewed functions; print only their repository-defined SQL.
+  psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-compare-function-source.sql >> "$report" 2>&1 || true
+  grep '^AX_FUNCTION_SOURCE|' "$report" || true
   grep -E '^(AX_META|AX_SEM)\\|' "$report" || true
   tail -n 12 "$report"
   exit 1
