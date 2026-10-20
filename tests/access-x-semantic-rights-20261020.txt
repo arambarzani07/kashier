@@ -1,0 +1,221 @@
+AX_SEM|policy|public.cash_accounts/cash_accounts_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.cash_movements/cash_movements_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.customer_allocation_reversals/customer_allocation_reversals_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.customer_balances/customer_balances_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.customer_installment_cancellations/installment_cancellations_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.customer_installment_plans/installment_plans_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.customer_payment_allocations/customer_allocations_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.customers/customers_insert_own|1edce5f76a0159f9044f311303ac5930
+AX_SEM|policy|public.customers/customers_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.customers/customers_update_own|57c52d62f7cf4f602a99d43ac547840c
+AX_SEM|policy|public.daily_cash_closes/daily_cash_closes_owner|7d9176dba80e3050e00258233b17931f
+AX_SEM|policy|public.debt_entries/debt_entries_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.inventory_cost_bases/inventory_cost_bases_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.inventory_cost_basis_cancellations/inventory_cost_basis_cancellations_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.inventory_cost_movements/inventory_cost_movements_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.inventory_cost_state/inventory_cost_state_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.product_stock/stock_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.products/products_insert_own|1edce5f76a0159f9044f311303ac5930
+AX_SEM|policy|public.products/products_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.products/products_update_own|57c52d62f7cf4f602a99d43ac547840c
+AX_SEM|policy|public.purchase_returns/purchase_returns_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.purchase_reversals/purchase_reversals_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.purchases/purchases_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.sale_returns/sale_returns_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.sale_reversals/sale_reversals_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.sales/sales_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.staff_actions/staff_actions_read_participant|67adb3c3cba3759a9114007b30c9a94c
+AX_SEM|policy|public.stock_adjustments/stock_adjustments_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.stock_movements/movements_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.store_cashiers/store_cashiers_read_participant|67adb3c3cba3759a9114007b30c9a94c
+AX_SEM|policy|public.supplier_balances/supplier_balances_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.supplier_entries/supplier_entries_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.supplier_payment_allocations/supplier_payment_allocations_select_own|7d9176dba80e3050e00258233b17931f
+AX_SEM|policy|public.suppliers/suppliers_insert_own|1edce5f76a0159f9044f311303ac5930
+AX_SEM|policy|public.suppliers/suppliers_read_own|3c02255b0ab70454d4bcb0375468fc02
+AX_SEM|policy|public.suppliers/suppliers_update_own|57c52d62f7cf4f602a99d43ac547840c
+AX_SEM|relation|private.owner_restore_receipts:r|dba890877191e78de3cf777820cea4b5
+AX_SEM|relation|public.cash_accounts:r|1794cead1c964bdd5f7aec08fcc9315f
+AX_SEM|relation|public.cash_movements:r|398aa1fc68e4c508bd9f954ab95dbab3
+AX_SEM|relation|public.customer_allocation_reversals:r|f1a4a6f92bc6506d2839967dba311509
+AX_SEM|relation|public.customer_balances:r|e4d385c1748e6f38efb2922815f3be50
+AX_SEM|relation|public.customer_debt_catalog:v|6b1c1aaf6cee8302833ba21382add43c
+AX_SEM|relation|public.customer_installment_cancellations:r|ca51a2acd8863b0315ba108ef0ee4dc8
+AX_SEM|relation|public.customer_installment_plans:r|ca3c3531472dc07689329e37977615c1
+AX_SEM|relation|public.customer_payment_allocations:r|0c674058fe382354423cb84057d5100e
+AX_SEM|relation|public.customers:r|5846b26d7463d9f97a444465c449d042
+AX_SEM|relation|public.daily_cash_closes:r|fe43790857ffa0af1a1c868408799a5e
+AX_SEM|relation|public.debt_entries:r|1c3b31845a33760dfe83b1dbbaff7f04
+AX_SEM|relation|public.inventory_cost_bases:r|403649da9a70c3ef94624c3c1956354e
+AX_SEM|relation|public.inventory_cost_basis_cancellations:r|8f427309abd3a7a5aaf52d8ed8ee477f
+AX_SEM|relation|public.inventory_cost_movements:r|175b794e3a5d95312e60bc5defeac232
+AX_SEM|relation|public.inventory_cost_state:r|e874417b608dc3db45a5922a2f14d375
+AX_SEM|relation|public.low_stock_catalog:v|770266a42ae0eeca1d91ab9e823f79f3
+AX_SEM|relation|public.product_stock:r|6528ce0c08649d1fca0b1e1eb014231f
+AX_SEM|relation|public.products:r|b26312fb811b602e493736bd0894d8b0
+AX_SEM|relation|public.purchase_returns:r|e13162127bfee83f72bc5022972b26a0
+AX_SEM|relation|public.purchase_reversals:r|0e1e7b51585cbf60a7c7f351a179d99d
+AX_SEM|relation|public.purchases:r|165a4296fb0d716bbe77beb0ad1e8783
+AX_SEM|relation|public.sale_returns:r|0892eec8eaac91994b0ec0f8255ba7de
+AX_SEM|relation|public.sale_reversals:r|55c3c337d05bae6557a543dd8e52e13d
+AX_SEM|relation|public.sales:r|cd0a10472e6bc597a348f7cb9e012b6e
+AX_SEM|relation|public.staff_actions:r|c7d8cd1cae782203d1b9bc311e2d2066
+AX_SEM|relation|public.stock_adjustments:r|f684a2a48119b6ee5b762f3307bacdb9
+AX_SEM|relation|public.stock_catalog:v|501fe204c46d8c46a7e80e9837daab90
+AX_SEM|relation|public.stock_movements:r|1b4029f5a6b370fd49b76570e09b1f0b
+AX_SEM|relation|public.store_cashiers:r|d5d9c2cfe0dc29b99902badb3099a356
+AX_SEM|relation|public.supplier_balances:r|501967f5b63062ccb33f6bf6371f1127
+AX_SEM|relation|public.supplier_debt_catalog:v|6b1c1aaf6cee8302833ba21382add43c
+AX_SEM|relation|public.supplier_entries:r|420db443979065b8a34b53358466e1c0
+AX_SEM|relation|public.supplier_payment_allocations:r|1c87295967557f062c6a5a5b987bb552
+AX_SEM|relation|public.suppliers:r|5846b26d7463d9f97a444465c449d042
+AX_SEM|routine|private.accept_store_cashier(p_id uuid, p_membership uuid)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.allocate_customer_payment(p_id uuid, p_customer uuid, p_payment uuid, p_charge uuid, p_amount bigint, p_note text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.cancel_customer_installments(p_id uuid, p_customer uuid, p_plan uuid, p_reason text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.cancel_inventory_cost_basis(p_id uuid, p_product uuid, p_basis uuid, p_reason text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.cashier_membership(p_owner uuid)|7559d18fdd463a902b7180c60f26732d
+AX_SEM|routine|private.confirm_inventory_cost_basis(p_id uuid, p_product uuid, p_expected_units bigint, p_expected_version bigint, p_total bigint, p_note text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.create_customer_installments(p_id uuid, p_customer uuid, p_charge uuid, p_schedule jsonb, p_note text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.daily_close_history(p_from date, p_to date)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.daily_close_json(r daily_cash_closes)|7559d18fdd463a902b7180c60f26732d
+AX_SEM|routine|private.daily_close_preview(p_day date)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.get_cashier_cash_activity(p_owner uuid, p_from date, p_to date)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.get_cashier_catalog(p_owner uuid, p_query text, p_offset integer)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.get_cashier_customer_balance(p_owner uuid, p_customer uuid)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.get_cashier_customers(p_owner uuid, p_query text, p_offset integer)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.get_cashier_partial_return(p_owner uuid, p_id uuid)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.get_cashier_partial_source(p_owner uuid, p_sale uuid)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.get_cashier_partial_workspace(p_owner uuid)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.get_cashier_refund(p_owner uuid, p_id uuid)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.get_cashier_refund_sale(p_owner uuid, p_sale uuid, p_number bigint)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.get_cashier_refund_workspace(p_owner uuid)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.get_cashier_repayment(p_owner uuid, p_id uuid)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.get_cashier_sale(p_owner uuid, p_id uuid)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.get_manager_receipt(p_owner uuid, p_id uuid)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.get_manager_sales_report(p_owner uuid, p_from date, p_to date)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.get_owner_cashier_cash_activity(p_member uuid, p_from date, p_to date)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.get_owner_cashier_cash_overview(p_from date, p_to date)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.guard_customer_allocated_debt_reversal()|7559d18fdd463a902b7180c60f26732d
+AX_SEM|routine|private.guard_installment_sale_return()|7559d18fdd463a902b7180c60f26732d
+AX_SEM|routine|private.guard_purchase_adjustment_conflict()|7559d18fdd463a902b7180c60f26732d
+AX_SEM|routine|private.guard_sale_adjustment_conflict()|7559d18fdd463a902b7180c60f26732d
+AX_SEM|routine|private.installment_schedule_total(p_schedule jsonb)|7559d18fdd463a902b7180c60f26732d
+AX_SEM|routine|private.list_cashier_repayments(p_owner uuid)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.list_cashier_sales(p_owner uuid)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.owner_restore_status(p_id uuid)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.owner_restore_tables()|7559d18fdd463a902b7180c60f26732d
+AX_SEM|routine|private.post_cash_entry(p_id uuid, p_kind text, p_amount bigint, p_note text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_cash_sale(p_id uuid, p_items jsonb, p_discount bigint, p_received bigint, p_customer text, p_note text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_cash_sale_for_owner(p_owner uuid, p_id uuid, p_items jsonb, p_discount bigint, p_received bigint, p_customer text, p_note text)|7559d18fdd463a902b7180c60f26732d
+AX_SEM|routine|private.post_cashier_credit_sale(p_owner uuid, p_id uuid, p_items jsonb, p_discount bigint, p_received bigint, p_customer uuid, p_note text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_cashier_partial_return(p_owner uuid, p_id uuid, p_sale uuid, p_reason text, p_lines jsonb, p_expected_count bigint)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_cashier_refund(p_owner uuid, p_id uuid, p_sale uuid, p_reason text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_cashier_repayment(p_owner uuid, p_id uuid, p_customer uuid, p_amount bigint, p_note text, p_expected_balance bigint)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_cashier_sale(p_owner uuid, p_id uuid, p_items jsonb, p_discount bigint, p_received bigint, p_customer text, p_note text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_credit_sale(p_id uuid, p_items jsonb, p_discount bigint, p_received bigint, p_customer uuid, p_note text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_credit_sale_for_owner(p_owner uuid, p_id uuid, p_items jsonb, p_discount bigint, p_received bigint, p_customer uuid, p_note text)|7559d18fdd463a902b7180c60f26732d
+AX_SEM|routine|private.post_daily_close(p_id uuid, p_day date, p_actual text, p_note text, p_hash text, p_ack boolean)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_debt_entry(p_id uuid, p_customer uuid, p_kind text, p_amount bigint, p_note text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_inventory_adjustment(p_id uuid, p_product uuid, p_expected_units bigint, p_expected_version bigint, p_counted_units bigint, p_note text, p_kind text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_purchase(p_id uuid, p_items jsonb, p_supplier text, p_invoice text, p_note text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_purchase_return(p_id uuid, p_purchase uuid, p_reason text, p_lines jsonb)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_purchase_reversal(p_id uuid, p_purchase uuid, p_reason text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_sale_return(p_id uuid, p_sale uuid, p_reason text, p_lines jsonb)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_sale_return_for_owner(p_owner uuid, p_id uuid, p_sale uuid, p_reason text, p_lines jsonb)|7559d18fdd463a902b7180c60f26732d
+AX_SEM|routine|private.post_sale_reversal(p_id uuid, p_sale uuid, p_reason text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_sale_reversal_for_owner(p_owner uuid, p_id uuid, p_sale uuid, p_reason text)|7559d18fdd463a902b7180c60f26732d
+AX_SEM|routine|private.post_stock_adjustment(p_id uuid, p_product uuid, p_expected_units bigint, p_expected_version bigint, p_counted_units bigint, p_note text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_stock_waste(p_id uuid, p_product uuid, p_expected_units bigint, p_expected_version bigint, p_waste_units bigint, p_note text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_supplier_entry(p_id uuid, p_supplier uuid, p_kind text, p_amount bigint, p_note text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_supplier_purchase(p_id uuid, p_items jsonb, p_supplier uuid, p_paid bigint, p_invoice text, p_note text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.post_supplier_purchase_payment(p_id uuid, p_purchase uuid, p_amount bigint, p_note text)|5d1b158e52309d901455018ecd1a3d65
+AX_SEM|routine|private.restore_owner_data(p_id uuid, p_raw text, p_sha256 text, p_confirm_empty boolean)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.reverse_customer_allocation(p_id uuid, p_customer uuid, p_allocation uuid, p_reason text)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.save_store_cashier(p_id uuid, p_member uuid, p_name text, p_store text, p_discount boolean, p_enabled boolean, p_expected_version bigint, p_role text, p_credit boolean, p_repay boolean, p_refund boolean, p_partial boolean)|82df0bc523b3b6d809ff59160a60b649
+AX_SEM|routine|private.track_inventory_cost()|7559d18fdd463a902b7180c60f26732d
+AX_SEM|routine|public.accept_store_cashier(p_id uuid, p_membership uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.allocate_customer_payment(p_id uuid, p_customer uuid, p_payment uuid, p_charge uuid, p_amount bigint, p_note text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.cancel_customer_installments(p_id uuid, p_customer uuid, p_plan uuid, p_reason text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.cancel_inventory_cost_basis(p_id uuid, p_product uuid, p_basis uuid, p_reason text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.confirm_inventory_cost_basis(p_id uuid, p_product uuid, p_expected_units bigint, p_expected_version bigint, p_total bigint, p_note text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.create_customer_installments(p_id uuid, p_customer uuid, p_charge uuid, p_schedule jsonb, p_note text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.export_owner_data()|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_cash_statement(p_from date, p_to date)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_cash_summary()|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_cashier_cash_activity(p_owner uuid, p_from date, p_to date)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_cashier_catalog(p_owner uuid, p_query text, p_offset integer)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_cashier_customer_balance(p_owner uuid, p_customer uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_cashier_customers(p_owner uuid, p_query text, p_offset integer)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_cashier_partial_return(p_owner uuid, p_id uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_cashier_partial_source(p_owner uuid, p_sale uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_cashier_partial_workspace(p_owner uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_cashier_refund(p_owner uuid, p_id uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_cashier_refund_sale(p_owner uuid, p_sale uuid, p_number bigint)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_cashier_refund_workspace(p_owner uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_cashier_repayment(p_owner uuid, p_id uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_cashier_sale(p_owner uuid, p_id uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_customer_allocations(p_customer uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_customer_balances_report(p_query text, p_debt_only boolean)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_customer_installments(p_customer uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_customer_statement(p_customer uuid, p_from date, p_to date)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_daily_close_history(p_from date, p_to date)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_daily_close_preview(p_day date)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_daily_report(p_day date)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_dashboard_summary()|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_debt_summary()|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_expense_report(p_from date, p_to date, p_query text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_expiry_report(p_mode text, p_days integer, p_query text, p_include_empty boolean)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_gross_profit_report(p_from date, p_to date)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_inventory_cost_basis(p_product uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_inventory_loss_report(p_from date, p_to date)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_inventory_valuation(p_query text, p_include_empty boolean)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_manager_receipt(p_owner uuid, p_id uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_manager_sales_report(p_owner uuid, p_from date, p_to date)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_owner_cashier_cash_activity(p_member uuid, p_from date, p_to date)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_owner_cashier_cash_overview(p_from date, p_to date)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_owner_restore_status(p_id uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_product_profile(p_product uuid, p_page integer)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_purchase_report(p_from date, p_to date)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_purchase_return_variance(p_from date, p_to date)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_purchase_returns_report(p_kind text, p_from date, p_to date, p_supplier text, p_query text, p_min_amount bigint, p_max_amount bigint, p_offset integer, p_limit integer)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_return_document(p_source text, p_kind text, p_id uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_sale_returns_report(p_kind text, p_from date, p_to date, p_query text, p_offset integer, p_limit integer)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_sales_product_report(p_from date, p_to date)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_staff_workspace()|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_stocktake_snapshot(p_query text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_supplier_activity(p_supplier uuid, p_offset integer, p_limit integer)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_supplier_balances_report(p_query text, p_debt_only boolean)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_supplier_payables_report(p_supplier text, p_query text, p_min_outstanding bigint, p_max_outstanding bigint, p_offset integer, p_limit integer)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_supplier_purchase_finance(p_purchase uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_supplier_purchase_payables(p_supplier uuid, p_offset integer, p_limit integer)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_supplier_statement(p_supplier uuid, p_from date, p_to date)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.get_supplier_summary()|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.import_products(p_rows jsonb)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.list_cashier_repayments(p_owner uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.list_cashier_sales(p_owner uuid)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_cash_entry(p_id uuid, p_kind text, p_amount bigint, p_note text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_cash_sale(p_id uuid, p_items jsonb, p_discount bigint, p_received bigint, p_customer text, p_note text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_cashier_credit_sale(p_owner uuid, p_id uuid, p_items jsonb, p_discount bigint, p_received bigint, p_customer uuid, p_note text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_cashier_partial_return(p_owner uuid, p_id uuid, p_sale uuid, p_reason text, p_lines jsonb, p_expected_count bigint)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_cashier_refund(p_owner uuid, p_id uuid, p_sale uuid, p_reason text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_cashier_repayment(p_owner uuid, p_id uuid, p_customer uuid, p_amount bigint, p_note text, p_expected_balance bigint)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_cashier_sale(p_owner uuid, p_id uuid, p_items jsonb, p_discount bigint, p_received bigint, p_customer text, p_note text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_credit_sale(p_id uuid, p_items jsonb, p_discount bigint, p_received bigint, p_customer uuid, p_note text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_daily_close(p_id uuid, p_day date, p_actual text, p_note text, p_hash text, p_ack boolean)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_debt_entry(p_id uuid, p_customer uuid, p_kind text, p_amount bigint, p_note text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_purchase(p_id uuid, p_items jsonb, p_supplier text, p_invoice text, p_note text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_purchase_return(p_id uuid, p_purchase uuid, p_reason text, p_lines jsonb)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_purchase_reversal(p_id uuid, p_purchase uuid, p_reason text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_sale_return(p_id uuid, p_sale uuid, p_reason text, p_lines jsonb)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_sale_reversal(p_id uuid, p_sale uuid, p_reason text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_stock_adjustment(p_id uuid, p_product uuid, p_expected_units bigint, p_expected_version bigint, p_counted_units bigint, p_note text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_stock_waste(p_id uuid, p_product uuid, p_expected_units bigint, p_expected_version bigint, p_waste_units bigint, p_note text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_supplier_entry(p_id uuid, p_supplier uuid, p_kind text, p_amount bigint, p_note text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_supplier_purchase(p_id uuid, p_items jsonb, p_supplier uuid, p_paid bigint, p_invoice text, p_note text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.post_supplier_purchase_payment(p_id uuid, p_purchase uuid, p_amount bigint, p_note text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.restore_owner_data(p_id uuid, p_raw text, p_sha256 text, p_confirm_empty boolean)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.reverse_customer_allocation(p_id uuid, p_customer uuid, p_allocation uuid, p_reason text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.save_store_cashier(p_id uuid, p_member uuid, p_name text, p_store text, p_discount boolean, p_enabled boolean, p_expected_version bigint, p_role text, p_credit boolean, p_repay boolean, p_refund boolean, p_partial boolean)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|routine|public.search_receipts(p_kind text, p_page integer, p_number bigint, p_from date, p_to date, p_query text)|dfe1c1ea811e6646f6e6bc8a1114dd66
+AX_SEM|schema|private|7559d18fdd463a902b7180c60f26732d
+AX_SEM|schema|public|2d341d90319fd5c3aee2bd3ceb7a323c

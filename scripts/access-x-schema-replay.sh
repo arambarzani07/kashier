@@ -38,7 +38,15 @@ if ! psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-replay-inspect.sql >> "$rep
 fi
 # Hash-only metadata diagnostics; no production connection, no customer data.
 psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-catalog-keys.sql >> "$report" 2>&1
-psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-effective-rights.sql >> "$report" 2>&1
+${anchor}
+grep '^AX_SEM|' "$report" | LC_ALL=C sort -u > /tmp/access-x-actual-rights.txt
+LC_ALL=C sort tests/access-x-semantic-rights-20261020.txt > /tmp/access-x-expected-rights.txt
+if [[ "$(wc -l < /tmp/access-x-actual-rights.txt)" -ne 221 ]] || ! diff -u /tmp/access-x-expected-rights.txt /tmp/access-x-actual-rights.txt >> "$report" 2>&1; then
+  echo "FAIL: effective authenticated/anonymous privileges or policy role scopes differ from live baseline." | tee -a "$report"
+  tail -n 35 "$report"
+  exit 1
+fi
+echo "PASS: 221 stable effective rights and RLS policy targets match production baseline." | tee -a "$report"
 # Compare complete functions, role grants, policies, indexes, constraints and trigger
 # catalog fingerprints with the reviewed production metadata snapshot.
 if ! psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-schema-fingerprint.sql >> "$report" 2>&1; then

@@ -37,3 +37,25 @@ After securing an appropriate database-only private storage destination and obta
 - Private restore-receipts table with RLS but no policy is informational (internal service access); do not add a permissive policy casually.
 - The draft provisioning reservation tables in `access-x/drafts/` are **not deployed**.
 
+
+## Isolated replay investigation — 2026-10-20
+
+The first disposable PostgreSQL run failed at migration 5 because `LOCK TABLE` required an explicit transaction. The replay harness now uses one atomic transaction for each unchanged historical migration, and all **72/72 migrations apply cleanly**.
+
+A second test reported 36 apparent extra routines. They were all `pgcrypto` functions installed in scratch `public`; production has that extension in `extensions`. Moving the scratch extension to `extensions` aligned business routine signatures (**148/148**), relations (**35/35**), RLS policies (**36/36**) and noninternal triggers (**7/7**).
+
+A deeper, read-only semantic comparison of **221 public/private schema objects** confirmed **221/221 equivalent effective `anon`/`authenticated` privileges and RLS policy targets**. This has now been captured as a hash-only, business-data-free CI baseline in `tests/access-x-semantic-rights-20261020.txt` and checked automatically during scratch replay. Role OIDs and raw ACL strings differ between managed Supabase and scratch PostgreSQL; those unnormalized hash differences alone do not prove different effective permissions.
+
+**Remaining strict source-drift issue:** exactly **seven function definitions** differ in `pg_get_functiondef()` output between historical migrations and live production. The affected signatures are:
+
+- `private.get_cashier_refund(p_owner uuid, p_id uuid)`
+- `private.get_cashier_refund_sale(p_owner uuid, p_sale uuid, p_number bigint)`
+- `private.get_cashier_refund_workspace(p_owner uuid)`
+- `private.post_cashier_refund(p_owner uuid, p_id uuid, p_sale uuid, p_reason text)`
+- `private.post_sale_reversal_for_owner(p_owner uuid, p_id uuid, p_sale uuid, p_reason text)`
+- `public.get_cash_statement(p_from date, p_to date)`
+- `public.get_supplier_payables_report(p_supplier text, p_query text, p_min_outstanding bigint, p_max_outstanding bigint, p_offset integer, p_limit integer)`
+
+The metadata comparison confirmed the same object keys, **all 35 relation definitions**, **all 36 policy expressions**, **139 indexes**, **291 constraints** and **7 triggers**. The seven function-body differences may indicate post-migration patches or textual rendering differences and require code-level review before asserting schema parity. **Strict fingerprint remains failing intentionally; no production function was overwritten.**
+
+**Do not confuse:** successful migration replay and permission matching is NOT proof that a production backup exists or that a full business-data restore works. Backup recovery Gate C remains **NOT DONE**.
