@@ -1,0 +1,630 @@
+[
+  {
+    "screen": "design-preview.html",
+    "requestedWidth": 320,
+    "headerLinks": [],
+    "heading": "پەڕەی بەڕێوەبردن",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 303
+  },
+  {
+    "screen": "design-preview.html",
+    "requestedWidth": 390,
+    "headerLinks": [],
+    "heading": "پەڕەی بەڕێوەبردن",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 373
+  },
+  {
+    "screen": "design-preview.html",
+    "requestedWidth": 768,
+    "headerLinks": [],
+    "heading": "پەڕەی بەڕێوەبردن",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 751
+  },
+  {
+    "screen": "design-preview.html",
+    "requestedWidth": 1280,
+    "headerLinks": [],
+    "heading": "پەڕەی بەڕێوەبردن",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 1263
+  },
+  {
+    "screen": "employees-preview.html",
+    "requestedWidth": 320,
+    "headerLinks": [],
+    "heading": "بەڕێوەبردنی کارمەندان",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 303
+  },
+  {
+    "screen": "employees-preview.html",
+    "requestedWidth": 390,
+    "headerLinks": [],
+    "heading": "بەڕێوەبردنی کارمەندان",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 373
+  },
+  {
+    "screen": "employees-preview.html",
+    "requestedWidth": 768,
+    "headerLinks": [],
+    "heading": "بەڕێوەبردنی کارمەندان",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 751
+  },
+  {
+    "screen": "employees-preview.html",
+    "requestedWidth": 1280,
+    "headerLinks": [],
+    "heading": "بەڕێوەبردنی کارمەندان",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 1263
+  },
+  {
+    "screen": "sale-preview.html",
+    "requestedWidth": 320,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "پسوولەکان"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "کاڵاکان"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "لیستی کاڵاکان",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 303
+  },
+  {
+    "screen": "sale-preview.html",
+    "requestedWidth": 390,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "پسوولەکان"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "کاڵاکان"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "لیستی کاڵاکان",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 373
+  },
+  {
+    "screen": "sale-preview.html",
+    "requestedWidth": 768,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "پسوولەکان"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "کاڵاکان"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "لیستی کاڵاکان",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 751
+  },
+  {
+    "screen": "sale-preview.html",
+    "requestedWidth": 1280,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "پسوولەکان"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "کاڵاکان"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "لیستی کاڵاکان",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 1263
+  },
+  {
+    "screen": "products-preview.html",
+    "requestedWidth": 320,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "بەسەرچوون"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "پشکنینی نرخ"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "هاوردەی CSV"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "کۆگا"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "کڕین"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "کاڵا فرۆشتن"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "لیستی کاڵاکان",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 303
+  },
+  {
+    "screen": "products-preview.html",
+    "requestedWidth": 390,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "بەسەرچوون"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "پشکنینی نرخ"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "هاوردەی CSV"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "کۆگا"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "کڕین"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "کاڵا فرۆشتن"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "لیستی کاڵاکان",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 373
+  },
+  {
+    "screen": "products-preview.html",
+    "requestedWidth": 768,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "بەسەرچوون"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "پشکنینی نرخ"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "هاوردەی CSV"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "کۆگا"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "کڕین"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "کاڵا فرۆشتن"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "لیستی کاڵاکان",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 751
+  },
+  {
+    "screen": "products-preview.html",
+    "requestedWidth": 1280,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "بەسەرچوون"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "پشکنینی نرخ"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "هاوردەی CSV"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "کۆگا"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "کڕین"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "کاڵا فرۆشتن"
+      },
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "لیستی کاڵاکان",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 1263
+  },
+  {
+    "screen": "purchase-preview.html",
+    "requestedWidth": 320,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "کڕینی کاڵا",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 303
+  },
+  {
+    "screen": "purchase-preview.html",
+    "requestedWidth": 390,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "کڕینی کاڵا",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 373
+  },
+  {
+    "screen": "purchase-preview.html",
+    "requestedWidth": 768,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "کڕینی کاڵا",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 751
+  },
+  {
+    "screen": "purchase-preview.html",
+    "requestedWidth": 1280,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "کڕینی کاڵا",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 1263
+  },
+  {
+    "screen": "statement-preview.html",
+    "requestedWidth": 320,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "گەڕانەوە بۆ کڕیارەکان ←"
+      }
+    ],
+    "heading": "کشفی حسابی کڕیار",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 303
+  },
+  {
+    "screen": "statement-preview.html",
+    "requestedWidth": 390,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "گەڕانەوە بۆ کڕیارەکان ←"
+      }
+    ],
+    "heading": "کشفی حسابی کڕیار",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 373
+  },
+  {
+    "screen": "statement-preview.html",
+    "requestedWidth": 768,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "گەڕانەوە بۆ کڕیارەکان ←"
+      }
+    ],
+    "heading": "کشفی حسابی کڕیار",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 766
+  },
+  {
+    "screen": "statement-preview.html",
+    "requestedWidth": 1280,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "گەڕانەوە بۆ کڕیارەکان ←"
+      }
+    ],
+    "heading": "کشفی حسابی کڕیار",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 1278
+  },
+  {
+    "screen": "stocktake-preview.html",
+    "requestedWidth": 320,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "جەردی کۆگا",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 303
+  },
+  {
+    "screen": "stocktake-preview.html",
+    "requestedWidth": 390,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "جەردی کۆگا",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 373
+  },
+  {
+    "screen": "stocktake-preview.html",
+    "requestedWidth": 768,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "جەردی کۆگا",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 766
+  },
+  {
+    "screen": "stocktake-preview.html",
+    "requestedWidth": 1280,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "جەردی کۆگا",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 1278
+  },
+  {
+    "screen": "returns-preview.html",
+    "requestedWidth": 320,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "گەڕاندنەوەی کاڵا و پارە",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 303
+  },
+  {
+    "screen": "returns-preview.html",
+    "requestedWidth": 390,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "گەڕاندنەوەی کاڵا و پارە",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 373
+  },
+  {
+    "screen": "returns-preview.html",
+    "requestedWidth": 768,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "گەڕاندنەوەی کاڵا و پارە",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 751
+  },
+  {
+    "screen": "returns-preview.html",
+    "requestedWidth": 1280,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "گەڕاندنەوەی کاڵا و پارە",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 1263
+  },
+  {
+    "screen": "settings-preview.html",
+    "requestedWidth": 320,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "ڕێکخستنی ڕووکار و چاپ",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 303
+  },
+  {
+    "screen": "settings-preview.html",
+    "requestedWidth": 390,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "ڕێکخستنی ڕووکار و چاپ",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 373
+  },
+  {
+    "screen": "settings-preview.html",
+    "requestedWidth": 768,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "ڕێکخستنی ڕووکار و چاپ",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 751
+  },
+  {
+    "screen": "settings-preview.html",
+    "requestedWidth": 1280,
+    "headerLinks": [
+      {
+        "color": "rgb(52, 75, 102)",
+        "text": "سەرەکی ←"
+      }
+    ],
+    "heading": "ڕێکخستنی ڕووکار و چاپ",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 1263
+  },
+  {
+    "screen": "auth-preview.html",
+    "requestedWidth": 320,
+    "headerLinks": [],
+    "heading": "بەڕێوەبردنی فرۆشتنو حسابەکان.",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 303
+  },
+  {
+    "screen": "auth-preview.html",
+    "requestedWidth": 390,
+    "headerLinks": [],
+    "heading": "بەڕێوەبردنی فرۆشتنو حسابەکان.",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 373
+  },
+  {
+    "screen": "auth-preview.html",
+    "requestedWidth": 768,
+    "headerLinks": [],
+    "heading": "بەڕێوەبردنی فرۆشتنو حسابەکان.",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 751
+  },
+  {
+    "screen": "auth-preview.html",
+    "requestedWidth": 1280,
+    "headerLinks": [],
+    "heading": "بەڕێوەبردنی فرۆشتنو حسابەکان.",
+    "overflow": 0,
+    "smallButtons": [],
+    "width": 1278
+  }
+]
