@@ -24,7 +24,7 @@ function fake(options={}){
   async recordAuthIdentity(){seen.push('recordAuth');if(options.failAt==='record')throw Error('database down');},
   async attachCashier(p){seen.push('attach');state.attachCount++;assert.equal(p.role,'cashier');if(options.failAt==='attach')throw Error('database down');},
   async markReady({ownerId,requestId,memberId}){seen.push('ready');if(options.failAt==='ready')throw Error('ambiguous commit');const slot=store.get(ownerId+'/'+requestId);slot.state='completed';slot.memberId=memberId;},
-  async markForReconciliation({ownerId,requestId}){seen.push('review');state.review++;if(options.failAt==='review')throw Error('cannot persist');store.get(ownerId+'/'+requestId).state='reconciliation';}
+  async markForReconciliation({ownerId,requestId}){seen.push('review');state.review++;if(options.failReview===true)throw Error('cannot persist');store.get(ownerId+'/'+requestId).state='reconciliation';}
  };
  return {deps,seen,state,store};
 }
@@ -84,7 +84,7 @@ test('ambiguous Auth/DB results enter reconciliation without blind delete or sec
  }
 });
 test('failed reconciliation persistence fails closed',async()=>{
- const f=fake({failAt:'review'});
+ const f=fake({failAt:'attach',failReview:true});
  await assert.rejects(()=>provisionCashier(f.deps,{bearerToken:token,body:makeBody()}),/reconciliation_persistence_failed/);
  assert.equal(f.state.authCount,1);
 });
