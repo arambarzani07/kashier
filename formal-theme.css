@@ -82,4 +82,79 @@
  @media(max-width:800px){.side-nav{width:auto;height:auto;position:static;padding:10px 14px;gap:8px}.side-nav a{margin:0;font-size:11px;padding:9px 12px;border-color:#43566f}.side-nav a[aria-current]{padding-inline-start:12px;border-inline-start-width:1px;border-color:#b59c73}.side-nav .nav-admin{margin:0;background:#30465f}.home-page #main{padding-top:22px}}
  @media(max-width:560px){.home-intro{gap:14px;flex-wrap:wrap;padding-bottom:19px;margin-bottom:20px}.home-intro h1{font-size:23px}.home-intro p{font-size:11px}.home-primary{padding:11px 15px;font-size:11px}.home-eyebrow{letter-spacing:.5px}.quick-link{padding:16px 12px;gap:9px}.quick-link>span:first-child{width:32px;height:32px}.quick-link strong{font-size:11px}.quick-link small{font-size:9px}.home-page .tile{min-height:104px;padding:15px 12px;gap:9px;align-items:flex-start;flex-direction:column}.home-page .tile svg{width:25px;height:25px;padding:6px}.home-page .tile-label{font-size:12px}.module-categories{gap:17px;margin-bottom:16px}.home-page .search-panel input{font-size:16px}.access-intro h1{font-size:23px}.access-card h2{font-size:23px}.employees-heading h1{font-size:23px}}
  @media(prefers-reduced-motion:reduce){.home-page .tile,.quick-link{transition:none}}
+ /* Shared usability pass: screen rules do not alter printed documents. */
+ button,input,select,textarea{font-family:inherit;line-height:1.7}
+ textarea{font-size:16px}
+ main :is(p,label,dt,dd){line-height:1.9}
+ main :is(p,label){font-size:14px}
+ main :is(small,.eyebrow,.optional,.count-help,.save-note,.storage-status,.statement-footnote){font-size:12px;line-height:1.9}
+ main :is(.eyebrow,.optional,.count-help,.save-note,.storage-status,.statement-footnote){color:#56697f}
+ .grand-total span{color:#e0e7ef}
+ :is(button,.primary,.secondary,.home-primary,.returns-action,.count-actions a,.account-settings-actions a){min-height:44px}
+ button{font-size:14px}
+ button:disabled{cursor:not-allowed}
+ :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea){min-height:44px;font-size:16px;max-width:100%}
+ :is(button,a,input,select,textarea,summary):focus-visible{outline:3px solid #315f91;outline-offset:3px}
+ .topbar{flex-wrap:wrap;height:auto;min-height:66px}
+ .topbar>*,.header-links{min-width:0;max-width:100%}
+ .header-links{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
+ .topbar a{min-height:44px;display:inline-flex;align-items:center;justify-content:center;white-space:normal;overflow-wrap:anywhere;font-size:13px}
+ .topbar .logout{color:#344b66;background:#f0f3f7;border:1px solid #dce2e9;border-radius:5px;padding:8px 14px;font-size:13px;min-height:44px}
+ .utilities button{width:44px;height:44px;min-width:44px}
+ .side-nav a{font-size:14px;min-height:46px}.side-nav p{font-size:12px}
+ .home-page :is(.home-intro p,.quick-link strong,.tile-label){font-size:14px}
+ .home-page :is(.quick-link small,.modules-heading p,.account-detail span,.preview-notice,footer){font-size:12px}
+ .home-page .quick-link small,.home-page .modules-heading p,.home-page .preview-notice{color:#56697f}
+ .module-categories button{font-size:13px;min-height:46px}
+ .home-primary{font-size:14px}.home-page .search-panel input{font-size:16px}
+ .home-page .tile{overflow:visible}.home-page .tile-label{overflow-wrap:anywhere}
+ :is(.stocktake-controls,.account-card,.settings-notes,.returns-filter,.returns-list,.quick-return-search,.quick-return-result,.quick-return-help){border-color:#dce2e9;border-radius:7px;box-shadow:none}
+ .stocktake-page button,.account-card button{font-size:14px}
+ .stocktake-page button:not(.primary):not(.danger):not(.danger-solid){border-color:#d4dce5;background:#f0f3f7;color:#344b66}
+ .stocktake-page th,.statement-paper th{background:#f1f3f7;color:#435b75}
+ main :is(th,td){font-size:13px;line-height:1.8}
+ main td small{font-size:12px;color:#56697f}
+ .sale-page :is(.scan-form label,.scan-form small,.payment-panel label,.catalog-pagination,.cart-footer){font-size:13px}
+ .sale-page .scan-form small{color:#56697f}
+ .sale-page .scan-form>div{min-width:0;flex-wrap:wrap}
+ .sale-page .scan-form input{flex:1 1 180px;width:auto}
+ .sale-page :is(.section-heading,.cart-footer),.cash-filter{flex-wrap:wrap}
+ .sale-page .section-heading>div{min-width:0}
+ .sale-page .payment-panel{min-width:0}
+ .sale-page td .delete-item{min-width:44px;height:44px}
+ :is(.table-wrap,.count-table-wrap,.statement-table-wrap){max-width:100%;overscroll-behavior-inline:contain}
+ :is(.catalog-layout,.cash-main){max-width:1600px;margin-inline:auto;background:transparent}
+ :is(.cash-totals span,.statement-totals span,.returns-summary span){font-size:13px;color:#56697f}
+ :is(.count-actions,.confirm-actions,.returns-filter-actions,.catalog-pagination){gap:10px;flex-wrap:wrap}
+ .count-actions a,.account-settings-actions a{display:inline-flex;align-items:center;font-size:14px}
+ dialog{max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain}
+ dialog .dialog-heading{gap:12px;align-items:flex-start}
+ dialog .dialog-heading button{min-width:44px;height:44px;flex-shrink:0}
+ .password-field button{min-height:44px;top:2px;left:3px;font-size:12px}
+ .access-card :is(.access-help,.access-text){font-size:13px}
+ .access-card>p{font-size:14px}
+ .access-nav{flex-wrap:wrap}.access-nav a{min-height:44px;display:inline-flex;align-items:center}
+ html[data-ui-contrast=high] .grand-total{background:#003171!important;color:#fff!important}
+ html[data-ui-contrast=high] .side-nav a svg{color:#003b80}
+ @media(max-width:800px){
+  .side-nav{top:auto}.side-nav a{font-size:13px}
+  .header-links{justify-content:flex-start;flex:1 1 100%}
+  .home-page .clock{margin-inline-start:auto}
+ }
+ @media(max-width:560px){
+  .topbar{padding:12px 14px}.topbar a{font-size:13px}
+  .home-page .tile{min-height:116px}.home-page .tile-label{font-size:14px}
+  .home-page .quick-link{flex-wrap:wrap;align-content:flex-start}.quick-link>span:last-child{min-width:0}
+  .home-page .quick-link strong{font-size:14px}.home-page .quick-link small{font-size:12px}
+  .home-page .home-intro p{font-size:14px}
+  .modules-heading{min-width:0}.home-page .search-panel{min-width:0}
+  .statement-controls form>div{min-width:0;flex-basis:100%}
+  .statement-controls :is(input,select){min-width:0;width:100%}
+  .cash-filter{align-items:stretch}.cash-filter select{width:100%}
+  .form-pair{grid-template-columns:1fr}
+  .account-settings-layout,.settings-fields,.returns-filter{min-width:0}
+  .returns-filter>*{min-width:0}
+  .confirm-actions>*{flex:1 1 130px}
+  .access-page{padding:12px}.access-card{padding:24px}
+ }
 }
