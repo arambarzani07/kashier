@@ -1,0 +1,114 @@
+[
+  {
+    "screen": "import-preview.html",
+    "width": 320,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "import-preview.html",
+    "width": 390,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "import-preview.html",
+    "width": 768,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "import-preview.html",
+    "width": 1280,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "sales-report-preview.html",
+    "width": 320,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "sales-report-preview.html",
+    "width": 390,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "sales-report-preview.html",
+    "width": 768,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "sales-report-preview.html",
+    "width": 1280,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "profit-preview.html",
+    "width": 320,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "profit-preview.html",
+    "width": 390,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "profit-preview.html",
+    "width": 768,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "profit-preview.html",
+    "width": 1280,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "valuation-preview.html",
+    "width": 320,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "valuation-preview.html",
+    "width": 390,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "valuation-preview.html",
+    "width": 768,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  },
+  {
+    "screen": "valuation-preview.html",
+    "width": 1280,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "smallButtons": []
+  }
+]

@@ -1,6 +1,6 @@
 # Shared design audit — 2026-10-20
 
-Latest runtime: `7b9c2e37d7c1692f2456a0472f80db04da5c731e`, production deployment `dpl_DiLne3kTAHuk8nyMCAdi4cE1W5Cm`, READY on Node 24; build 15.3 seconds.
+Latest runtime: `882d82de41483a399e83e92d5c5066691b51d47f`, production deployment `dpl_GLFzwe48kF7nLuH2uT6JhBoX6DkP`, READY on Node 24; build 17.6 seconds.
 
 ## Scope and corrections
 
@@ -14,7 +14,7 @@ The public review tool provides disabled, script-isolated operational previews a
 
 - Full release check: 82 regression files passed; final production build runs that same required release command.
 - Final targeted auth UI, preview isolation and preference checks: 17 tests passed.
-- Static deployment parity: 77 HTML files, 257 public assets, 1409 local references.
+- Static deployment parity: 81 HTML files, 261 public assets, 1489 local references.
 - HTML structure scan: no duplicate IDs, missing explicit label targets or missing image alt attributes.
 - Initial browser matrix at `b487980`: ten layouts at requested iframe widths 320, 390, 768 and 1280 pixels (40 cases). No document horizontal overflow and no undersized visible buttons detected. Header links use the expected dark foreground. Measured content widths exclude the browser scrollbar.
 - Dashboard category filtering returned five administration modules; searching for employees returned one module; clearing restored all forty.
@@ -29,3 +29,9 @@ Browser measurements are retained in `docs/design-audit-2026-10-20.json`.
 Customer/supplier identity cards now use shrinkable columns and wrap long names and balances. Profile action links and cash actions use consistent touch targets and responsive wrapping. Backup file inputs, hash fields and acknowledgement layout are aligned; technical implementation terms in supplier, cash and returns guidance were replaced with plain Kurdish descriptions. Preview navigation shows only primary destinations plus the current page, with the full selection available in the review tool.
 
 All 82 release test files passed again. Five additional templates (customer, supplier, cash, export and restore) passed four iframe widths, for 20 additional browser cases with no document overflow, undersized visible buttons or enabled preview form controls. Results: `docs/profile-layout-audit-2026-10-20.json`. These were empty-template visual checks; no backup was downloaded/restored, no file uploaded and no financial transaction posted. Long live account values and physical-device testing remain separate acceptance work.
+
+## Import and reporting follow-up
+
+CSV import guidance now presents three ordered stages: prepare the file, check the preview and submit. Column names, UTF-8/barcode requirements, all-or-nothing handling, the 500-item/1 MiB limits and stock-entry guidance are retained. Report filter labels, date/search fields and related-action links share sizing and spacing. Summary cards can shrink and wrap long values; unknown-cost coverage notices keep their warning treatment.
+
+All 82 release test files passed again. Import, sales report, gross profit and inventory valuation previews passed 320/390/768/1280 iframe widths (16 cases): no page overflow, undersized visible buttons or enabled preview inputs. Results: `docs/report-layout-audit-2026-10-20.json`. The final import layout was visually inspected. Reports with populated data, actual file submission and printing were not exercised in this pass; financial and import logic is unchanged.
