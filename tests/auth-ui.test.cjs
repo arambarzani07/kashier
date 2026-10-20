@@ -1,12 +1,131 @@
-const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const vm=require('node:vm');const tick=()=>new Promise(r=>setImmediate(r));
-function setup({active=false,next='sale.html',mode='',signup=async()=>active,signin=async()=>{}}={}){const es=new Map();class E{constructor(){this.value='';this.textContent='';this.hidden=false;this.disabled=false;this.events={};this.valid=true}addEventListener(n,f){this.events[n]=f}focus(){this.focused=true}checkValidity(){return this.valid}querySelectorAll(){return [get('#login'),get('#signup')]}}const get=s=>{if(!es.has(s))es.set(s,new E());return es.get(s)},calls=[],location={search:'?next='+encodeURIComponent(next)+'&mode='+mode,href:''};vm.runInNewContext(fs.readFileSync(require.resolve('../auth.js'),'utf8'),{document:{querySelector:get},location,URLSearchParams,KashierData:{signUp:async(...args)=>{calls.push(['signup',...args]);return signup(...args)},signIn:async(...args)=>{calls.push(['signin',...args]);return signin(...args)}}});return {get,calls,location,toggle:()=>get('#signup').events.click(),submit:()=>get('#auth-form').events.submit({preventDefault(){}}),fill(){get('#email').value='owner@example.invalid';get('#password').value='test-pass-123';get('#confirm-password').value='test-pass-123';}}}
-test('new account button opens signup form without attempting signup with blank fields',()=>{const x=setup();x.toggle();assert.match(x.get('#auth-title').textContent,/هەژماری نوێ/);assert.equal(x.get('#confirm-field').hidden,false);assert.equal(x.get('#password').autocomplete,'new-password');assert.equal(x.calls.length,0)});
-test('blank or invalid email shows visible Kurdish feedback before sending',()=>{const x=setup();x.toggle();x.submit();assert.match(x.get('#auth-status').textContent,/ئیمەیڵ/);x.get('#email').value='bad';x.get('#email').valid=false;x.submit();assert.equal(x.calls.length,0)});
-test('short signup password and mismatched confirmation are explained without a request',()=>{const x=setup();x.toggle();x.fill();x.get('#password').value='123';x.submit();assert.match(x.get('#auth-status').textContent,/٨/);x.get('#password').value='test-pass-123';x.get('#confirm-password').value='different';x.submit();assert.match(x.get('#auth-status').textContent,/یەکسان نییە/);assert.equal(x.calls.length,0)});
-test('valid signup sends once and explains email confirmation without redirecting',async()=>{const x=setup();x.toggle();x.fill();x.submit();await tick();assert.deepEqual(x.calls,[['signup','owner@example.invalid','test-pass-123']]);assert.match(x.get('#auth-status').textContent,/Spam/);assert.equal(x.get('#password').value,'');assert.equal(x.location.href,'');assert.equal(x.get('#signup').disabled,false)});
-test('in-flight repeated submits or mode clicks cannot send multiple signups',async()=>{let finish;const x=setup({signup:()=>new Promise(r=>finish=r)});x.toggle();x.fill();x.submit();x.submit();x.toggle();assert.equal(x.calls.length,1);assert.match(x.get('#auth-title').textContent,/هەژماری نوێ/);finish(true);await tick();assert.equal(x.location.href,'sale.html')});
-test('server failure remains visible and restores buttons for retry',async()=>{const x=setup({signup:async()=>{throw Error('email service unavailable')}});x.toggle();x.fill();x.submit();await tick();assert.equal(x.get('#auth-status').textContent,'email service unavailable');assert.equal(x.get('#login').disabled,false);assert.equal(x.get('#signup').disabled,false)});
-test('switching back to login hides confirmation and signs in to original filtered route',async()=>{const x=setup({next:'stock.html?mode=low&limit=2'});x.toggle();x.fill();x.toggle();assert.equal(x.get('#confirm-field').hidden,true);assert.equal(x.get('#password').autocomplete,'current-password');x.submit();await tick();assert.equal(x.calls[0][0],'signin');assert.equal(x.location.href,'stock.html?mode=low&limit=2')});
-test('daily and customer statement destinations survive authentication; external redirects are rejected',async()=>{for(const next of ['daily.html','statement.html?id=00000000-0000-4000-8000-000000000001','https://evil.invalid/','//evil.invalid','auth.html']){const x=setup({next});x.fill();x.submit();await tick();assert.equal(x.location.href,next.startsWith('daily')||next.startsWith('statement')?next:'index.html')}});
-
-test('direct signup URL opens the registration form without sending credentials',()=>{const x=setup({mode:'signup'});assert.equal(x.get('#confirm-field').hidden,false);assert.match(x.get('#login').textContent,/دروستکردنی هەژمار/);assert.equal(x.calls.length,0)});
+'use strict';
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const {setImmediate:soon}=require('node:timers');
+const tick=()=>new Promise(r=>soon(r));
+const source=fs.readFileSync(require.resolve('../auth.js'),'utf8');
+const html=fs.readFileSync(require.resolve('../auth.html'),'utf8');
+const css=fs.readFileSync(require.resolve('../auth-access-x.css'),'utf8');
+function setup({fetchImpl=async()=>({ok:false,status:503,headers:{get:()=> 'application/json'},json:async()=>({})}),validEmail=true}={}){
+ const nodes=new Map(),calls=[],redirects=[];
+ class Node{
+  constructor(id){this.id=id;this.value='';this.textContent='';this.hidden=false;this.disabled=false;this.readOnly=false;this.type='password';this.dataset={};this.events={};this.attributes={};}
+  addEventListener(k,fn){this.events[k]=fn;}
+  setAttribute(k,v){this.attributes[k]=v;}
+  focus(){this.focused=true;}
+  checkValidity(){return validEmail;}
+ }
+ const ids=['auth-form','auth-email','auth-password','auth-submit','auth-submit-label','auth-status','auth-password-toggle','caps-lock'];
+ for(const id of ids)nodes.set(id,new Node(id));
+ const doc={getElementById:id=>nodes.get(id)||null};
+ const win={document:doc,location:{assign:where=>redirects.push(where)},fetch:async(...args)=>{calls.push(args);return fetchImpl(...args);}};
+ const context={window:win,document:doc,Object,JSON,console};
+ vm.runInNewContext(source,context);
+ return {
+  calls,redirects,get:id=>nodes.get(id),trusted:win.KashierAccessXLogin.trustedDestination,
+  send(){nodes.get('auth-form').events.submit({preventDefault(){}});},
+  fill(email='cashier@example.org',password='a genuine password'){nodes.get('auth-email').value=email;nodes.get('auth-password').value=password;}
+ };
+}
+function reply(payload,{status=200,contentType='application/json'}={}){
+ return {status,ok:status>=200&&status<300,headers:{get:()=>contentType},json:async()=>payload};
+}
+test('new staged login is Sorani RTL, responsive and has no self-signup or invitation',()=>{
+ assert.match(html,/<html lang="ckb" dir="rtl">/);
+ assert.match(html,/auth-access-x\.css/);
+ assert.match(html,/id="auth-form"/);
+ assert.match(html,/id="auth-password"/);
+ assert.match(html,/autocomplete="current-password"/);
+ assert.match(html,/<script src="preferences\.js" defer>/);
+ assert.doesNotMatch(html,/src="(?:config|data)\.js"/);
+ assert.doesNotMatch(html,/id="signup"|type="password"[^>]*autocomplete="new-password"|id="confirm-password"/);
+ assert.doesNotMatch(source,/KashierData|signUp\(|\/auth\/v1\/signup|localStorage|sessionStorage/);
+ assert.match(css,/@media\(max-width:560px\)/);
+ assert.match(css, /prefers-reduced-motion/);
+});
+test('valid login sends credentials only to fixed same-origin server endpoint',async()=>{
+ const x=setup({fetchImpl:async()=>reply({state:'authenticated',verified:true,role:'cashier'})});
+ x.fill(' Cashier@Example.ORG ');
+ x.send();await tick();
+ assert.equal(x.calls.length,1);
+ assert.equal(x.calls[0][0],'/api/access-x/login');
+ const opt=x.calls[0][1];
+ assert.equal(opt.method,'POST');assert.equal(opt.credentials,'same-origin');
+ assert.equal(opt.cache,'no-store');assert.equal(opt.redirect,'error');
+ assert.equal(opt.mode,'same-origin');
+ const data=JSON.parse(opt.body);
+ assert.equal(data.email,'cashier@example.org');
+ assert.equal(data.password,'a genuine password');
+ assert.equal(Object.keys(data).sort().join(','),'email,password');
+ assert.deepEqual(x.redirects,['/access-x/cashier/']);
+ assert.equal(x.get('auth-password').value,'');
+ assert.equal(x.get('auth-submit').disabled,false);
+});
+test('manager landing requires server authenticated and verified response',async()=>{
+ const x=setup({fetchImpl:async()=>reply({state:'authenticated',role:'manager',verified:true})});
+ x.fill();x.send();await tick();
+ assert.deepEqual(x.redirects,['/access-x/manager/']);
+});
+test('untrusted roles, unverified claims and redirects fail closed',async()=>{
+ for(const data of [
+  {state:'authenticated',verified:true,role:'owner'},
+  {state:'authenticated',verified:true,role:'admin'},
+  {state:'authenticated',verified:false,role:'manager'},
+  {state:'authenticated',role:'manager'},
+  {state:'authenticated',verified:true,role:'cashier',requires_password_change:true},
+  {state:'anything',verified:true,role:'cashier'}
+ ]){
+  const x=setup({fetchImpl:async()=>reply(data)});
+  x.fill();x.send();await tick();
+  assert.equal(x.redirects.length,0,JSON.stringify(data));
+  assert.equal(x.get('auth-status').hidden,false);
+ }
+ const x=setup();assert.equal(x.trusted({state:'authenticated',verified:true,role:'admin'}),null);
+});
+test('first-login password rotation response never opens cashier workspace',async()=>{
+ const x=setup({fetchImpl:async()=>reply({state:'password_change_required',role:'cashier'})});
+ x.fill();x.send();await tick();
+ assert.deepEqual(x.redirects,[]);
+ assert.match(x.get('auth-status').textContent,/گۆڕینی وشەی نهێنی/);
+});
+test('maintenance HTML, request errors and 429 never redirect or use legacy auth',async()=>{
+ for(const f of [
+  async()=>reply({}, {contentType:'text/html'}),
+  async()=>{throw Error('network failure');},
+  async()=>reply({}, {status:429}),
+  async()=>reply({}, {status:401})
+ ]){
+  const x=setup({fetchImpl:f});x.fill();x.send();await tick();
+  assert.deepEqual(x.redirects,[]);
+  assert.equal(x.get('auth-status').hidden,false);
+  assert.equal(x.get('auth-password').value,'');
+ }
+});
+test('validation blocks blank or invalid email and empty password without network request',async()=>{
+ for(const options of [{email:'',password:'a'},{email:'bad',password:'a',validEmail:false},{email:'a@b.com',password:''}]){
+  const x=setup({validEmail:options.validEmail!==false});x.fill(options.email,options.password);x.send();await tick();
+  assert.equal(x.calls.length,0);
+  assert.equal(x.get('auth-status').hidden,false);
+ }
+});
+test('concurrent submits cannot double-send credentials',async()=>{
+ let resolve;
+ const x=setup({fetchImpl:()=>new Promise(r=>resolve=r)});
+ x.fill();x.send();x.send();assert.equal(x.calls.length,1);
+ assert.equal(x.get('auth-submit').disabled,true);
+ resolve(reply({state:'authenticated',verified:true,role:'cashier'}));await tick();
+ assert.equal(x.calls.length,1);assert.equal(x.get('auth-submit').disabled,false);
+});
+test('password visibility works without sending a request',()=>{
+ const x=setup(),button=x.get('auth-password-toggle');
+ button.events.click();assert.equal(x.get('auth-password').type,'text');assert.equal(button.attributes['aria-pressed'],'true');
+ button.events.click();assert.equal(x.get('auth-password').type,'password');assert.equal(button.attributes['aria-pressed'],'false');
+ assert.equal(x.calls.length,0);
+});
+test('role and redirect cannot be chosen through query arguments',async()=>{
+ const x=setup({fetchImpl:async()=>reply({state:'authenticated',verified:true,role:'cashier',next:'https://evil.example'})});
+ x.fill();x.send();await tick();
+ assert.deepEqual(x.redirects,['/access-x/cashier/']);
+});

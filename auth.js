@@ -1,18 +1,75 @@
-'use strict';
-const $=selector=>document.querySelector(selector);
-function safeDestination(value){
- if(!value||value.startsWith('/')||value.includes('\\')||value.includes('#'))return 'index.html';
- const [path,query='']=value.split('?');const allowed=['index.html','account-settings.html','products.html','expiry.html','product-import.html','price-check.html','product.html','sale.html','receipts.html','purchase.html','purchase-receipts.html','stock.html','cash.html','customers.html','customer-balances.html','customer.html','customer-allocations.html','receipt.html','purchase-receipt.html','statement.html','daily.html','suppliers.html','supplier-balances.html','supplier.html','supplier-statement.html','labels.html','stocktake.html','stock-adjustment.html','purchase-report.html','sales-report.html','cash-statement.html','expense-report.html','waste.html','export.html','verify-export.html'];
- if(!allowed.includes(path)||value.split('?').length>2)return 'index.html';
- const params=new URLSearchParams(query),keys={waste:['product','id'],'stock-adjustment':['product','id'],labels:['kind'],products:['new'],stock:['product','mode','limit','q'],cash:['kind'],customers:['debt','repay'],customer:['id','action'],'customer-allocations':['id'],receipt:['id','print'],'purchase-receipt':['id','print'],statement:['id'],suppliers:['debt','payable','pay'],supplier:['id','action'],'supplier-statement':['id']};
- for(const key of params.keys())if(!(keys[path.replace('.html','')]||[]).includes(key))return 'index.html';
- return value;
-}
-const destination=safeDestination(new URLSearchParams(location.search).get('next'));
-let signup=false,busy=false;
-function status(text){$('#auth-status').textContent=text;}
-function setMode(value){if(busy)return;signup=value;$('#auth-title').textContent=signup?'دروستکردنی هەژماری نوێ':'چوونەژوورەوە';$('#auth-description').textContent=signup?'ئیمەیڵ و وشەی نهێنی خۆت دابنێ؛ هەژمارەکەت داتای تایبەتی خۆی دەبێت.':'بۆ تۆمارکردن و بینینی داتاکانی خۆت بچۆ ژوورەوە.';$('#login').textContent=signup?'دروستکردنی هەژمار':'چوونەژوورەوە';$('#signup').textContent=signup?'هەژمارم هەیە — چوونەژوورەوە':'دروستکردنی هەژماری نوێ';$('#confirm-field').hidden=!signup;$('#confirm-password').required=signup;$('#password').autocomplete=signup?'new-password':'current-password';$('#password').minLength=signup?8:1;$('#password-help').hidden=!signup;$('#confirm-password').value='';status('');$('#email').focus();}
-function validate(){const email=$('#email'),password=$('#password'),confirm=$('#confirm-password');email.value=email.value.trim();if(!email.value||!email.checkValidity()){status('ئیمەیڵێکی دروست بنووسە، وەک name@example.com.');email.focus();return false;}if(!password.value){status('وشەی نهێنی بنووسە.');password.focus();return false;}if(signup&&password.value.length<8){status('وشەی نهێنی هەژماری نوێ دەبێت لانیکەم ٨ پیت یان ژمارە بێت.');password.focus();return false;}if(signup&&password.value!==confirm.value){status('دووبارەکردنەوەی وشەی نهێنی یەکسان نییە.');confirm.focus();return false;}return true;}
-async function authenticate(){if(busy||!validate())return;busy=true;for(const button of $('#auth-form').querySelectorAll('button'))button.disabled=true;status(signup?'دروستکردنی هەژمار…':'چوونەژوورەوە…');try{const email=$('#email').value,password=$('#password').value;if(signup){const active=await KashierData.signUp(email,password);$('#password').value='';$('#confirm-password').value='';if(!active){status('داواکاریی تۆمارکردن وەرگیرا. ئیمەیڵ و فۆڵدەری Spam بپشکنە؛ پاش پشتڕاستکردنەوە بە دوگمەی «هەژمارم هەیە» بچۆ ژوورەوە.');return;}}else await KashierData.signIn(email,password);location.href=destination;}catch(error){status(error.message);}finally{busy=false;for(const button of $('#auth-form').querySelectorAll('button'))button.disabled=false;}}
-$('#auth-form').addEventListener('submit',event=>{event.preventDefault();authenticate();});$('#signup').addEventListener('click',()=>setMode(!signup));
-if(new URLSearchParams(location.search).get('mode')==='signup')setMode(true);
+(function(root){
+ 'use strict';
+ const doc=root.document;
+ const form=doc?.getElementById('auth-form');
+ if(!form)return;
+ const email=doc.getElementById('auth-email'),password=doc.getElementById('auth-password');
+ const submit=doc.getElementById('auth-submit'),label=doc.getElementById('auth-submit-label');
+ const status=doc.getElementById('auth-status'),toggle=doc.getElementById('auth-password-toggle'),caps=doc.getElementById('caps-lock');
+ let busy=false;
+ const routes=Object.freeze({manager:'/access-x/manager/',cashier:'/access-x/cashier/'});
+ function message(text,tone='error'){
+  status.textContent=text;status.hidden=!text;
+  status.dataset.tone=tone;
+ }
+ function changeBusy(value){
+  busy=value;submit.disabled=value;submit.setAttribute('aria-busy',String(value));
+  email.readOnly=value;password.readOnly=value;
+  label.textContent=value?'پشتڕاستکردنەوە…':'چوونەژوورەوە';
+ }
+ function validForm(){
+  email.value=email.value.trim().toLowerCase();
+  if(!email.value||!email.checkValidity()||email.value.length>254){message('ئیمەیڵەکەت بە دروستی بنووسە.');email.focus();return false;}
+  if(!password.value){message('وشەی نهێنی بنووسە.');password.focus();return false;}
+  if(password.value.length>1024){message('وشەی نهێنی نادروستە.');password.focus();return false;}
+  return true;
+ }
+ function trustedDestination(payload){
+  // Never take a destination, market ID or role from a query parameter.
+  // These fixed routes are NOT published until the server-verified session API is operational.
+  if(!payload||payload.state!=='authenticated'||!Object.hasOwn(routes,payload.role))return null;
+  if(payload.verified!==true||payload.requires_password_change===true)return null;
+  return routes[payload.role];
+ }
+ async function submitLogin(event){
+  event.preventDefault();
+  if(busy||!validForm())return;
+  changeBusy(true);message('پشتڕاستکردنەوەی ناسنامە…','info');
+  const credentials={email:email.value,password:password.value};
+  try{
+   // Server must independently verify Auth credentials, primary-owner/membership state and
+   // completed first-login password change. No browser-side role or owner ID is authoritative.
+   const response=await root.fetch('/api/access-x/login',{
+    method:'POST',mode:'same-origin',credentials:'same-origin',cache:'no-store',redirect:'error',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify(credentials)
+   });
+   if(response.status===429){message('هەوڵی چوونەژوورەوە زۆر بوو. کەمێک دواتر هەوڵ بدەرەوە.');return;}
+   if(!response.ok){message('ئیمەیڵ یان وشەی نهێنی دروست نییە، یان هەژمارەکە مۆڵەتی چوونەژوورەوەی نییە.');return;}
+   const contentType=response.headers?.get('content-type')||'';
+   if(!/^\s*application\/json(?:\s*;|$)/i.test(contentType))throw Error('access_x_invalid_reply');
+   const data=await response.json();
+   if(data?.state==='password_change_required'){message('هەژمارەکەت هێشتا چالاک نەکراوە. پرۆسەی گۆڕینی وشەی نهێنی لە سێرڤەر تەواو دەبێت.','info');return;}
+   const destination=trustedDestination(data);
+   if(!destination)throw Error('access_x_unverified_role');
+   // Client navigation happens only after an explicit server-verified role claim.
+   root.location.assign(destination);
+  }catch(_error){
+   // A maintenance HTML response, missing API, connectivity failure or unexpected
+   // response all FAIL CLOSED. Never attempt legacy KashierData.signIn as a fallback.
+   message('چوونەژوورەوە لە ئێستادا بەردەست نییە یان پەیوەندییەکە سەرکەوتوو نەبوو. دووبارە هەوڵ بدەرەوە.');
+  }finally{
+   password.value='';changeBusy(false);
+  }
+ }
+ toggle.addEventListener('click',()=>{
+  const show=password.type==='password';
+  password.type=show?'text':'password';
+  toggle.setAttribute('aria-pressed',String(show));
+  toggle.setAttribute('aria-label',show?'شاردنەوەی وشەی نهێنی':'پیشاندانی وشەی نهێنی');
+  toggle.title=show?'شاردنەوەی وشەی نهێنی':'پیشاندانی وشەی نهێنی';
+ });
+ password.addEventListener('keyup',event=>{caps.hidden=!event.getModifierState?.('CapsLock');});
+ form.addEventListener('submit',submitLogin);
+ root.KashierAccessXLogin=Object.freeze({trustedDestination});
+})(window);

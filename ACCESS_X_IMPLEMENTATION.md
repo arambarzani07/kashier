@@ -160,3 +160,7 @@ Added a GitHub Actions runner with disposable PostgreSQL 17 and a minimal Supaba
 - **PASS 532/532** Node tests, and **PASS** combined schema parity + synthetic financial restore workflow. Evidence: `ACCESS_X_RECOVERY_GATE.md`; [CI run](https://github.com/arambarzani07/kashier/actions/runs/39387247355).
 - **NOT DONE**: a real market database backup and isolated restore. This cannot be inferred from generated fixtures or migration replay. Production activation, RLS/privilege cutover and no-invitation Auth provisioning still blocked.
 
+
+## Access X login source design checkpoint — STAGED (2026-10-20)
+
+Old self-signup/browser-based login entry was replaced with a standalone Sorani RTL two-role, no-registration UI at `auth.html`/`auth.js`. Server-verified manager/cashier session is mandatory for any redirect; unsupported role or absent backend denies login. The backend and role workspaces are NOT deployed; the Vercel maintenance gate remains in force. See `ACCESS_X_LOGIN_UI.md`.

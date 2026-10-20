@@ -1,1 +1,88 @@
-<!doctype html><html lang="ckb" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>کاشێر — چوونەژوورەوە</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="sale.css"><link rel="stylesheet" href="catalog.css"><script src="preferences.js" defer></script><script src="config.js" defer></script><script src="data.js" defer></script><script src="auth.js" defer></script><link rel="stylesheet" href="preferences.css"></head><body class="sale-page"><header class="topbar"><div class="brand"><span class="brand-mark">K</span><strong>کاشێر</strong></div><a class="home-link" href="index.html">سەرەکی ←</a></header><main class="auth-card"><span class="eyebrow">هەژماری کاشێر</span><h1 id="auth-title">چوونەژوورەوە</h1><p id="auth-description">بۆ تۆمارکردن و بینینی داتاکانی خۆت بچۆ ژوورەوە.</p><form id="auth-form" novalidate><label for="email">ئیمەیڵ</label><input id="email" type="email" required autocomplete="username" dir="ltr"><label for="password">وشەی نهێنی</label><input id="password" aria-describedby="password-help" type="password" minlength="1" required autocomplete="current-password" dir="ltr"><p id="password-help" class="auth-help" hidden>لانیکەم ٨ پیت یان ژمارە؛ وشەی نهێنی خۆت دابنێ.</p><div id="confirm-field" hidden><label for="confirm-password">دووبارەکردنەوەی وشەی نهێنی</label><input id="confirm-password" type="password" autocomplete="new-password" dir="ltr"></div><button id="login" class="primary" type="submit">چوونەژوورەوە</button><button id="signup" class="secondary" type="button">دروستکردنی هەژماری نوێ</button></form><p id="auth-status" role="status" aria-live="polite"></p><p class="storage-status">هەژمارەکەت تەنها کاڵاکانی خۆی دەبینێت. زانیاریی چوونەژوورەوە لەم تابەدا دەمێنێتەوە.</p></main></body></html>
+<!doctype html>
+<html lang="ckb" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#edf3fb">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Kashêr — چوونەژوورەوەی پارێزراو</title>
+  <link rel="stylesheet" href="auth-access-x.css">
+  <link rel="stylesheet" href="preferences.css">
+  <script src="preferences.js" defer></script>
+  <script src="auth.js" defer></script>
+</head>
+<body class="access-page">
+  <div class="access-shell">
+    <header class="access-header">
+      <div class="access-brand" aria-label="Kashêr">
+        <span class="brand-symbol" aria-hidden="true">K<span class="brand-glint"></span></span>
+        <span class="brand-names"><strong>Kashêr</strong><small>سیستەمی بەڕێوەبردنی مارکێت</small></span>
+      </div>
+      <div class="system-label"><span class="system-dot"></span> Access X <span class="system-label-divider"></span> چوونەژوورەوەی پارێزراو</div>
+    </header>
+    <main class="access-grid">
+      <section class="access-panel" aria-labelledby="auth-title">
+        <div class="panel-inner">
+          <div class="intro-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 2.6 20 6v5.6c0 4.7-3.1 8-8 10-4.9-2-8-5.3-8-10V6l8-3.4Z" stroke="currentColor" stroke-width="1.65" stroke-linejoin="round"/><path d="m8.3 11.9 2.3 2.3 4.9-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <p class="section-kicker">بەخێربێیتەوە</p>
+          <h1 id="auth-title">چوونەژوورەوە بۆ <span>کاشێر</span></h1>
+          <p class="access-description">هەژمارەکەت داخڵ بکە؛ سیستەم بە شێوەیەکی پارێزراو دەسەڵاتی تۆ دیاری دەکات.</p>
+          <form id="auth-form" novalidate autocomplete="on">
+            <div class="field-block">
+              <label for="auth-email">ئیمەیڵی هەژمار</label>
+              <div class="input-wrap">
+                <span class="input-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="3" stroke="currentColor" stroke-width="1.7"/><path d="m4.5 7.5 7.5 5.7 7.5-5.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>
+                <input id="auth-email" name="email" type="email" dir="ltr" autocomplete="username" inputmode="email" spellcheck="false" autocapitalize="none" placeholder="name@example.com" maxlength="254" required aria-describedby="auth-status">
+              </div>
+            </div>
+            <div class="field-block">
+              <label for="auth-password">وشەی نهێنی</label>
+              <div class="input-wrap">
+                <span class="input-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="11" rx="2.3" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M12 14v3" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></span>
+                <input id="auth-password" name="password" type="password" dir="ltr" autocomplete="current-password" placeholder="••••••••••" maxlength="1024" required aria-describedby="auth-status">
+                <button type="button" id="auth-password-toggle" class="visibility-control" aria-label="پیشاندانی وشەی نهێنی" aria-pressed="false" title="پیشاندانی وشەی نهێنی">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2.7 12s3.2-5.5 9.3-5.5 9.3 5.5 9.3 5.5-3.2 5.5-9.3 5.5S2.7 12 2.7 12Z" stroke="currentColor" stroke-width="1.65"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.65"/></svg>
+                </button>
+              </div>
+            </div>
+            <p id="caps-lock" class="caps-note" hidden>Caps Lock چالاکە. وشەی نهێنی بپشکنە.</p>
+            <p id="auth-status" role="alert" aria-live="polite" class="form-status" hidden></p>
+            <button class="submit-button" id="auth-submit" type="submit">
+              <span id="auth-submit-label">چوونەژوورەوە</span>
+              <span class="spinner" aria-hidden="true"></span>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <p class="auth-footnote">هەژماری کاشێر تەنها لەلایەن بەڕێوەبەرەوە دروست دەکرێت؛ هیچ بانگێشتێک پێویست نییە.</p>
+          </form>
+          <div class="panel-footer"><span class="lock-emoji" aria-hidden="true">◈</span><span>دەسەڵات بەپێی ناسنامەی پشتڕاستکراو دیاری دەکرێت، نەک بە هەڵبژاردنی بەکارهێنەر.</span></div>
+        </div>
+      </section>
+      <aside class="identity-panel" aria-label="ڕۆڵەکانی Kashêr">
+        <div class="identity-content">
+          <div class="feature-pill"><span class="pill-light"></span> پاراستن لە بناغەوە</div>
+          <h2>یەک سیستەم.<br><span>دوو ڕۆڵی ڕوون.</span></h2>
+          <p class="identity-lead">هەر کەس تەنها ئەو بەشانە دەبینێت کە مۆڵەتی بۆ دراوە. ناسنامەی خاوەنی مارکێت و کارمەند تێکەڵ ناکرێن.</p>
+          <div class="role-stack">
+            <div class="role-item">
+              <span class="role-icon role-icon-manager" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M8 8V5.5A2.5 2.5 0 0 1 10.5 3h3A2.5 2.5 0 0 1 16 5.5V8M3.5 13.5h17" stroke="currentColor" stroke-width="1.6"/></svg></span>
+              <div><strong>بەڕێوەبەر</strong><span>بەڕێوەبردنی مارکێت، کارمەندان و دەسەڵاتەکان</span></div>
+              <span class="role-arrow" aria-hidden="true">↗</span>
+            </div>
+            <div class="role-item">
+              <span class="role-icon role-icon-cashier" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M8 9h8M8 13h5M8 17h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+              <div><strong>کاشێر</strong><span>فرۆشتن و کارە ڕێگەپێدراوەکان، بەپێی مۆڵەت</span></div>
+              <span class="role-arrow" aria-hidden="true">↗</span>
+            </div>
+          </div>
+          <div class="panel-symbolic" aria-hidden="true"><span class="orbit orbit-one"></span><span class="orbit orbit-two"></span><span class="core-glyph">K</span></div>
+        </div>
+      </aside>
+    </main>
+    <footer class="access-site-footer"><span>© Kashêr</span><span>ناسنامە • پاراستن • وردبینی</span></footer>
+  </div>
+</body>
+</html>

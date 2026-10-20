@@ -14,3 +14,5 @@ Remaining major online work:
 The remaining installment/profit dashboard tiles still show unavailable-module UI. Do not report the whole system as complete. No offline app shell, offline posting queue or offline/online stock reconciliation has been started.
 
 - Recovery gate 2026-10-20: isolated financial **synthetic-only** Postgres 17 `pg_dump` → fresh DB `pg_restore` passed with actual cash-sale, debt and repayment RPC fixture invariants, plus 532/532 Node tests. **Real production backup existence/restore remains unverified; production release is blocked.** See `ACCESS_X_RECOVERY_GATE.md`.
+
+- Access X login UI (staged): source `auth.html` and `auth.js` replaced with modern Sorani RTL unified manager/cashier form; no self signup, no role/redirect choice and no legacy-token fallback. It requires an undeployed `/api/access-x/login` server-authoritative endpoint and has fixed currently-unimplemented role destinations. **Vercel stays maintenance-only, no real login possible yet.** See `ACCESS_X_LOGIN_UI.md`.
