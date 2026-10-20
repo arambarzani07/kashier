@@ -17,6 +17,10 @@ on:
       - 'tests/access-x-function-tokens-20261020.json'
       - 'scripts/access-x-verify-replay.cjs'
       - 'tests/access-x-verify-replay.test.cjs'
+      - 'scripts/access-x-synthetic-restore.sh'
+      - 'tests/access-x-synthetic-fixture.sql'
+      - 'tests/access-x-synthetic-verify.sql'
+      - 'tests/access-x-synthetic-restore.test.cjs'
       - 'scripts/access-x-schema-replay.sh'
       - '.github/workflows/access-x-schema-replay.yml'
 

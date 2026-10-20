@@ -48,3 +48,11 @@ if ! node scripts/access-x-verify-replay.cjs "$report" >> "$report" 2>&1; then
   exit 1
 fi
 echo "PASS: isolated schema replay with semantic catalog parity; NOT a production backup restore." | tee -a "$report"
+
+# Separate synthetic data-only drill (unrelated to production backups).
+ACCESS_X_SYNTHETIC_DRILL=true bash scripts/access-x-synthetic-restore.sh >> "$report" 2>&1 || {
+ echo 'ACCESS X SYNTHETIC RESTORE FAILED (no production restore attempted).'
+ tail -n 24 "$report"
+ exit 1
+}
+echo 'PASS: synthetic PostgreSQL dump/restore. Real customer-data backup is NOT verified.'
