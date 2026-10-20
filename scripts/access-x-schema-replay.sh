@@ -24,8 +24,8 @@ number=0
 for file in "${files[@]}"; do
   number=$((number+1))
   echo "Apply schema $number/72: ${file##*/}" | tee -a "$report"
-  # All migrations are preexisting, historical, and now replayed on empty ephemeral DB only.
-  if ! psql -X -v ON_ERROR_STOP=1 -q -f "$file" >> "$report" 2>&1; then
+  # One transaction per original migration is required for LOCK TABLE and atomic DDL.\n  # All migrations are historical and run only on the empty ephemeral database.
+  if ! psql -X -v ON_ERROR_STOP=1 --single-transaction -q -f "$file" >> "$report" 2>&1; then
     echo "SCHEMA REPLAY FAILED at migration $number: ${file##*/}" | tee -a "$report"
     exit 1
   fi
