@@ -10,6 +10,7 @@ on:
       - 'tests/access-x-replay-inspect.sql'
       - 'tests/access-x-schema-fingerprint.sql'
       - 'tests/access-x-catalog-keys.sql'
+      - 'tests/access-x-effective-rights.sql'
       - 'scripts/access-x-schema-replay.sh'
       - '.github/workflows/access-x-schema-replay.yml'
 

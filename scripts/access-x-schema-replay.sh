@@ -38,11 +38,12 @@ if ! psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-replay-inspect.sql >> "$rep
 fi
 # Hash-only metadata diagnostics; no production connection, no customer data.
 psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-catalog-keys.sql >> "$report" 2>&1
+psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-effective-rights.sql >> "$report" 2>&1
 # Compare complete functions, role grants, policies, indexes, constraints and trigger
 # catalog fingerprints with the reviewed production metadata snapshot.
 if ! psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-schema-fingerprint.sql >> "$report" 2>&1; then
   echo "FULL SCHEMA FINGERPRINT FAILED: inspect the isolated metadata, DO NOT write to production." | tee -a "$report"
-  grep -E '^AX_META\\|' "$report" || true
+  grep -E '^(AX_META|AX_SEM)\\|' "$report" || true
   tail -n 12 "$report"
   exit 1
 fi
