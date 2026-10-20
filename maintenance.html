@@ -88,6 +88,12 @@
  body[data-design="unified"] .receipt-layout{width:100%;max-width:1000px;padding:24px}
  body[data-design="unified"] .receipt-paper{padding:28px}
  body[data-design="unified"] .ui-panel :is(input,select,textarea){max-width:100%}
+ body[data-design="unified"] .localized-file-picker{position:relative;display:flex;align-items:center;flex-wrap:wrap;gap:12px;min-height:52px;padding:12px;margin:10px 0 18px;background:var(--ui-surface);border:1px solid #bcc9d7;border-radius:var(--ui-control-radius)}
+ body[data-design="unified"] .localized-file-picker>input[type=file]{position:absolute;inset:0;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+ body[data-design="unified"] .localized-file-caption{padding:6px 12px;background:var(--ui-soft);border:1px solid var(--ui-line);border-radius:var(--ui-control-radius);color:var(--ui-brand);font-size:14px}
+ body[data-design="unified"] .localized-file-name{min-width:0;max-width:100%;overflow-wrap:anywhere;font-size:13px;color:var(--ui-muted)}
+ body[data-design="unified"] .localized-file-picker:focus-within{outline:3px solid #315f91;outline-offset:3px}
+ body[data-design="unified"] .localized-file-picker:has(input:disabled){opacity:.55}
  @media(max-width:760px){
   body[data-design="unified"] :is(.topbar,.access-nav){padding:12px 16px;gap:12px}
   body[data-design="unified"] main:is(.stocktake-layout,.statement-layout,.catalog-layout,.sale-layout,.cash-main,.customer-profile,.supplier-profile,.returns-main,.quick-return-layout,.return-document-main,.labels-layout,.price-check-layout,.account-settings-layout,.employees-layout,.review-layout,.receipt-layout){padding:16px}

@@ -20,8 +20,15 @@
   if(v.patternMismatch)return 'نووسینەکە لەگەڵ ڕێنمایی ئەم خانەیە ناگونجێت.';
   return 'زانیاریی ئەم خانەیە بپشکنە.';
  }
- root.KashierLocale={message,validation};
  const doc=root.document;
+ function refreshFiles(){
+  for(const field of doc?.querySelectorAll?.('input[data-kurdish-file]')||[]){
+   const label=doc.getElementById(field.id+'-selected-name');
+   if(label)label.textContent=field.files?.[0]?.name||'هیچ فایلێک هەڵنەبژێردراوە';
+  }
+ }
+ root.KashierLocale={message,validation,refreshFiles};
  doc?.addEventListener?.('invalid',event=>{const field=event.target;if(typeof field?.setCustomValidity==='function')field.setCustomValidity(validation(field));},true);
- for(const name of ['input','change'])doc?.addEventListener?.(name,event=>{if(typeof event.target?.setCustomValidity==='function')event.target.setCustomValidity('');},true);
+ for(const name of ['input','change'])doc?.addEventListener?.(name,event=>{if(typeof event.target?.setCustomValidity==='function')event.target.setCustomValidity('');if(event.target?.type==='file')refreshFiles();},true);
+ refreshFiles();
 })(globalThis);
