@@ -23,3 +23,18 @@ As of 2026-10-20, \`access-x/server/login-core.cjs\` includes a **fail-closed** 
 \`tests/access-x-server-login.test.cjs\` covers default gate closed, no self-signup, exact scopes, cashier activation, role spoofing, ambiguous/cross-market memberships, password rotation, step-up, rate limiting, Origin, safe cookie shape, and server errors. Node suite must be green before accepting this stage.
 
 Supabase docs: https://supabase.com/docs/guides/auth/passwords , https://supabase.com/docs/guides/auth/server-side/advanced-guide
+
+## Supabase Auth HTTP transport — STAGED 2026-10-20
+
+Added \`access-x/server/supabase-auth-transport.cjs\` and \`tests/access-x-supabase-auth.test.cjs\`.
+
+This adapter directly implements the *authentication-only* boundaries of the existing \`login-core.cjs\`:
+
+- \`authenticate({email,password})\`: calls \`POST /auth/v1/token?grant_type=password\` using an explicitly provided **publishable** (or legacy **anon**) key; extracts only \`access_token\`, and discards the upstream refresh token.
+- \`verifyUser(accessToken)\`: calls \`GET /auth/v1/user\` with the bearer token to verify the identity against Supabase Auth; returns only \`id\` and anonymous-user flag. Never trusts either user metadata or JWT content as *authoritative market role*.
+- Only a fixed, exact HTTPS Supabase project origin is accepted. A service-role/secret key is rejected at construction. Requests use \`redirect:error\`, \`cache:no-store\`, a bounded timeout, JSON Content-Type/size validation, and generic failures without secret-bearing error logs.
+- The adapter has **no production project URL, credentials, environment variables or live deployment configuration**. The test suite injects a fake network client. It does not read financial records or create any Auth user.
+- **Important:** correct Auth credentials do NOT establish owner authority. \`ownedScopes\`, \`memberships\`, \`credentialPolicy\`, \`issueSession\` and shared rate limiting **remain unimplemented durable server adapters**. The signed-in user is denied until those are established and tested.
+- Real deployment still blocked by the production backup/restore gate; Vercel continues to return maintenance HTML. The \`/api/access-x/login\` endpoint is **not deployed**.
+
+Supabase documentation: https://supabase.com/docs/guides/auth/passwords and https://supabase.com/docs/guides/auth/server-side/advanced-guide
