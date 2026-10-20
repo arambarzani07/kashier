@@ -56,7 +56,7 @@
    root.location.assign(destination);
   }catch(_error){
    // A maintenance HTML response, missing API, connectivity failure or unexpected
-   // response all FAIL CLOSED. Never attempt legacy KashierData.signIn as a fallback.
+   // response all FAIL CLOSED. Never attempt legacy browser-side authentication as a fallback.
    message('چوونەژوورەوە لە ئێستادا بەردەست نییە یان پەیوەندییەکە سەرکەوتوو نەبوو. دووبارە هەوڵ بدەرەوە.');
   }finally{
    password.value='';changeBusy(false);
