@@ -30,5 +30,10 @@ for file in "${files[@]}"; do
     exit 1
   fi
 done
-psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-replay-inspect.sql >> "$report" 2>&1
+if ! psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-replay-inspect.sql >> "$report" 2>&1; then
+  echo "Schema parity check FAILED after all 72 migration files applied. Baseline mismatch details:" 
+  grep -E '^AX_REPLAY_(ROUTINE|COUNT)\\|' "$report" || true
+  tail -n 8 "$report"
+  exit 1
+fi
 echo "PASS: isolated schema replay of all 72 historical migrations; NOT a production backup restore." | tee -a "$report"
