@@ -153,3 +153,10 @@ Added a GitHub Actions runner with disposable PostgreSQL 17 and a minimal Supaba
 - The older \`access-x-schema-fingerprint.sql\` *raw* hash check remains available for direct production drift monitoring. It is **not appropriate as the isolated replay acceptance gate**, because raw role OIDs/ACL format and whitespace-dependent SQL output differ between Supabase and scratch Postgres; it was replaced in the disposable CI job by specific effective privilege + structural + token checks.
 - Still **NOT VERIFIED:** whether a restorable real production backup exists; no offsite encrypted DB export, successful real-data restore, isolated end-to-end Auth recreation, or financial balance restoration has been demonstrated. **Production authorization and cashier activation remain blocked**.
 
+
+## Backup rehearsal checkpoint — staged Gate C subtest (2026-10-20)
+
+- **PASS, synthetic-only**: one fake customer/product and actual app cash-sale and debt/repayment posting RPCs were backed up with PostgreSQL 17 `pg_dump` and restored using `pg_restore` into a fresh disposable database. Asserted product stock, cash balance, customer debt, sale, cash movement and debt entries both before and after restoration.
+- **PASS 532/532** Node tests, and **PASS** combined schema parity + synthetic financial restore workflow. Evidence: `ACCESS_X_RECOVERY_GATE.md`; [CI run](https://github.com/arambarzani07/kashier/actions/runs/39387247355).
+- **NOT DONE**: a real market database backup and isolated restore. This cannot be inferred from generated fixtures or migration replay. Production activation, RLS/privilege cutover and no-invitation Auth provisioning still blocked.
+

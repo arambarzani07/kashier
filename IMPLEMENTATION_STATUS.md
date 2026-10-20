@@ -12,3 +12,5 @@ Remaining major online work:
 - Complete browser flow QA, physical printing/scanning QA, and regression checks for real shop workflows before calling the online system finished.
 
 The remaining installment/profit dashboard tiles still show unavailable-module UI. Do not report the whole system as complete. No offline app shell, offline posting queue or offline/online stock reconciliation has been started.
+
+- Recovery gate 2026-10-20: isolated financial **synthetic-only** Postgres 17 `pg_dump` → fresh DB `pg_restore` passed with actual cash-sale, debt and repayment RPC fixture invariants, plus 532/532 Node tests. **Real production backup existence/restore remains unverified; production release is blocked.** See `ACCESS_X_RECOVERY_GATE.md`.

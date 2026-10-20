@@ -75,3 +75,25 @@ None of these checks substitutes for a real **encrypted production backup and an
 The seven reviewed source differences were conclusively checked against `pg_get_functiondef()` output on both live production and replay; **all seven SQL token streams are equivalent**, preserving literal contents and with only two narrowly defined optional SELECT alias `AS` tokens normalized. No production SQL was changed. The isolated CI now enforces **72/72 historical migrations, 221 effective role/ACL/policy fingerprints, 214 byte-equal structural metadata fingerprints and 7 token-equal function definitions**. The run passed at https://github.com/arambarzani07/kashier/actions/runs/39385583050. The general Node suite was **530/530** at https://github.com/arambarzani07/kashier/actions/runs/39385582938.
 
 Previous sections recording the original raw fingerprint mismatch are retained as audit history; those raw string/OID differences do not represent discovered business-logic drift. The stricter semantic replay pipeline is green. **Real-data backup and restore Gate C is still open and remains a production release blocker.**
+
+## Synthetic financial-data dump/restore rehearsal — PASSED 2026-10-20
+
+CI now runs an extra **isolated, synthetic-only** drill after the 72-migration schema replay:
+
+- A single fake Auth ID, product, customer, stock quantity and **real Kashier posting RPCs** produce a 2,500 IQD cash sale, a 25,000 IQD debt charge and a 9,000 IQD repayment.
+- The drill first checks that the product stock is **14,000 base units**, customer debt **16,000 IQD**, cash balance **11,500 IQD**, one sale and two debt ledger entries, with proper cash movement and Auth/customer foreign keys.
+- A PostgreSQL **17** custom archive is produced using `pg_dump` **inside the same isolated Postgres 17 service container**, then restored with `pg_restore` into a **fresh second PostgreSQL database**, where all the same financial integrity assertions pass.
+- CI refuses any nonlocal host, nondesignated database, or invocation without an explicit `ACCESS_X_SYNTHETIC_DRILL=true` opt-in; it does **not** access Supabase's production database, keys, real account data or actual backups. The archive is temporary and removed before job completion; only a sanitized test log is uploaded.
+- [Successful synthetic drill and complete schema replay](https://github.com/arambarzani07/kashier/actions/runs/39387247355). [General 532/532 Node regression tests](https://github.com/arambarzani07/kashier/actions/runs/39387247291).
+- Test scripts: `scripts/access-x-synthetic-restore.sh`, `tests/access-x-synthetic-fixture.sql`, `tests/access-x-synthetic-verify.sql` and `tests/access-x-synthetic-restore.test.cjs`.
+
+**IMPORTANT: THIS IS NOT A SUCCESSFUL RESTORE OF KASHIER'S REAL DATABASE.** Synthetic recovery exercises Postgres dumping/restoration and sample financial invariants but does not verify the user's real records, full Supabase Auth, Storage, service secrets, off-site encryption, managed backup retention, or recoverability of a user-selected production recovery point. The dump is intentionally created with `--no-acl`, so the separate 221-rule effective grants check remains indispensable.
+
+### Remaining real backup gate (BLOCKING)
+
+1. Verify that an actual restorable backup or safe encrypted full logical export exists in the project dashboard. Check its creation time, retention period, integrity, access and protected storage. **Not checked or confirmed here.**
+2. Restore that actual backup to a separately controlled isolated database/Supabase environment (not the production project), with Supabase-managed infrastructure configuration and storage objects treated independently.
+3. Verify real owner/customer/debt/cash totals by secure internal audit without logging customer or financial records in CI or GitHub. Compare critical ledger balances, FK integrity and uniqueness with an authorized source snapshot.
+4. Record a verifiable restore success with safe metadata and manager approval; only then decide whether Gate C can be closed. Never upload raw backup bytes or secrets into this repository.
+
+Current **Gate C remains CLOSED**. No Production DB schema/Auth permission/data was modified by these tests, no provisioner was deployed, and maintenance routing is still enforced.
