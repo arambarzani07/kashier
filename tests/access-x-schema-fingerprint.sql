@@ -61,7 +61,7 @@ begin
  select jsonb_object_agg(kind,jsonb_build_object('count',row_count,'fingerprint',fingerprint)) into actual from summary;
  if actual is distinct from expected then
   raise exception 'access_x_schema_drift_detected'
-   using detail='Metadata fingerprints differ from the 2026-10-20 reviewed snapshot; inspect exact objects and grants before any deployment.';
+   using detail='Metadata fingerprints differ from the 2026-10-20 reviewed snapshot; inspect exact objects and grants before any deployment. Actual category hashes='||actual::text||'; Expected category hashes='||expected::text;
  end if;
 end
 $access_x$;
