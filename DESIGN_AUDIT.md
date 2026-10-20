@@ -1,6 +1,6 @@
 # Shared design audit — 2026-10-20
 
-Latest runtime: `882d82de41483a399e83e92d5c5066691b51d47f`, production deployment `dpl_GLFzwe48kF7nLuH2uT6JhBoX6DkP`, READY on Node 24; build 17.6 seconds.
+Latest runtime: `283478286c9fb417bedb592a97bb936f633edea0`, production deployment `dpl_2UDGn2X45d9qm2zQYtTedWVB1sGN`, READY on Node 24; build 12.6 seconds.
 
 ## Scope and corrections
 
@@ -14,7 +14,7 @@ The public review tool provides disabled, script-isolated operational previews a
 
 - Full release check: 82 regression files passed; final production build runs that same required release command.
 - Final targeted auth UI, preview isolation and preference checks: 17 tests passed.
-- Static deployment parity: 81 HTML files, 261 public assets, 1489 local references.
+- Static deployment parity: 83 HTML files, 263 public assets, 1522 local references.
 - HTML structure scan: no duplicate IDs, missing explicit label targets or missing image alt attributes.
 - Initial browser matrix at `b487980`: ten layouts at requested iframe widths 320, 390, 768 and 1280 pixels (40 cases). No document horizontal overflow and no undersized visible buttons detected. Header links use the expected dark foreground. Measured content widths exclude the browser scrollbar.
 - Dashboard category filtering returned five administration modules; searching for employees returned one module; clearing restored all forty.
@@ -35,3 +35,9 @@ All 82 release test files passed again. Five additional templates (customer, sup
 CSV import guidance now presents three ordered stages: prepare the file, check the preview and submit. Column names, UTF-8/barcode requirements, all-or-nothing handling, the 500-item/1 MiB limits and stock-entry guidance are retained. Report filter labels, date/search fields and related-action links share sizing and spacing. Summary cards can shrink and wrap long values; unknown-cost coverage notices keep their warning treatment.
 
 All 82 release test files passed again. Import, sales report, gross profit and inventory valuation previews passed 320/390/768/1280 iframe widths (16 cases): no page overflow, undersized visible buttons or enabled preview inputs. Results: `docs/report-layout-audit-2026-10-20.json`. The final import layout was visually inspected. Reports with populated data, actual file submission and printing were not exercised in this pass; financial and import logic is unchanged.
+
+## Price-check and label setup follow-up
+
+Price scanning now uses a 20px search field and unified actions. Price output can wrap unusually long values. Label setup uses shrinkable grid tracks, readable form labels and a single column on smaller screens; queue items and print actions wrap consistently. All added feature CSS is inside screen media queries. Existing feature rules are retained verbatim; barcode generation, physical label dimensions and print rules are unchanged.
+
+All 82 release test files passed. Two additional templates passed four iframe widths (8 cases), with no page overflow, undersized visible buttons or enabled preview controls. The scan field measured 20px at each width. Results: `docs/label-layout-audit-2026-10-20.json`. Label setup was visually inspected. No actual scanner, price record or physical printer was exercised.

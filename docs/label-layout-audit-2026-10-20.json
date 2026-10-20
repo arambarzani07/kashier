@@ -1,0 +1,66 @@
+[
+  {
+    "screen": "price-check-preview.html",
+    "width": 320,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "searchSize": "20px",
+    "smallButtons": []
+  },
+  {
+    "screen": "price-check-preview.html",
+    "width": 390,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "searchSize": "20px",
+    "smallButtons": []
+  },
+  {
+    "screen": "price-check-preview.html",
+    "width": 768,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "searchSize": "20px",
+    "smallButtons": []
+  },
+  {
+    "screen": "price-check-preview.html",
+    "width": 1280,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "searchSize": "20px",
+    "smallButtons": []
+  },
+  {
+    "screen": "labels-preview.html",
+    "width": 320,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "searchSize": null,
+    "smallButtons": []
+  },
+  {
+    "screen": "labels-preview.html",
+    "width": 390,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "searchSize": null,
+    "smallButtons": []
+  },
+  {
+    "screen": "labels-preview.html",
+    "width": 768,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "searchSize": null,
+    "smallButtons": []
+  },
+  {
+    "screen": "labels-preview.html",
+    "width": 1280,
+    "enabledInputs": 0,
+    "overflow": 0,
+    "searchSize": null,
+    "smallButtons": []
+  }
+]
