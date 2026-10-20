@@ -36,4 +36,11 @@ if ! psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-replay-inspect.sql >> "$rep
   tail -n 8 "$report"
   exit 1
 fi
-echo "PASS: isolated schema replay of all 72 historical migrations; NOT a production backup restore." | tee -a "$report"
+# Compare complete functions, role grants, policies, indexes, constraints and trigger
+# catalog fingerprints with the reviewed production metadata snapshot.
+if ! psql -X -v ON_ERROR_STOP=1 -q -f tests/access-x-schema-fingerprint.sql >> "$report" 2>&1; then
+  echo "FULL SCHEMA FINGERPRINT FAILED: inspect the isolated metadata, DO NOT write to production." | tee -a "$report"
+  tail -n 12 "$report"
+  exit 1
+fi
+echo "PASS: isolated schema replay and live-catalog fingerprint for all 72 migrations; NOT a production backup restore." | tee -a "$report"
