@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ckb" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>کاشێر — پێشبینینی دیزاین</title><link rel="stylesheet" href="access.css"><link rel="stylesheet" href="preferences.css"><script src="preferences.js" defer></script><link rel="stylesheet" href="formal-theme.css"><link rel="stylesheet" href="operations.css"></head>
+<body class="employee-workspace"><div class="screen-preview-bar" role="note">پێشبینینی دیزاین · فۆڕمەکان بۆ پیشاندانن؛ هیچ داتایەک ناخوێندرێتەوە یان تۆمار ناکرێت. <a href="auth.html">چوونەژوورەوە بۆ کارکردن ←</a><nav class="preview-tabs" aria-label="پێشبینینی شاشەکان"><a href="design-preview.html">سەرەکی</a><a href="employees-preview.html" aria-current="page">کارمەندان و دەسەڵات</a><a href="sale-preview.html">فرۆشتن</a></nav></div>
+<header class="access-nav"><strong>کاشێر · بەڕێوەبردنی کارمەندان</strong><a href="index.html">سەرەکی ←</a></header>
+<main class="employees-layout">
+<nav class="workspace-breadcrumb" aria-label="شوێنی ئێستا"><a href="index.html">سەرەکی</a><span aria-hidden="true">/</span><span>کارمەندان و دەسەڵات</span></nav>
+<div class="employees-heading"><p class="access-eyebrow">KASHIER · ADMINISTRATION</p><h1>بەڕێوەبردنی کارمەندان</h1><p>هەژماری کارمەند، ڕۆڵ و مۆڵەتەکانی لە یەک شوێن بەڕێوە ببە.</p></div>
+<p id="employee-status" role="status" aria-live="polite"></p>
+<section id="reset-panel" class="employees-panel" hidden><h2 id="reset-title">وشەی کاتیی نوێ</h2><p class="access-help">چوونەژوورەوە پێشووترەکان دەبەسترێن. کارمەند لە یەکەم چوونەژوورەوە وشەکە دەگۆڕێت.</p><form id="reset-form"><label for="reset-password">وشەی کاتی — لانیکەم ١٢ پیت</label><input id="reset-password" type="password" required minlength="12" maxlength="128" autocomplete="new-password" dir="ltr" disabled><button class="access-primary" type="submit" disabled>نوێکردنەوەی وشە</button><button id="reset-cancel" class="secondary-button" type="button" disabled>پاشگەزبوونەوە</button></form></section>
+<div class="employees-grid">
+<section class="employees-panel"><div class="employee-panel-heading"><div><h2 id="employee-form-title">زیادکردنی کارمەند</h2><p>زانیاریی هەژمار و دەسەڵاتەکان دیاری بکە.</p></div></div>
+<form id="employee-form">
+<fieldset class="employee-fieldset"><legend><span aria-hidden="true">01</span>زانیاریی کارمەند</legend>
+<div class="employee-form-grid"><div><label for="employee-name">ناوی کارمەند</label><input id="employee-name" required maxlength="100" autocomplete="off" disabled></div><div><label for="employee-store">ناوی دوکان بۆ کارمەند</label><input id="employee-store" required maxlength="100" disabled></div>
+<div><label for="employee-username">ناوی بەکارهێنەر</label><input id="employee-username" required minlength="3" maxlength="40" pattern="[a-zA-Z0-9][a-zA-Z0-9._-]{2,39}" dir="ltr" autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="employee-login-help" disabled></div>
+<div><label for="employee-password">وشەی نهێنیی کاتی</label><input id="employee-password" type="password" required minlength="12" maxlength="128" autocomplete="new-password" dir="ltr" aria-describedby="employee-login-help" disabled></div></div>
+<p id="employee-login-help" class="access-help">ناوی بەکارهێنەر بە پیتی ئینگلیزی؛ وشەی کاتی لانیکەم ١٢ پیت. کارمەند لە یەکەم چوونەژوورەوە وشەی خۆی دادەنێت.</p></fieldset>
+<fieldset class="employee-fieldset"><legend><span aria-hidden="true">02</span>ڕۆڵی کارمەند</legend><div class="employee-form-grid"><div class="wide"><label for="employee-role">ڕۆڵ</label><select id="employee-role" aria-describedby="employee-role-help" disabled><option value="cashier">کاشێر</option><option value="manager">بەڕێوەبەر</option></select></div></div><p id="employee-role-help" class="access-help">بەڕێوەبەر ڕاپۆرتی فرۆشتن و پسوولەکانی دوکان دەبینێت. تێچوو، قازانج و بەڕێوەبردنی کارمەندان تایبەتن بە خاوەن.</p></fieldset>
+<fieldset class="employee-fieldset"><legend><span aria-hidden="true">03</span>مۆڵەتە زیادەکان</legend>
+<div class="permission-grid">
+<label><input id="employee-discount" type="checkbox" disabled><span><strong>داشکاندن</strong><small>ڕێگە بە داشکاندن لە فرۆشتن بدە.</small></span></label>
+<label><input id="employee-credit" type="checkbox" disabled><span><strong>فرۆشتن بە قەرز</strong><small>تۆمارکردنی فرۆشتن بۆ کڕیاری قەرز.</small></span></label>
+<label><input id="employee-repay" type="checkbox" disabled><span><strong>وەرگرتنەوەی قەرز</strong><small>وەرگرتنی پارە لە کڕیاری قەرز.</small></span></label>
+<label><input id="employee-refund" type="checkbox" disabled><span><strong>گەڕاندنەوەی تەواو</strong><small>تەنها پسوولەی فرۆشتنی کاشی خۆی.</small></span></label>
+<label><input id="employee-partial" type="checkbox" disabled><span><strong>گەڕاندنەوەی بەشەکی</strong><small>بەشێک لە پسوولەی کاشی خۆی.</small></span></label></div></fieldset>
+<label class="employee-enabled"><input id="employee-enabled" type="checkbox" checked disabled><span>هەژمار چالاک بێت<small>بۆ ڕاگرتنی دەستگەیشتن، نیشانەکە لاببە.</small></span></label>
+<div class="employee-form-actions"><button id="employee-save" class="access-primary" type="submit" disabled>دروستکردنی هەژمار</button><button id="employee-reset" class="secondary-button" type="button" disabled>فۆڕمی نوێ</button></div>
+</form></section>
+<section class="employees-panel employee-directory"><div class="employee-panel-heading"><div><h2>کارمەندەکان</h2><p>هەژمار، دۆخی دەستگەیشتن و مۆڵەتەکان.</p></div><button id="employee-refresh" class="secondary-button" type="button" disabled>نوێکردنەوە</button></div>
+<div id="employee-list"></div><div id="employee-empty" class="employee-empty"><h3>لیستی کارمەندەکان</h3><p>دوای چوونەژوورەوە، لیستی کارمەندەکان لێرە دەردەکەوێت.</p></div>
+<p class="employee-directory-note">ڕاگرتنی هەژمار، مێژووی مامەڵەکانی کارمەند ناسڕێتەوە.</p></section>
+</div></main></body></html>
