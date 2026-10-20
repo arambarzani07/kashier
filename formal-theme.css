@@ -99,6 +99,7 @@
  .topbar>*,.header-links{min-width:0;max-width:100%}
  .header-links{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
  .topbar a{min-height:44px;display:inline-flex;align-items:center;justify-content:center;white-space:normal;overflow-wrap:anywhere;font-size:13px}
+ :is(.stocktake-page,.labels-page,.account-settings-page,.price-check-page) .topbar a{color:#344b66;font-size:13px}
  .topbar .logout{color:#344b66;background:#f0f3f7;border:1px solid #dce2e9;border-radius:5px;padding:8px 14px;font-size:13px;min-height:44px}
  .utilities button{width:44px;height:44px;min-width:44px}
  .side-nav a{font-size:14px;min-height:46px}.side-nav p{font-size:12px}
@@ -122,7 +123,11 @@
  .sale-page .section-heading>div{min-width:0}
  .sale-page .payment-panel{min-width:0}
  .sale-page td .delete-item{min-width:44px;height:44px}
- :is(.table-wrap,.count-table-wrap,.statement-table-wrap){max-width:100%;overscroll-behavior-inline:contain}
+ :is(.table-wrap,.count-table-wrap,.statement-table-wrap){position:relative;max-width:100%;min-width:0;overflow-x:auto;overscroll-behavior-inline:contain}
+ .table-wrap table{width:100%;border-collapse:collapse}
+ .table-wrap :is(th,td){padding:12px;border-bottom:1px solid #e0e6ee;text-align:right}
+ .sr-only{inset-inline-start:0;inset-block-start:0;padding:0;border:0;white-space:nowrap}
+ .sale-layout>:is(.cart-panel,.payment-panel){min-width:0}
  :is(.catalog-layout,.cash-main){max-width:1600px;margin-inline:auto;background:transparent}
  :is(.cash-totals span,.statement-totals span,.returns-summary span){font-size:13px;color:#56697f}
  :is(.count-actions,.confirm-actions,.returns-filter-actions,.catalog-pagination){gap:10px;flex-wrap:wrap}
