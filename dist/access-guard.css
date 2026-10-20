@@ -1,0 +1,1 @@
+.access-lock{position:fixed;bottom:14px;left:14px;z-index:1000;border:1px solid #c8d8dc;background:#fff;color:#265763;border-radius:30px;padding:10px 16px;box-shadow:0 4px 18px #19304614;font:12px Tahoma,Arial,sans-serif;cursor:pointer}.access-lock:focus-visible{outline:3px solid #20a5a6;outline-offset:3px}@media print{.access-lock{display:none}}

@@ -1,0 +1,54 @@
+-- Run inside a transaction, then roll back all fixtures.
+select set_config('qa.owner',gen_random_uuid()::text,true),set_config('qa.staff',gen_random_uuid()::text,true),set_config('qa.foreign',gen_random_uuid()::text,true),set_config('qa.sid',gen_random_uuid()::text,true),set_config('qa.staffsid',gen_random_uuid()::text,true),set_config('qa.rid',gen_random_uuid()::text,true);
+insert into auth.users(id,email) values(current_setting('qa.owner')::uuid,'access-owner-qa@example.invalid'),(current_setting('qa.foreign')::uuid,'access-foreign-qa@example.invalid');
+insert into auth.sessions(id,user_id,created_at) values(current_setting('qa.sid')::uuid,current_setting('qa.owner')::uuid,clock_timestamp());
+set local role service_role;
+select public.access_admin('bind',current_setting('qa.owner')::uuid,jsonb_build_object('_session',current_setting('qa.sid'),'username','qa_'||replace(current_setting('qa.owner'),'-',''),'name','QA owner'));
+select set_config('qa.body',jsonb_build_object('_session',current_setting('qa.sid'),'request_id',current_setting('qa.rid'),'username','qa_'||replace(current_setting('qa.staff'),'-',''),'name','QA cashier','store','QA store','role','cashier','enabled',true,'discount',false,'credit',false,'repay',false,'refund',false,'partial',false)::text,true);
+select public.access_admin('reserve',current_setting('qa.owner')::uuid,current_setting('qa.body')::jsonb);
+reset role;
+insert into auth.users(id,email) values(current_setting('qa.staff')::uuid,current_setting('qa.rid')||'@accounts.kashier.invalid');
+insert into auth.sessions(id,user_id,created_at) values(current_setting('qa.staffsid')::uuid,current_setting('qa.staff')::uuid,clock_timestamp());
+set local role service_role;
+select public.access_admin('finish',current_setting('qa.owner')::uuid,current_setting('qa.body')::jsonb);
+select public.access_admin('finish',current_setting('qa.owner')::uuid,current_setting('qa.body')::jsonb);
+do $$begin
+ if jsonb_array_length(public.access_admin('list',current_setting('qa.owner')::uuid,jsonb_build_object('_session',current_setting('qa.sid')))->'rows')<>1 then raise exception 'duplicate provisioning'; end if;
+ begin perform public.access_admin('reserve',current_setting('qa.owner')::uuid,current_setting('qa.body')::jsonb||'{"role":"manager"}');raise exception 'changed retry accepted';exception when raise_exception then if sqlerrm<>'access_conflict' then raise;end if;end;
+ begin perform public.access_admin('revoke',current_setting('qa.owner')::uuid,jsonb_build_object('_session',current_setting('qa.sid'),'user_id',current_setting('qa.foreign')));raise exception 'foreign revoke accepted';exception when raise_exception then if sqlerrm<>'access_denied' then raise;end if;end;
+end $$;
+reset role;
+select set_config('request.jwt.claims',jsonb_build_object('sub',current_setting('qa.staff'),'role','authenticated','session_id',current_setting('qa.staffsid'))::text,true);
+set local role authenticated;
+do $$begin
+ begin perform public.get_cashier_catalog(current_setting('qa.owner')::uuid);raise exception 'temporary password bypass';exception when raise_exception then if sqlerrm<>'access_denied' then raise;end if;end;
+ begin perform public.access_admin('password_done',auth.uid(),jsonb_build_object('_session',current_setting('qa.staffsid')));raise exception 'service rpc exposed';exception when insufficient_privilege then null;end;
+ begin perform public.save_store_cashier(gen_random_uuid(),current_setting('qa.foreign')::uuid,'Bad','Bad',false,true,0);raise exception 'legacy invite callable';exception when insufficient_privilege then null;end;
+end $$;
+reset role;set local role service_role;
+select public.access_admin('password_done',current_setting('qa.staff')::uuid,jsonb_build_object('_session',current_setting('qa.staffsid')));
+reset role;set local role authenticated;
+do $$begin
+ if public.get_cashier_catalog(current_setting('qa.owner')::uuid)->>'total'<>'0' then raise exception 'direct membership unavailable';end if;
+ begin perform public.get_dashboard_summary();raise exception 'cashier owner RPC bypass';exception when raise_exception then if sqlerrm<>'access_denied' then raise;end if;end;
+ begin insert into public.products(name,sale_price) values('Bad own product',100);raise exception 'cashier own table bypass';exception when insufficient_privilege then null;end;
+ begin perform public.get_manager_sales_report(current_setting('qa.owner')::uuid,current_date,current_date);raise exception 'cashier manager bypass';exception when raise_exception then if sqlerrm<>'staff_manager_required' then raise;end if;end;
+end $$;
+reset role;set local role service_role;
+select public.access_admin('update',current_setting('qa.owner')::uuid,current_setting('qa.body')::jsonb||jsonb_build_object('user_id',current_setting('qa.staff'),'version','1','role','manager'));
+reset role;set local role authenticated;
+select public.get_manager_sales_report(current_setting('qa.owner')::uuid,current_date,current_date);
+reset role;set local role service_role;
+select public.access_admin('revoke',current_setting('qa.owner')::uuid,jsonb_build_object('_session',current_setting('qa.sid'),'user_id',current_setting('qa.staff')));
+reset role;set local role authenticated;
+do $$begin begin perform public.get_cashier_catalog(current_setting('qa.owner')::uuid);raise exception 'revoked token accepted';exception when raise_exception then if sqlerrm<>'access_denied' then raise;end if;end;end $$;
+reset role;
+update auth.sessions set created_at=clock_timestamp()+interval '1 second' where id=current_setting('qa.staffsid')::uuid;
+set local role service_role;
+select public.access_admin('update',current_setting('qa.owner')::uuid,current_setting('qa.body')::jsonb||jsonb_build_object('user_id',current_setting('qa.staff'),'version','2','enabled',false));
+reset role;set local role authenticated;
+do $$begin begin perform public.get_cashier_catalog(current_setting('qa.owner')::uuid);raise exception 'suspended token accepted';exception when raise_exception then if sqlerrm<>'access_denied' then raise;end if;end;end $$;
+reset role;set local role anon;
+do $$begin begin perform public.access_admin('login',null,'{}');raise exception 'anonymous service rpc';exception when insufficient_privilege then null;end;end $$;
+reset role;
+select 'PASS: direct provisioning, replay identity, force password change, owner/cashier/manager isolation, retired invites, foreign mutation denial, immediate revoke and suspension' as verification;

@@ -5,8 +5,8 @@
   "outputDirectory": "dist",
   "routes": [
     {
-      "src": "/(?!maintenance\\.html$)(.*)",
-      "dest": "/maintenance.html",
+      "src": "/",
+      "dest": "/index.html",
       "headers": { "Cache-Control": "no-store" }
     },
     { "handle": "filesystem" }
