@@ -17,7 +17,7 @@ Only `request_id` (UUID), `name` (cashier label), `login_email` (individual acco
 - `createAuthUser`: `supabase.auth.admin.createUser({email,password,email_confirm:true})` **server-side only**, with privilege key in secure runtime environment; no `inviteUserByEmail` call. Email confirmation and initial-password policies must be reviewed before rollout.
 - `recordAuthIdentity`: durable mapping to the newly created Auth user, before membership activation.
 - `attachCashier`: exactly one cashier-only membership bound to authenticated owner, audited permissions, no extra manager. Use a reviewed SQL RPC. **Do not** satisfy legacy `accepted_at` merely by setting a timestamp without credential proof/first-login flow.
-- `markReady`: commit active state and membership consistently, after all validations. Invariant: a partly provisioned identity cannot post sales.
+- `markProvisioned`: record a disabled, credential-issued state without activating cashier access, after all validations. The cashier cannot post sales until a separate verified first-login password-change activation flow is deployed. Invariant: a partly provisioned identity cannot post sales.
 - `markForReconciliation`: durable recovery state for ambiguous Auth/DB successes, with cleanup **only after checking** whether Auth user or membership already exists. This implementation intentionally DOES NOT auto-delete identities or retry an uncertain Auth creation.
 
 ## Response guarantees
@@ -33,3 +33,11 @@ Only `request_id` (UUID), `name` (cashier label), `login_email` (individual acco
 Production remains in maintenance mode. Before implementing/deploying adapters, require reviewed backups, a successful isolated restore, verified complete schema replay, a durable provisioning-reservation migration, Auth transaction-reconciliation design, no-delegated-manager migration, first-login credential rotation enforcement, full authorization/financial tests and a staged pilot. Never introduce a service-role key into GitHub frontend assets.
 
 Source: `access-x/provisioning-core.cjs`. Tests: `tests/access-x-provisioning-core.test.cjs`.
+
+## New staged durable reservation design (2026-10-20)
+
+The source-only draft `access-x/drafts/provisioning-reservation-schema.sql` defines a service-only RLS-guarded request table with (owner_id, request_id) uniqueness, SHA-256 hash checks, a one-way compare-and-swap claim, Auth identity recording, guarded membership staging and reconciliation states. No Auth account, membership, password, business record or production schema was created/changed.
+
+**Not yet a migration.** The SQL has static policy/contract tests but has NOT been executed against a Postgres database, even in a transaction. It needs an isolated clean replay and exact privilege verification after backup/restore sign-off. The accompanying core now returns `provisioned_pending_activation` rather than falsely calling an unverified employee active; a replay never returns the initial secret again. The activation endpoint, credential rotation, a complete server adapter, and durable audit-on-transition safeguards remain unimplemented.
+
+**Security review required:** The draft service-role-only table sits in the `public` schema and must stay strictly inaccessible to anon/authenticated roles via grants and RLS; service_role itself has database-wide privileges and must only be used in trusted server code after independent JWT+manager verification. Never expose this SQL as a production API by itself. Ensure audit events are append-only before approval.

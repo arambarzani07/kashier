@@ -36,7 +36,7 @@ function contentHash(normalized){
 }
 function ensureDeps(deps){
  for(const key of ['verifySession','requirePrimaryManager','requireFreshAuthentication','reserve','claim',
-  'generateTemporaryPassword','createAuthUser','recordAuthIdentity','attachCashier','markReady','markForReconciliation']){
+  'generateTemporaryPassword','createAuthUser','recordAuthIdentity','attachCashier','markProvisioned','markForReconciliation']){
   if(typeof deps?.[key]!=='function')fail('server_adapter_missing');
  }
 }
@@ -58,9 +58,9 @@ async function provisionCashier(deps,{bearerToken,body}){
  const payloadHash=contentHash(request);
  // Durable unique (ownerId,requestId), atomic payload-hash conflict check and row lock/CAS are required.
  const slot=await deps.reserve({ownerId,requestId:request.requestId,payloadHash});
- if(!object(slot)||!['new','completed','pending','reconciliation'].includes(slot.state))fail('reservation_invalid');
+ if(!object(slot)||!['new','provisioned','pending','reconciliation'].includes(slot.state))fail('reservation_invalid');
  if(slot.payloadHash!==payloadHash)fail('request_conflict');
- if(slot.state==='completed')return Object.freeze({status:'already_created',memberId:slot.memberId});
+ if(slot.state==='provisioned')return Object.freeze({status:'already_provisioned',memberId:slot.memberId});
  if(slot.state==='pending')return Object.freeze({status:'pending'});
  if(slot.state==='reconciliation')return Object.freeze({status:'needs_reconciliation'});
  // A CAS claim may be lost to another concurrent invoker; NEVER duplicate auth.admin.createUser.
@@ -78,10 +78,10 @@ async function provisionCashier(deps,{bearerToken,body}){
   await deps.recordAuthIdentity({ownerId,requestId:request.requestId,memberId});
   // Durable membership transaction must enforce cashier-only, minimal permissions and audit actor.
   await deps.attachCashier({ownerId,memberId,requestId:request.requestId,
-    name:request.name,permissions:request.permissions,role:'cashier'});
-  await deps.markReady({ownerId,requestId:request.requestId,memberId});
+    name:request.name,permissions:request.permissions,role:'cashier',enabled:false,requiresFirstLogin:true});
+  await deps.markProvisioned({ownerId,requestId:request.requestId,memberId});
   // One-time credential: never saved in logs, database reservations or replay responses.
-  return Object.freeze({status:'created',memberId,temporaryPassword:password});
+  return Object.freeze({status:'provisioned_pending_activation',memberId,temporaryPassword:password});
  }catch(_err){
   // Auth and Postgres aren't atomic; uncertain writes MUST NOT trigger blind delete/retry.
   // Persist a recovery ticket even if createUser succeeded but its response was lost.

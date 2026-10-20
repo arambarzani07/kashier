@@ -22,8 +22,8 @@ function fake(options={}){
   async generateTemporaryPassword(){seen.push('password');return 'A'.repeat(36)+'!8';},
   async createAuthUser(){seen.push('createAuth');state.authCount++;if(options.failAt==='auth')throw Error('network ambiguous');return {id:randomUUID()};},
   async recordAuthIdentity(){seen.push('recordAuth');if(options.failAt==='record')throw Error('database down');},
-  async attachCashier(p){seen.push('attach');state.attachCount++;assert.equal(p.role,'cashier');if(options.failAt==='attach')throw Error('database down');},
-  async markReady({ownerId,requestId,memberId}){seen.push('ready');if(options.failAt==='ready')throw Error('ambiguous commit');const slot=store.get(ownerId+'/'+requestId);slot.state='completed';slot.memberId=memberId;},
+  async attachCashier(p){seen.push('attach');state.attachCount++;assert.equal(p.role,'cashier');assert.equal(p.enabled,false);assert.equal(p.requiresFirstLogin,true);if(options.failAt==='attach')throw Error('database down');},
+  async markProvisioned({ownerId,requestId,memberId}){seen.push('provisioned');if(options.failAt==='ready')throw Error('ambiguous commit');const slot=store.get(ownerId+'/'+requestId);slot.state='provisioned';slot.memberId=memberId;},
   async markForReconciliation({ownerId,requestId}){seen.push('review');state.review++;if(options.failReview===true)throw Error('cannot persist');store.get(ownerId+'/'+requestId).state='reconciliation';}
  };
  return {deps,seen,state,store};
@@ -44,11 +44,11 @@ test('normalization is fixed-scope and never accepts client owner, role, passwor
 });
 test('a fully authorized primary manager creates a cashier, with server-generated one-time password',async()=>{
  const f=fake();const v=await provisionCashier(f.deps,{bearerToken:token,body:makeBody()});
- assert.equal(v.status,'created');assert.equal(v.temporaryPassword.length,38);
+ assert.equal(v.status,'provisioned_pending_activation');assert.equal(v.temporaryPassword.length,38);
  assert.equal(f.state.authCount,1);assert.equal(f.state.attachCount,1);
- assert.deepEqual(f.seen,['verify','manager','reauth','reserve','claim','password','createAuth','recordAuth','attach','ready']);
+ assert.deepEqual(f.seen,['verify','manager','reauth','reserve','claim','password','createAuth','recordAuth','attach','provisioned']);
  const replay=await provisionCashier(f.deps,{bearerToken:token,body:makeBody()});
- assert.equal(replay.status,'already_created');assert.equal(replay.temporaryPassword,undefined);
+ assert.equal(replay.status,'already_provisioned');assert.equal(replay.temporaryPassword,undefined);
  assert.equal(f.state.authCount,1);
 });
 test('delegated manager, anonymous actor and stale authentication cannot provision or invoke Auth admin',async()=>{
