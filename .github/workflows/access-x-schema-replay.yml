@@ -53,6 +53,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Replay production migration files into a disposable database
+        env:
+          ACCESS_X_PG_CONTAINER_ID: ${{ job.services.postgres.id }}
         run: bash scripts/access-x-schema-replay.sh
       - name: Upload sanitized schema replay report
         if: always()
