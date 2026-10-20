@@ -2,6 +2,13 @@
 
 Latest runtime: `6b8e3f5e75737a49e23d4385be0a9046543c1788`, production deployment `dpl_BtoWpeb4kQw9tjmppNbSqcErph89`, READY on Node 24; build 14.1 seconds.
 
+## Sales desk follow-up
+
+The sales workspace now emphasizes barcode entry, line quantities and totals, received cash, change and the posting action. Tender buttons use 44px touch targets. At widths up to 1000px checkout follows the basket in a single column; narrow phones get a full-width search action. Desktop baskets scroll within a capped table with a sticky header, while the surrounding controls remain in normal document flow. Changes are screen-only and scoped to the sales workspace; financial logic, authorization and printing are unchanged.
+
+Validation: all 82 regression test files passed after the styling changes. After simplifying the table scroll container, static source/output parity and whitespace checks passed. Cloud Browser rejected the localhost preview with ERR_BLOCKED_BY_CLIENT, so visual verification at desktop/mobile widths remains pending. This change has not been published.
+
+
 ## Scope and corrections
 
 Reviewed the shared styles and HTML structure of all 60 operational screens. Corrected white header links on white backgrounds (stocktake/report, label, account and price-check families), the invisible catalogue logout button, non-wrapping header navigation, small shared controls and supporting text, inconsistent panel/table treatment and modal scrolling. Keyboard focus indicators and narrow-screen form wrapping now follow shared rules.

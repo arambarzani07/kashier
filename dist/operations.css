@@ -49,3 +49,50 @@
   .sale-workspace .scan-shortcuts{flex-wrap:wrap;gap:12px}
  }
 }
+
+/* Sales desk: clear scan entry, readable line items and a distinct checkout. */
+@media screen {
+ .sale-workspace .sale-layout{gap:24px}
+ .sale-workspace .cart-panel{border-top:3px solid #607b96}
+ .sale-workspace .payment-panel{border-top:3px solid #263e59}
+ .sale-workspace .scan-form{padding-block:24px;background:#f4f7fb}
+ .sale-workspace .scan-form label{font-size:15px;color:#263e59}
+ .sale-workspace .scan-form input{min-height:56px;font-size:18px;border-color:#a6b7ca;box-shadow:0 1px 2px #263e5908}
+ .sale-workspace .scan-form button{min-height:56px;min-width:86px}
+ .sale-workspace .table-wrap{position:relative}
+ .sale-workspace .table-wrap th{font-size:13px;color:#435b75;background:#edf2f7}
+ .sale-workspace .table-wrap td{font-size:15px;line-height:1.8}
+ .sale-workspace .table-wrap td strong{overflow-wrap:anywhere}
+ .sale-workspace .table-wrap td small{font-size:12px;color:#586e86}
+ .sale-workspace .table-wrap td:nth-child(4){font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+ .sale-workspace .table-wrap td input{font-size:16px;min-height:44px;font-variant-numeric:tabular-nums}
+ .sale-workspace .table-wrap tbody tr:focus-within{background:#f0f5fb}
+ .sale-workspace .empty-cart{flex:1;min-height:280px}
+ .sale-workspace .empty-cart h2{font-size:19px;color:#435b75}
+ .sale-workspace .payment-title h2{font-size:22px}
+ .sale-workspace .grand-total{padding:22px;margin-block:22px;gap:8px}
+ .sale-workspace .grand-total span{color:#e1e9f3}
+ .sale-workspace .grand-total strong{font-size:40px;line-height:1.4}
+ .sale-workspace #received{min-height:54px;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;border-color:#9aadc3}
+ .sale-workspace .tender-pad button{min-height:44px;font-size:13px}
+ .sale-workspace #tender-exact{background:#263e59;border-color:#263e59}
+ .sale-workspace .tender-pad small{font-size:12px;color:#566a80}
+ .sale-workspace .balance{min-height:58px;font-size:13px;flex-wrap:wrap}
+ .sale-workspace .balance strong{font-size:26px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;min-width:0}
+ .sale-workspace .complete-sale{min-height:56px;font-size:17px}
+ .sale-workspace .sale-shortcuts summary{min-height:44px;padding-block:8px}
+ @media(min-width:1001px){
+  .sale-workspace .cart-panel>.table-wrap{max-height:55dvh;overflow:auto}
+  .sale-workspace .table-wrap thead{position:sticky;top:0;z-index:1}
+ }
+ @media(max-width:1000px){
+  .sale-workspace .sale-layout{grid-template-columns:minmax(0,1fr);gap:18px}
+  .sale-workspace .cart-panel{min-height:480px}
+ }
+ @media(max-width:460px){
+  .sale-workspace .scan-form>div{flex-wrap:wrap}
+  .sale-workspace .scan-form input{flex-basis:100%;width:100%;font-size:16px}
+  .sale-workspace .scan-form button{width:100%;min-height:44px}
+  .sale-workspace .grand-total strong{font-size:36px}
+ }
+}
