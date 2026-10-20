@@ -1,0 +1,50 @@
+name: Access X isolated schema replay
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'tests/access-x-replay-bootstrap.sql'
+      - 'scripts/access-x-schema-replay.sh'
+      - '.github/workflows/access-x-schema-replay.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  schema-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: isolated-ci-only
+          POSTGRES_DB: kashier_replay
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d kashier_replay"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGDATABASE: kashier_replay
+      PGPASSWORD: isolated-ci-only
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replay production migration files into a disposable database
+        run: bash scripts/access-x-schema-replay.sh
+      - name: Upload sanitized schema replay report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: access-x-isolated-schema-replay
+          path: access-x-schema-replay-report.txt
+          if-no-files-found: warn
+          retention-days: 3

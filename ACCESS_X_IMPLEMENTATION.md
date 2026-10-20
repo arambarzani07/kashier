@@ -138,3 +138,7 @@ The previous `main` deployment failed because the Vercel project build command r
 - Drafted `access-x/drafts/provisioning-reservation-schema.sql` with service-role-only reserved/claimed/identity_created/provisioned/reconciliation transitions, server-origin authorization contract and one-way concurrency claim. No production DDL has been applied; the draft has only static checks, **not** an isolated Postgres execution test.
 - Updated the server-only provisioning core to refuse calling a newly provisioned cashier "ready" before credentials are proven and rotated. Membership must be recorded disabled, not accepted/activated on issuance.
 - Added `tests/access-x-provisioning-schema.test.cjs` to CI to guard draft permission patterns and ensure it stays outside `supabase/migrations`. Durable production adapters, event immutability, token freshness, real isolated SQL tests, off-site backup + restore and user activation are still missing.
+
+## Gate 1: isolated schema replay harness (2026-10-20)
+
+Added a GitHub Actions runner with disposable PostgreSQL 17 and a minimal Supabase Auth stub to replay the 72 historic migration files and compare relation/function/policy/trigger counts. This is a **schema-only test**, not a backup, not a real restore, and does not authorize release. See `ACCESS_X_RECOVERY_GATE.md`. Test status must be checked in the Actions run, not inferred from the existence of this document. Production backup inventory and isolated *real-data* restore remain unavailable/unverified.
