@@ -9,11 +9,12 @@ fallback=fallback.replace('</head>','<style id="unified-design-inline">'+fs.read
 fs.writeFileSync(fallbackPath,fallback);
 const allowed=new Set(['preferences.js','home-navigation.js','app.js','returns-tile.js','quick-return-tile.js','purchase-returns-tile.js']);
 const screens=[['index.html','design-preview.html','سەرەکی'],['staff.html','employees-preview.html','کارمەندان و دەسەڵات'],['sale.html','sale-preview.html','فرۆشتن'],['products.html','products-preview.html','کاڵاکان'],['purchase.html','purchase-preview.html','کڕین'],['statement.html','statement-preview.html','کەشف حساب'],['stocktake.html','stocktake-preview.html','جەرد'],['returns.html','returns-preview.html','گەڕاندنەوەکان'],['settings.html','settings-preview.html','ڕێکخستن'],['auth.html','auth-preview.html','چوونەژوورەوە'],['customer.html','customer-preview.html','کڕیار'],['supplier.html','supplier-preview.html','دابینکەر'],['cash.html','cash-preview.html','سندوق'],['export.html','export-preview.html','باکئەپ'],['restore.html','restore-preview.html','گەڕاندنەوەی باکئەپ'],['product-import.html','import-preview.html','هاوردەی کاڵا'],['sales-report.html','sales-report-preview.html','ڕاپۆرتی فرۆشتن'],['gross-profit.html','profit-preview.html','قازانجی فرۆشتن'],['inventory-valuation.html','valuation-preview.html','بەهای کۆگا'],['price-check.html','price-check-preview.html','پشکنینی نرخ'],['labels.html','labels-preview.html','لیبڵ و بارکۆد']];
+const previewLabels={'purchase-receipt.html':'پسوولەی کڕین','receipt.html':'پسوولەی فرۆشتن','staff-partial.html':'گەڕاندنەوەی بەشێک — کاشێر','staff-refund.html':'گەڕاندنەوەی تەواو — کاشێر'};
 // Every operational source has an isolated visual preview, including less-used reports.
 for(const source of fs.readdirSync(root).filter(name=>name.endsWith('.html')&&!name.includes('preview')&&name!=='design-review.html').sort()){
  if(screens.some(([name])=>name===source))continue;
  const sourceHtml=fs.readFileSync(path.join(root,source),'utf8');
- const label=(sourceHtml.match(/<title>([\s\S]*?)<\/title>/)?.[1]||source).replace(/^کاشێر\s*[—–-]\s*/, '');
+ const label=previewLabels[source]||(sourceHtml.match(/<title>([\s\S]*?)<\/title>/)?.[1]||source).replace(/^کاشێر\s*[—–-]\s*/, '');
  screens.push([source,source.replace(/\.html$/,'-preview.html'),label]);
 }
 function finalTheme(page){return page.replace(/<link rel="stylesheet" href="unified-design.css">/g,'').replace('</head>','<link rel="stylesheet" href="unified-design.css"></head>');}
