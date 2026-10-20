@@ -95,3 +95,27 @@ This closes the **migration-file inventory mismatch only**. It does not prove th
 The previous `main` deployment failed because the Vercel project build command referenced absent `scripts/release-check.cjs`. This release restores that path with a **maintenance-only, fail-closed validator**, adds identical top-level and `dist/maintenance.html`, and sets the proven maintenance-only Vercel routing pattern. The build checks self-contained maintenance output and rejects script/form embedding or unauthorized app paths; it deliberately does **not** publish cashier UI. New `tests/maintenance-deploy.test.cjs` protects the route contract in GitHub CI.
 
 **Release warning:** The current `main` `dist` directory is incomplete and is not a full application production build. Do not remove the maintenance rewrite until source/output parity, complete functional CI, reviewed authorization cutover, and owner acceptance. The full frontend/staff functionality on the separate development branch is not merged by this migration recovery.
+
+## Gate 1 checkpoint — role isolation, schema fingerprint, and recovery blockers (2026-10-20)
+
+### Live test evidence
+
+- `tests/access-x-manager-rls.sql`: **PASS** using four synthetic Auth users *inside one rollback-only transaction*. Manager read of own market sales report succeeded, cross-market access failed, ordinary cashier access to a manager-only report failed, and manager-to-cashier downgrade removed access immediately. The manager's own account dashboard remained outside the membership's scope. SQL run creates **no persistent staff or business data**.
+- `tests/access-x-schema-fingerprint.sql`: **PASS** in a read-only transaction. Reviewed live Postgres `public` and `private` catalog: **35 relations (tables/views), 148 routines, 36 RLS policies, 7 noninternal triggers, 139 indexes, 291 constraints and 2 schema ACL records**. The script fingerprints definitions, relation attributes/options/ACLs, policy roles/expressions, indexes, constraints, triggers and schema ACLs and fails on drift.
+- Fingerprint verification is a **baseline integrity warning**, NOT a full schema-vs-clean-migration comparison. An intentional schema migration must be reviewed and re-baselined; the hash itself is not a backup.
+- Live `public` views are `security_invoker=true` (four views); all public SQL RPCs are `SECURITY INVOKER`, and none grant direct `EXECUTE` to `anon`. RLS remains enabled on all ordinary `public` tables.
+
+### Access-model gaps to resolve before release
+
+1. Existing database distinguishes the primary `owner_id` (which controls core ledger and catalog via RLS) from a `store_cashiers.role='manager'` membership. A manager member currently gets guarded sales read/report endpoints, **not** all owner administrative rights. Define whether a manager membership should *ever* exist when the product requires a single primary manager, and migrate/limit carefully. Do not reassign data ownership by simply changing `role`.
+2. Manager-created staff with **no invitation** is not available yet. Existing `private.save_store_cashier` accepts only existing `auth.users` and `private.accept_store_cashier` requires employee acceptance. Server-controlled Auth provisioning and employee-owned credentials are required; never put privileged keys in browser code.
+3. Grant hygiene: `private.post_supplier_purchase_payment` currently inherits `EXECUTE` for `anon` via default `PUBLIC` function privilege, but **anon has no USAGE on the private schema**, so it is not an exposed anonymous Data API RPC. Explicitly `REVOKE EXECUTE ON FUNCTION ... FROM PUBLIC, anon` in a reviewed future migration and preserve required authenticated access; do not modify privileges until backup and restore gates pass.
+4. The live Supabase security advisor still reports leaked-password checking disabled. Enable in the Auth project configuration as a separate review action: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection. The private restore receipts no-RLS-policy INFO should be reviewed against intended internal-only usage, not fixed by permissive public policy.
+
+### Backup and restore gate (NOT passed)
+
+- No existing Supabase development branch was found during this inspection. This connector does **not** expose a scheduled-backups inventory or produce a verified full Postgres backup, so backup coverage **has not been confirmed**. An application export is not equivalent to a physical/logical database backup.
+- Using the Supabase Dashboard, check [Database Backups](https://supabase.com/dashboard/project/dhfyqxdfwhxlipbsasqf/database/backups/scheduled), retention and recovery availability. If the project's plan has no scheduled backups, create a secure `supabase db dump` / `pg_dump` to a **private** encrypted destination off the production service; never commit user/financial data, credentials or dumps to GitHub.
+- Before enabling new roles: restore into a separately isolated local/test Postgres (no production writes), replay the 72 historic migrations there, compare `pg_dump --schema-only` results and verify representative anonymized account/ledger balances and referential integrity. Provisioning a paid Supabase branch requires an explicit cost agreement; none was created here.
+
+**Release gate remains closed.** Do not re-enable auth, financial posting screens, or offline PIN unlock until schema equivalence and restore verification are proven.
