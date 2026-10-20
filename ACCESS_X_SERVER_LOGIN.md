@@ -38,3 +38,15 @@ This adapter directly implements the *authentication-only* boundaries of the exi
 - Real deployment still blocked by the production backup/restore gate; Vercel continues to return maintenance HTML. The \`/api/access-x/login\` endpoint is **not deployed**.
 
 Supabase documentation: https://supabase.com/docs/guides/auth/passwords and https://supabase.com/docs/guides/auth/server-side/advanced-guide
+
+## Opaque session verification — STAGED 2026-10-20
+
+Added \`access-x/server/session-core.cjs\` and \`tests/access-x-session-core.test.cjs\`. This provides a **server-only** cryptographically generated 256-bit base64url session token, with only its SHA-256 fingerprint passed to a required durable storage adapter. No plaintext session secret, refresh token or password is stored in this module.
+
+- A successful verified user/role can receive an opaque, owner+market+role-bound, **10-minute** (configurable 60-900 seconds) session. The cookie shape must match \`__Host-kashier_access_x\`, as the existing default-disabled HTTP handler already sets.
+- \`verifySession(cookieHeader)\` rejects duplicate/malformed cookies, invalid scopes, expired/revoked sessions and expired records with impossible lifetimes. It calls \`requireCurrentAccess()\` **fresh on every request**; if a cashier is disabled or membership revoked, access is denied and the stored session is revoked.
+- \`revokeSession(cookieHeader)\` is available for an explicit future signout endpoint. This module does NOT itself implement a public HTTP handler, browser routes or an in-memory production fallback.
+- The **production backing store, durable atomic insert/lookup/revoke implementation, live owner/cashier authorization registry, session refresh strategy and protected route guards remain unimplemented**. The unit tests inject an isolated mock store only.
+- Supabase JWT sessions are distinct from this app's short-lived opaque sessions. A valid Supabase Auth token *alone* does not grant market access. Production rollout must decide how to honor Supabase session revocation, password changes and any active \`auth.sessions\` invalidation, in addition to Kashêr's own DB membership checks.
+
+Reference: https://supabase.com/docs/guides/auth/sessions and https://supabase.com/docs/guides/auth/signout. Production maintenance and unresolved real backup gate remain unchanged.
