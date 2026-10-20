@@ -23,7 +23,7 @@ docker exec -e PGPASSWORD="$PGPASSWORD" "$ACCESS_X_PG_CONTAINER_ID" \
 [[ -s "$tmp/recovery.custom" ]] || { echo 'Synthetic dump empty' >&2; exit 1; }
 createdb --template=template0 kashier_restore_check
 psql -X -v ON_ERROR_STOP=1 -q -d kashier_restore_check -c \
- 'create schema extensions; create extension if not exists pgcrypto with schema extensions; create extension if not exists "uuid-ossp" with schema extensions;' >/dev/null
+ 'drop schema if exists public cascade; create schema extensions; create extension if not exists pgcrypto with schema extensions; create extension if not exists "uuid-ossp" with schema extensions;' >/dev/null
 docker exec -i -e PGPASSWORD="$PGPASSWORD" "$ACCESS_X_PG_CONTAINER_ID" \
  pg_restore --host=127.0.0.1 --username=postgres \
  --exit-on-error --single-transaction --no-owner --no-acl \
