@@ -21,7 +21,7 @@ function requireAdapter(adapter){
   if(typeof adapter?.[name]!=='function')throw new LoginError('unconfigured');
 }
 function assessAccess(user,access){
- // Strict server-derived DB authority: no JWT user_metadata, unverified role, or arbitrary
+ // Strict server-derived DB authority: no untrusted user-editable JWT claims, unverified role, or arbitrary
  // client-selected market. Multiple market memberships require an explicit separate design.
  if(!access||typeof access!=='object'||Array.isArray(access))return 'denied';
  if(access.state==='password_change_required'){
