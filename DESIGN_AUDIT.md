@@ -1,6 +1,6 @@
 # Shared design audit — 2026-10-20
 
-Latest runtime: `283478286c9fb417bedb592a97bb936f633edea0`, production deployment `dpl_2UDGn2X45d9qm2zQYtTedWVB1sGN`, READY on Node 24; build 12.6 seconds.
+Latest runtime: `d9d5fcd34097134531d8330e7a581b1d13e05a1b`, production deployment `dpl_8wnjj64UmSPA9sVJYt9GvSHYVpD3`, READY on Node 24; build 16.6 seconds.
 
 ## Scope and corrections
 
@@ -41,3 +41,9 @@ All 82 release test files passed again. Import, sales report, gross profit and i
 Price scanning now uses a 20px search field and unified actions. Price output can wrap unusually long values. Label setup uses shrinkable grid tracks, readable form labels and a single column on smaller screens; queue items and print actions wrap consistently. All added feature CSS is inside screen media queries. Existing feature rules are retained verbatim; barcode generation, physical label dimensions and print rules are unchanged.
 
 All 82 release test files passed. Two additional templates passed four iframe widths (8 cases), with no page overflow, undersized visible buttons or enabled preview controls. The scan field measured 20px at each width. Results: `docs/label-layout-audit-2026-10-20.json`. Label setup was visually inspected. No actual scanner, price record or physical printer was exercised.
+
+## Receipt and return-screen follow-up
+
+Receipt screen actions, summary wrapping and return-line controls were refined. Return filter labels/actions are larger, and desktop purchase-return filters use four shrinkable columns instead of a fixed-width eight-column row. Original CSS and print rules remain intact; additions are screen-only. No financial JavaScript or permissions were changed.
+
+The local execution environment and cloud browser were unavailable. The Opera connector also reported Browser not connected. No local or rendered-browser verification is claimed. Production build logs confirmed all 82 regression files and static parity checks passed (83 pages, 263 assets, 1522 references); stable-alias receipt/purchase-return CSS fetched successfully with the new rules. Visual review, real populated receipts and physical printing remain unverified for this pass.
