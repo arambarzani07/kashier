@@ -83,3 +83,15 @@ These are baseline regression checks, **not** an independent security penetratio
 ## Operational commands
 
 With an authorized SQL connection, run the two scripts in `tests/`; each ends in `ROLLBACK`. GitHub CI currently executes Node tests only and **does not execute DB authorization tests without a supplied isolated test database**. Do not run migration write tests against real market records.
+
+## Gate 1 checkpoint — migration history reconciled on 2026-10-20
+
+**Observed: 72 applied migration history rows and 72 corresponding SQL files.** The `main` branch only held 48 files. The 24 missing *already applied* migration files were recovered byte-for-byte from the project's existing `fix/localized-allocation-amounts` branch and committed to `main` unchanged. These include installments, inventory costing, staff RPCs and daily cash close. **No SQL was executed/applied as part of this repository recovery**, and this is not a schema-change deployment. `supabase/applied-migrations-20261020.txt` is the verified server history inventory, and CI's `tests/migrations-baseline.test.cjs` checks that it still matches the repository. If newer migrations are intentionally added, update the baseline after applying and verifying them; do not update the baseline merely to hide drift.
+
+This closes the **migration-file inventory mismatch only**. It does not prove that every SQL function, view, trigger, policy, grant or schema object currently in the live database exactly matches the text of its recorded migration (ad hoc DDL could also have changed them). Preserve a full `pg_dump --schema-only` / `supabase db pull` and compare against clean replay in a separate isolated database before any privilege cutover. Backup/restore rehearsal is still pending. Do **not** automatically run these historic migrations again on the live database.
+
+### Production publishing guard
+
+The previous `main` deployment failed because the Vercel project build command referenced absent `scripts/release-check.cjs`. This release restores that path with a **maintenance-only, fail-closed validator**, adds identical top-level and `dist/maintenance.html`, and sets the proven maintenance-only Vercel routing pattern. The build checks self-contained maintenance output and rejects script/form embedding or unauthorized app paths; it deliberately does **not** publish cashier UI. New `tests/maintenance-deploy.test.cjs` protects the route contract in GitHub CI.
+
+**Release warning:** The current `main` `dist` directory is incomplete and is not a full application production build. Do not remove the maintenance rewrite until source/output parity, complete functional CI, reviewed authorization cutover, and owner acceptance. The full frontend/staff functionality on the separate development branch is not merged by this migration recovery.
