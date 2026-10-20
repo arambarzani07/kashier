@@ -20,3 +20,5 @@ The remaining installment/profit dashboard tiles still show unavailable-module U
 - Access X login server (staged): server-side GoTrue password adapter, authoritative role/session contract and SameSite/HttpOnly cookie HTTP handler drafted and covered by isolated Node tests. **No backend route, live role resolver, durable rate limiter or session store is deployed.** Login remains maintenance-locked and real backup/restore remains unverified.
 
 - Access X login backend (staged 2026-10-20): secured server-only core and Supabase Auth provider adapter with 15 isolated tests, but NO deployed API or durable role/session adapters. See `ACCESS_X_LOGIN_BACKEND.md`. Backup/release gate still closed.
+
+- Access X server login core STAGED: fail-closed, identity + DB role verification contract, no account self-registration, first-login rotation requirement, manager AAL2 assurance, short-lived HttpOnly sessions. **No live HTTP endpoint/actual DB adapters**. Maintained maintenance routing; see `ACCESS_X_SERVER_LOGIN.md`.
