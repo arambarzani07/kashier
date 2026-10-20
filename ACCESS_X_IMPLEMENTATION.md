@@ -119,3 +119,10 @@ The previous `main` deployment failed because the Vercel project build command r
 - Before enabling new roles: restore into a separately isolated local/test Postgres (no production writes), replay the 72 historic migrations there, compare `pg_dump --schema-only` results and verify representative anonymized account/ledger balances and referential integrity. Provisioning a paid Supabase branch requires an explicit cost agreement; none was created here.
 
 **Release gate remains closed.** Do not re-enable auth, financial posting screens, or offline PIN unlock until schema equivalence and restore verification are proven.
+
+## Gate 1 checkpoint — single primary manager and staff administration (2026-10-20)
+
+- **PASS**: `tests/access-x-admin-rls.sql` runs authenticated owner/cashier/delegated manager sessions in a synthetic rolled-back transaction; request replay is idempotent, payload conflict and stale versions rejected, member roles cannot mutate owner-controlled staff, owner disable revokes privileged cashier catalog reads. The test does **not** claim a cashier is unable to be the owner of their own separate account.
+- **PASS**: `tests/access-x-two-role-preflight.sql` verified no existing delegated manager membership needs migration (live membership count: 0). This is a read-only preflight, **not** future-role enforcement; current manager member creation is still possible until the coordinated cutover.
+- Target business model, manager-created cashier without invitation, activation/security constraints and the full two-role permission matrix are in `ACCESS_X_ROLE_CONTRACT.md`.
+- Backup inventory and isolated restore remain **unverified**. No server Auth or RLS modification was applied; maintenance UI remains on.
