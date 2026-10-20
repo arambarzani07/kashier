@@ -1,6 +1,6 @@
 # Shared design audit — 2026-10-20
 
-Latest runtime: `d9d5fcd34097134531d8330e7a581b1d13e05a1b`, production deployment `dpl_8wnjj64UmSPA9sVJYt9GvSHYVpD3`, READY on Node 24; build 16.6 seconds.
+Latest runtime: `6b8e3f5e75737a49e23d4385be0a9046543c1788`, production deployment `dpl_BtoWpeb4kQw9tjmppNbSqcErph89`, READY on Node 24; build 14.1 seconds.
 
 ## Scope and corrections
 
@@ -47,3 +47,9 @@ All 82 release test files passed. Two additional templates passed four iframe wi
 Receipt screen actions, summary wrapping and return-line controls were refined. Return filter labels/actions are larger, and desktop purchase-return filters use four shrinkable columns instead of a fixed-width eight-column row. Original CSS and print rules remain intact; additions are screen-only. No financial JavaScript or permissions were changed.
 
 The local execution environment and cloud browser were unavailable. The Opera connector also reported Browser not connected. No local or rendered-browser verification is claimed. Production build logs confirmed all 82 regression files and static parity checks passed (83 pages, 263 assets, 1522 references); stable-alias receipt/purchase-return CSS fetched successfully with the new rules. Visual review, real populated receipts and physical printing remain unverified for this pass.
+
+## Review iframe loading and navigation follow-up
+
+The review tool now keeps a loading state until the selected frame completes loading, ignores stale load events during rapid selection, and resizes without restarting navigation. Links between known previews synchronize the selector and frame title. Unknown or inaccessible pages are not described as loaded previews. A retry button reloads the selected static preview.
+
+Six VM/DOM-harness regressions cover initial and preloaded frames, rapid selection, resize while pending, internal preview navigation, unknown/cross-origin frames and unsupported selection values. Production build logs confirmed all 83 test files passed, including static parity. The stable design-review.js asset contains the new handlers. No local runtime or interactive browser was available; rendered browser acceptance remains open. No account, database or financial APIs are used by this tool.
