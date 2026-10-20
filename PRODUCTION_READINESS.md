@@ -4,6 +4,8 @@
 
 ### Navigation and visual organization
 
+The subsequent formal styling pass uses a navy/white palette with restrained bronze accents, a dark primary navigation, flatter compact module cards, underlined category tabs and direct management headings. One screen-only stylesheet covers all 60 operational HTML pages and the generated public design preview, including login and employee administration. It changes presentation only and retains the existing print rules, navigation/search behavior and access controls.
+
 The dashboard now has a clear primary navigation, prominent employee-administration shortcut, persistent module search and five task categories. All original modules and return shortcuts remain reachable; stock, employee administration and daily close now have direct dashboard entries. Shared screen-only styling unifies headers, forms, cards and report controls across 58 existing screens. Receipt/report print styles and financial logic are unchanged. Mobile layouts use a horizontal navigation strip and two-column module cards, with larger touch controls.
 
 `design-preview.html` is a public, navigation-only visual preview generated from the real dashboard. It deliberately omits Auth/database/account scripts and financial summaries; it is not a signed-in workspace or a source of business data. Real operational pages retain authentication and database permission enforcement.
