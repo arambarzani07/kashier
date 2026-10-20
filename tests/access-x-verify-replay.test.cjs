@@ -34,3 +34,22 @@ test('parity verifier refuses missing, duplicate or unexpected replay metadata',
  assert.throws(()=>verifyReport(duplicate,defs,rights,baseline),/Duplicate/);
  assert.throws(()=>verifyReport(rights.trim(),defs,rights,baseline),/schema object definition/);
 });
+
+function completeSyntheticReport(){
+ const metadata=defs.trim().split('\n').map(line=>line.replace(/^AX_DEF\|/,'AX_META|')+'|00000000000000000000000000000000');
+ const sources=Object.entries(baseline).map(([name,tokens])=>
+  'AX_FUNCTION_SOURCE|'+name+'()|'+Buffer.from(tokens.join(' '),'utf8').toString('hex'));
+ return [...rights.trim().split('\n'),...metadata,...sources].join('\n');
+}
+test('full baseline accepts only reviewed grants, exact object definitions and SQL source tokens',()=>{
+ const report=completeSyntheticReport();
+ assert.deepEqual(verifyReport(report,defs,rights,baseline),{rights:221,definitions:214,tokenizedFunctions:7});
+ const grant=report.replace('AX_SEM|','AX_SEM|modified-');
+ assert.throws(()=>verifyReport(grant,defs,rights,baseline),/effective grants or policy targets/);
+ const definition=report.replace(/AX_META\|([^|]+)\|([^|]+)\|[a-f0-9]{32}/,
+  'AX_META|$1|$2|ffffffffffffffffffffffffffffffff');
+ assert.throws(()=>verifyReport(definition,defs,rights,baseline),/schema object definition/);
+ const functionChange=report.replace(/AX_FUNCTION_SOURCE\|([^|]+)\|([a-f0-9]{2})/,
+  'AX_FUNCTION_SOURCE|$1|aa');
+ assert.throws(()=>verifyReport(functionChange,defs,rights,baseline),/SQL function tokens diverged|Malformed function source|Unclosed literal/);
+});
