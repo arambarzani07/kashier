@@ -13,6 +13,10 @@ on:
       - 'tests/access-x-effective-rights.sql'
       - 'tests/access-x-compare-function-source.sql'
       - 'tests/access-x-semantic-rights-20261020.txt'
+      - 'tests/access-x-object-definitions-20261020.txt'
+      - 'tests/access-x-function-tokens-20261020.json'
+      - 'scripts/access-x-verify-replay.cjs'
+      - 'tests/access-x-verify-replay.test.cjs'
       - 'scripts/access-x-schema-replay.sh'
       - '.github/workflows/access-x-schema-replay.yml'
 

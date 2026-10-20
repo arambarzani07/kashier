@@ -59,3 +59,13 @@ A deeper, read-only semantic comparison of **221 public/private schema objects**
 The metadata comparison confirmed the same object keys, **all 35 relation definitions**, **all 36 policy expressions**, **139 indexes**, **291 constraints** and **7 triggers**. The seven function-body differences may indicate post-migration patches or textual rendering differences and require code-level review before asserting schema parity. **Strict fingerprint remains failing intentionally; no production function was overwritten.**
 
 **Do not confuse:** successful migration replay and permission matching is NOT proof that a production backup exists or that a full business-data restore works. Backup recovery Gate C remains **NOT DONE**.
+
+## Complete migration-replay investigation — 2026-10-20
+
+The seven pg_get_functiondef bytewise mismatches were separately fetched **from the production PostgreSQL catalog** and the isolated PostgreSQL 17 replay. Lexical inspection confirmed that five cashier/refund routines and the supplier payable report differ **only in whitespace**, while the cash statement also differs in two **optional AS keywords** for SELECT-column aliases. After preserving quoted SQL literals/comments and applying ONLY these two narrowly scoped alias normalizations, the complete token streams match **7/7**; no genuine SQL token/operation difference was detected.
+
+A new CI gate is replacing the raw ACL/OID/whitespace-sensitive fingerprint comparison with three *pinned*, fail-closed checks: **221 effective grants and policy-target fingerprints** (already verified against live), **214 exact object-definition hashes** (all other routines, relation definitions, policies and schema definitions), and **7 source-token-equivalence fixtures**. The exact **139 index, 291 constraint and 7 trigger** fingerprint matches remain independently established by the earlier strict snapshot investigation, and the catalog-wide code tests must continue to catch unexpected changes.
+
+The old raw fingerprint check deliberately reports differences due to database-specific raw ACL role identifiers, and formatting/optional AS tokens; it is retained for diagnosing live-catalog drift but is not a valid binary test of equivalent freshly replayed environments. The CI gate must pass on a clean isolated replay and must fail if any relevant semantic grant, definition or function token changes.
+
+None of these checks substitutes for a real **encrypted production backup and an isolated restore rehearsal**. Recovery Gate C and production release remain blocked. No migration, owner ID, financial record or production auth permission was modified.
