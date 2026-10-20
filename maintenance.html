@@ -8,9 +8,107 @@
   <style>
     *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#f2f5fa;color:#21324a;font-family:Tahoma,Arial,sans-serif;line-height:2}main{width:100%;max-width:580px;padding:40px;background:#fff;border:1px solid #dce4ef;border-radius:20px;box-shadow:0 18px 60px #1435610c}.brand{display:flex;align-items:center;gap:12px;font-size:22px;font-weight:bold}.mark{display:grid;place-items:center;background:#1762c8;color:white;width:48px;height:48px;border-radius:14px;direction:ltr}.badge{display:inline-block;margin-top:32px;padding:4px 12px;border-radius:30px;background:#edf3fc;color:#1758aa;font-size:13px}h1{font-size:28px;line-height:1.7;margin:16px 0}p{color:#5b6e87;font-size:15px;margin:12px 0}.note{margin-top:28px;padding-top:20px;border-top:1px solid #e5ebf3;font-size:13px}@media(max-width:480px){body{padding:16px}main{padding:28px 22px}h1{font-size:24px}}
   </style>
-</head>
-<body>
-  <main>
+<style id="unified-design-inline">/* Final screen contract for every Kashier page. Print geometry stays feature-owned. */
+@media screen {
+ :root {
+  --ui-brand:#263e59; --ui-ink:#243449; --ui-muted:#56697f;
+  --ui-line:#dce2e9; --ui-canvas:#f4f5f7; --ui-surface:#fff;
+  --ui-soft:#f1f4f8; --ui-danger:#a52e3e; --ui-success:#246548;
+  --ui-radius:8px; --ui-control-radius:6px; --ui-gap:20px;
+ }
+ body[data-design="unified"]{font-family:Tahoma,Arial,sans-serif;background:var(--ui-canvas);color:var(--ui-ink);font-size:14px;line-height:1.9}
+ body[data-design="unified"] *,body[data-design="unified"] *::before,body[data-design="unified"] *::after{box-sizing:border-box}
+ body[data-design="unified"] [hidden]{display:none!important}
+ body[data-design="unified"] :is(.topbar,.access-nav){min-height:72px;height:auto;padding:14px 24px;gap:12px 20px;background:var(--ui-surface);color:var(--ui-ink);border-bottom:1px solid var(--ui-line);box-shadow:none;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap}
+ body[data-design="unified"] :is(.brand-mark,.access-logo,.mark){background:var(--ui-brand);color:#fff;border-radius:var(--ui-control-radius);border:0;font-family:Arial,sans-serif}
+ body[data-design="unified"] .brand strong{font-size:18px;color:var(--ui-brand)}
+ body[data-design="unified"] :is(.topbar,.access-nav) a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 12px;border:1px solid var(--ui-line);border-radius:var(--ui-control-radius);font-size:13px;color:var(--ui-brand);background:#fff;text-decoration:none;line-height:1.8;overflow-wrap:anywhere}
+ body[data-design="unified"] :is(.header-links,.sale-header-nav){display:flex;gap:8px;flex-wrap:wrap;min-width:0;max-width:100%}
+ body[data-design="unified"] .tabbar{height:auto;min-height:44px;background:var(--ui-soft);border-bottom:1px solid var(--ui-line);padding-block:8px;gap:12px;flex-wrap:wrap}
+ body[data-design="unified"] .tab{background:transparent;border:0;font-size:13px;color:var(--ui-muted)}
+ body[data-design="unified"] main:not(.access-shell){background:transparent}
+ body[data-design="unified"] main:is(.stocktake-layout,.statement-layout,.catalog-layout,.sale-layout,.cash-main,.customer-profile,.supplier-profile,.returns-main,.quick-return-layout,.return-document-main,.labels-layout,.price-check-layout,.account-settings-layout,.employees-layout,.review-layout){width:100%;max-width:1440px;margin:0 auto;padding:24px;min-width:0}
+ body[data-design="unified"] main>:last-child{margin-bottom:0}
+ body[data-design="unified"] :is(.ui-panel,#count-sheet){background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:var(--ui-radius);box-shadow:none;min-width:0}
+ body[data-design="unified"] :is(.stocktake-controls,.statement-controls,.statement-paper,.account-card,.settings-notes,.returns-filter,.returns-list,.quick-return-search,.quick-return-result,.quick-return-help,.return-panel,.reversal-panel,.purchase-payment-panel,.return-document-paper,.labels-controls,.label-queue-panel,.label-preview-panel,.price-search,.price-display){padding:24px}
+ body[data-design="unified"] :is(.stocktake-controls,.statement-controls,.settings-notes,.returns-filter,.returns-list,.account-card){margin-bottom:20px}
+ body[data-design="unified"] :is(.section-heading,.cart-footer,.payment-title){border-color:var(--ui-line);gap:12px}
+ body[data-design="unified"] .section-heading{padding:20px 24px;flex-wrap:wrap}
+ body[data-design="unified"] :is(h1,h2,h3){color:var(--ui-ink);line-height:1.8;overflow-wrap:anywhere}
+ body[data-design="unified"] h1{font-size:26px;margin:0 0 16px;font-weight:700}
+ body[data-design="unified"] h2{font-size:20px;margin:0 0 14px;font-weight:700}
+ body[data-design="unified"] h3{font-size:17px;margin:0 0 12px}
+ body[data-design="unified"] .section-heading h1{margin:0}
+ body[data-design="unified"] :is(p,label,dt,dd){font-size:14px;line-height:1.9}
+ body[data-design="unified"] :is(small,.eyebrow,.optional,.count-help,.storage-status,.save-note,.statement-footnote){font-size:12px;line-height:1.9}
+ body[data-design="unified"] :is(.eyebrow,.optional,.count-help,.storage-status,.save-note,.statement-footnote){color:var(--ui-muted)}
+ body[data-design="unified"] label{color:var(--ui-ink);font-weight:600}
+ body[data-design="unified"] :is(button,input,select,textarea){font-family:inherit;line-height:1.8;max-width:100%}
+ body[data-design="unified"] :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea){min-height:46px;min-width:0;padding:10px 12px;border:1px solid #bcc9d7;border-radius:var(--ui-control-radius);font-size:16px;color:var(--ui-ink);background:var(--ui-surface)}
+ body[data-design="unified"] :is(input[type=checkbox],input[type=radio]){width:20px;height:20px;min-height:20px;flex-shrink:0;accent-color:var(--ui-brand)}
+ body[data-design="unified"] :is(input,textarea)::placeholder{color:#697b8f;opacity:1}
+ body[data-design="unified"] input:read-only{background:var(--ui-soft)}
+ body[data-design="unified"] button:where(:not(.tile)){min-height:44px;border-radius:var(--ui-control-radius);font-size:14px;background:var(--ui-soft);color:var(--ui-brand);border:1px solid var(--ui-line);padding:10px 16px}
+ body[data-design="unified"] :is(.primary,.access-primary,.home-primary,.complete-sale,.scan-form button,.statement-controls button:not(.secondary):not(.danger):not(.danger-solid),.return-button){background:var(--ui-brand);color:#fff;border:1px solid var(--ui-brand);border-radius:var(--ui-control-radius);padding:10px 18px}
+ body[data-design="unified"] :is(.secondary,.secondary-button,.count-actions button:not(.primary):not(.danger):not(.danger-solid),.sale-hold-actions button){background:var(--ui-soft);color:var(--ui-brand);border:1px solid var(--ui-line);padding:10px 16px}
+ body[data-design="unified"] :is(.danger,.danger-solid,.delete-item){color:var(--ui-danger);background:#fff3f5;border:1px solid #e8c8ce}
+ body[data-design="unified"] .danger-solid{background:var(--ui-danger);border-color:var(--ui-danger);color:#fff}
+ body[data-design="unified"] button:disabled{opacity:.55;cursor:not-allowed}
+ body[data-design="unified"] :is(button,a,input,select,textarea,summary):focus-visible{outline:3px solid #315f91;outline-offset:3px}
+ body[data-design="unified"] .ui-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+ body[data-design="unified"] .ui-actions>:is(a,button){min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;border-radius:var(--ui-control-radius)}
+ body[data-design="unified"] .ui-actions>a{border:1px solid var(--ui-line);padding:8px 12px;color:var(--ui-brand);background:var(--ui-surface);text-decoration:none}
+ body[data-design="unified"] :is(.table-wrap,.count-table-wrap,.statement-table-wrap){position:relative;min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-inline:contain}
+ body[data-design="unified"] table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+ body[data-design="unified"] :is(th,td){font-size:14px;line-height:1.9;padding:12px;text-align:right;border-color:var(--ui-line);vertical-align:middle}
+ body[data-design="unified"] th{background:var(--ui-soft);color:#435b75;font-weight:700}
+ body[data-design="unified"] td small{font-size:12px;color:var(--ui-muted)}
+ body[data-design="unified"] td :is(input,button){min-height:44px}
+ body[data-design="unified"] :is(.statement-totals,.cash-totals,.profit-summary,.valuation-summary,.returns-summary){gap:12px}
+ body[data-design="unified"] :is(.statement-totals>div,.cash-totals article,.profit-summary>div,.valuation-summary>div,.returns-summary article){min-width:0;border:1px solid var(--ui-line);border-radius:var(--ui-radius);padding:16px;background:var(--ui-soft)}
+ body[data-design="unified"] :is(.statement-totals strong,.cash-totals strong,.returns-summary strong){font-size:24px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+ body[data-design="unified"] .grand-total{background:var(--ui-brand);color:#fff;border-radius:var(--ui-radius)}
+ body[data-design="unified"] .grand-total span{color:#e1e9f3}
+ body[data-design="unified"] #tender-exact{background:var(--ui-brand);border-color:var(--ui-brand);color:#fff}
+ body[data-design="unified"] .utilities button{padding:0;min-width:44px}
+ body[data-design="unified"] .module-categories button[aria-pressed=true]{background:var(--ui-soft);color:var(--ui-brand);border-bottom:2px solid var(--ui-brand)}
+ body[data-design="unified"] dialog{border:1px solid var(--ui-line);border-radius:var(--ui-radius);padding:24px;max-height:calc(100dvh - 32px);overflow:auto;color:var(--ui-ink)}
+ body[data-design="unified"] dialog .dialog-heading button{min-width:44px;min-height:44px}
+ body[data-design="unified"] .empty-state,body[data-design="unified"] .empty-cart{color:var(--ui-muted);line-height:1.9}
+ body[data-design="unified"] .catalog-pagination{font-size:13px;padding:16px 24px;gap:12px;flex-wrap:wrap;border-color:var(--ui-line)}
+ body[data-design="unified"] .scan-form{padding:20px 24px;background:#f7f9fc;border-bottom:1px solid var(--ui-line)}
+ body[data-design="unified"] :is(.scan-form label,.scan-form small,.payment-panel label){font-size:14px}
+ body[data-design="unified"] :is(.access-intro,.side-nav){background:#213249}
+ body[data-design="unified"] .access-intro h1{color:#fff}
+ body[data-design="unified"] .access-shell{border-radius:var(--ui-radius);border-color:var(--ui-line);box-shadow:none}
+ body[data-design="unified"] .employee-workspace{background:var(--ui-canvas)}
+ body[data-design="unified"] .employees-heading{margin-bottom:24px}
+ body[data-design="unified"] .receipt-layout{width:100%;max-width:1000px;padding:24px}
+ body[data-design="unified"] .receipt-paper{padding:28px}
+ body[data-design="unified"] .ui-panel :is(input,select,textarea){max-width:100%}
+ @media(max-width:760px){
+  body[data-design="unified"] :is(.topbar,.access-nav){padding:12px 16px;gap:12px}
+  body[data-design="unified"] main:is(.stocktake-layout,.statement-layout,.catalog-layout,.sale-layout,.cash-main,.customer-profile,.supplier-profile,.returns-main,.quick-return-layout,.return-document-main,.labels-layout,.price-check-layout,.account-settings-layout,.employees-layout,.review-layout,.receipt-layout){padding:16px}
+  body[data-design="unified"] :is(.stocktake-controls,.statement-controls,.statement-paper,.account-card,.settings-notes,.returns-filter,.returns-list,.quick-return-search,.quick-return-result,.quick-return-help,.return-panel,.reversal-panel,.purchase-payment-panel,.return-document-paper,.labels-controls,.label-queue-panel,.label-preview-panel,.price-search,.price-display,.receipt-paper){padding:20px}
+  body[data-design="unified"] :is(.section-heading,.scan-form){padding:20px}
+  body[data-design="unified"] h1{font-size:23px}
+  body[data-design="unified"] h2{font-size:19px}
+  body[data-design="unified"] .ui-actions>*{max-width:100%;overflow-wrap:anywhere;white-space:normal}
+ }
+ @media(max-width:460px){
+  body[data-design="unified"] .ui-actions>:is(a,button){flex:1 1 130px}
+  body[data-design="unified"] .statement-controls form>div{flex-basis:100%;min-width:0}
+  body[data-design="unified"] .section-heading>*{min-width:0;max-width:100%}
+ }
+ /* User accessibility choices retain priority over the visual contract. */
+ html[data-ui-contrast=high] body[data-design="unified"] .ui-panel{background:#fff;border-color:#222}
+ html[data-ui-contrast=high] body[data-design="unified"] :is(.topbar,.access-nav){background:#fff!important;color:#111}
+ html[data-ui-contrast=high] body[data-design="unified"] :is(.topbar,.access-nav) a{color:#003b80!important}
+ html[data-ui-text=large] body[data-design="unified"] :is(th,td,small,label,button,input,select,textarea){font-size:16px!important}
+}
+</style></head>
+<body data-design="unified">
+  <main class="maintenance-card ui-panel">
     <div class="brand"><span class="mark" aria-hidden="true">K</span><span>کاشێر</span></div>
     <span class="badge">لە بازسازیدایە</span>
     <h1>چوونەژوورەوە و دەسەڵاتەکان لە نوێوە دادەڕێژرێنەوە</h1>
