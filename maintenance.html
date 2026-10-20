@@ -29,7 +29,7 @@
  body[data-design="unified"] main:not(.access-shell){background:transparent}
  body[data-design="unified"] main:is(.stocktake-layout,.statement-layout,.catalog-layout,.sale-layout,.cash-main,.customer-profile,.supplier-profile,.returns-main,.quick-return-layout,.return-document-main,.labels-layout,.price-check-layout,.account-settings-layout,.employees-layout,.review-layout){width:100%;max-width:1440px;margin:0 auto;padding:24px;min-width:0}
  body[data-design="unified"] main>:last-child{margin-bottom:0}
- body[data-design="unified"] :is(.ui-panel,#count-sheet){background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:var(--ui-radius);box-shadow:none;min-width:0}
+ body[data-design="unified"] :is(.ui-panel,#count-sheet,#verify-result,.adjust-panel,.debt-summary,.payable-summary,.cost-history){background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:var(--ui-radius);box-shadow:none;min-width:0}
  body[data-design="unified"] :is(.stocktake-controls,.statement-controls,.statement-paper,.account-card,.settings-notes,.returns-filter,.returns-list,.quick-return-search,.quick-return-result,.quick-return-help,.return-panel,.reversal-panel,.purchase-payment-panel,.return-document-paper,.labels-controls,.label-queue-panel,.label-preview-panel,.price-search,.price-display){padding:24px}
  body[data-design="unified"] :is(.stocktake-controls,.statement-controls,.settings-notes,.returns-filter,.returns-list,.account-card){margin-bottom:20px}
  body[data-design="unified"] :is(.section-heading,.cart-footer,.payment-title){border-color:var(--ui-line);gap:12px}
@@ -42,7 +42,8 @@
  body[data-design="unified"] :is(p,label,dt,dd){font-size:14px;line-height:1.9}
  body[data-design="unified"] :is(small,.eyebrow,.optional,.count-help,.storage-status,.save-note,.statement-footnote){font-size:12px;line-height:1.9}
  body[data-design="unified"] :is(.eyebrow,.optional,.count-help,.storage-status,.save-note,.statement-footnote){color:var(--ui-muted)}
- body[data-design="unified"] :is(main,.ui-panel,form,dialog) label{font-size:14px;color:var(--ui-ink);font-weight:600}
+ html[dir="rtl"] body[data-design="unified"] :is(main,.ui-panel,form,dialog) label{font-size:14px;color:var(--ui-ink);font-weight:600}
+ body[data-design="unified"] #verify-form label{font-size:14px}
  body[data-design="unified"] :is(button,input,select,textarea){font-family:inherit;line-height:1.8;max-width:100%}
  body[data-design="unified"] :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea){min-height:46px;min-width:0;padding:10px 12px;border:1px solid #bcc9d7;border-radius:var(--ui-control-radius);font-size:16px;color:var(--ui-ink);background:var(--ui-surface)}
  body[data-design="unified"] :is(input[type=checkbox],input[type=radio]){width:20px;height:20px;min-height:20px;flex-shrink:0;accent-color:var(--ui-brand)}
