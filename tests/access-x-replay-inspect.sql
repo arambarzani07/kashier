@@ -17,7 +17,7 @@ select 'AX_REPLAY_COUNT|'||label||'='||amount::text from (
  union all select 'triggers',count(*) from pg_trigger t join pg_class c on c.oid=t.tgrelid
  join pg_namespace n on n.oid=c.relnamespace where n.nspname in ('public','private') and not t.tgisinternal
 ) a order by label;
-do $
+do $access_x_replay$
 declare v integer;
 begin
  select count(*) into v from pg_class c join pg_namespace n on n.oid=c.relnamespace
@@ -31,5 +31,5 @@ begin
  select count(*) into v from pg_trigger t join pg_class c on c.oid=t.tgrelid
  join pg_namespace n on n.oid=c.relnamespace where not t.tgisinternal and n.nspname in ('public','private');
  if v<>7 then raise exception 'schema user triggers mismatch: expected 7 got %',v;end if;
-end $$;
+end $access_x_replay$;
 select 'PASS: relation/routine/policy/trigger counts match live 2026-10-20 snapshot' as schema_counts;

@@ -10,4 +10,8 @@ create table auth.users(id uuid primary key);
 create or replace function auth.uid()
 returns uuid language sql stable set search_path=''
 as $$ select nullif(current_setting('request.jwt.claim.sub', true),'')::uuid $$;
-create extension if not exists pgcrypto;
+-- Production Supabase locates trusted extension functions in the dedicated extensions schema.
+create schema if not exists extensions;
+create extension if not exists pgcrypto with schema extensions;
+create extension if not exists "uuid-ossp" with schema extensions;
+alter database kashier_replay set search_path to public, extensions;
