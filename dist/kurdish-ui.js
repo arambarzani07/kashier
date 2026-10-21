@@ -3,12 +3,12 @@
  'use strict';
  function message(value){
   const text=typeof value==='string'?value:'';
-  return /[\u0600-\u06ff]/.test(text)?text:'کردارەکە تەواو نەبوو؛ زانیارییەکان و پەیوەندییەکەت بپشکنە و دووبارە هەوڵ بدەرەوە.';
+  return /[\u0600-\u06ff]/.test(text)&&!/[A-Za-z]/.test(text)?text:'کردارەکە تەواو نەبوو؛ زانیارییەکان و پەیوەندییەکەت بپشکنە و دووبارە هەوڵ بدەرەوە.';
  }
  function validation(field){
   const v=field.validity;
   if(!v||v.valid)return '';
-  if(v.customError&&/[\u0600-\u06ff]/.test(field.validationMessage||''))return field.validationMessage;
+  if(v.customError&&/[\u0600-\u06ff]/.test(field.validationMessage||'')&&!/[A-Za-z]/.test(field.validationMessage||''))return field.validationMessage;
   if(v.valueMissing)return field.type==='checkbox'?'بۆ بەردەوامبوون، ئەم پشتڕاستکردنەوەیە هەڵبژێرە.':field.type==='file'?'فایلێک هەڵبژێرە.':'ئەم خانەیە پڕ بکەرەوە.';
   if(v.typeMismatch)return field.type==='email'?'ناونیشانی پۆستی ئەلیکترۆنی بە دروستی بنووسە.':'زانیارییەکە بە شێوەی داواکراو بنووسە.';
   if(v.tooShort)return 'نووسینەکە زۆر کورتە؛ ژمارەی پیتی پێویست پڕ بکەرەوە.';
