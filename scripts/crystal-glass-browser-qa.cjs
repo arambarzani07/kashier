@@ -79,6 +79,12 @@ async function run(){
      dir:document.documentElement.dir,lang:document.documentElement.lang,
      clientWidth:document.documentElement.clientWidth,
      documentWidth:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth),
+     offenders:[...document.querySelectorAll('body *')].filter(e=>{
+      const r=e.getBoundingClientRect();
+      return (r.right>window.innerWidth+2||r.left< -2)&&!e.closest('.table-wrap');
+     }).slice(0,10).map(e=>({tag:e.tagName,className:String(e.className?.baseVal??e.className).slice(0,90),
+      text:e.textContent?.trim().slice(0,36),left:Math.round(e.getBoundingClientRect().left),
+      right:Math.round(e.getBoundingClientRect().right)})),
      glassLoaded:[...document.styleSheets].some(s=>s.href?.includes('glass-system.css')),
      cartWidth:document.querySelector('.cart-panel')?.getBoundingClientRect().width||null,
      paymentWidth:document.querySelector('.payment-panel')?.getBoundingClientRect().width||null
@@ -104,6 +110,7 @@ async function run(){
   await pctx.close();
   fs.writeFileSync(path.join(out,'report.json'),JSON.stringify({report,printAreaVisible:visible},null,2));
   for(const row of report){
+   if(row.documentWidth-row.clientWidth>2)console.error('OVERFLOW DIAGNOSTIC '+JSON.stringify({page:row.file,viewport:row.viewport,width:row.documentWidth-row.clientWidth,offenders:row.offenders}));
    assert.equal(row.status,200,row.file+' status');
    assert.equal(row.lang,'ckb',row.file+' language');
    assert.equal(row.dir,'rtl',row.file+' direction');
