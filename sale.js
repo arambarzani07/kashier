@@ -41,6 +41,7 @@ function updatePostingControls(){
  $('#print-draft').disabled=editingLocked||!items.length||!lastTotals;
  const valid=KashierData.loggedIn()&&items.length>0&&lastTotals&&validPayment()&&items.every(i=>/^[0-9a-f-]{36}$/i.test(i.productId||''));
  $('#post-sale').disabled=catalogRefreshing||postingInFlight||(!locked&&!valid);
+ globalThis.KashierSalesDesk?.update({totals:lastTotals,count:items.length,mode:paymentMode(),customerName:paymentMode()==='credit'?selectedCustomer?.name:$('#customer').value.trim(),pending:locked,inFlight:postingInFlight,refreshing:catalogRefreshing,canPost:!$('#post-sale').disabled});
  $('#post-sale').textContent=postingInFlight?'تۆمارکردن…':locked?'دووبارە پشکنینەوەی هەمان فرۆشتن':'تۆمارکردن و پسوولە';
  $('#posting-help').textContent=locked?'دۆخی ئەم فرۆشتنە دەبێت پشتڕاست بکرێتەوە. دووبارە هەمان داواکاری دەنێردرێتەوە، بەبێ دروستکردنی فرۆشتنی دووبارە.':!KashierData.loggedIn()?'بۆ تۆمارکردنی فرۆشتن سەرەتا بچۆ ژوورەوە.':items.some(i=>!i.productId)?'کاڵای دەستی تەنها بۆ مسودەیە؛ بۆ فرۆشتنی ڕاستەقینە کاڵاکە لە کاتالۆگەوە هەڵبژێرە.':paymentMode()==='credit'?(!selectedCustomer?'کڕیارێکی تۆمارکراو هەڵبژێرە.':!lastTotals?.remaining?'بۆ پارەدانی تەواو شێوازی کاش هەڵبژێرە.':'پارەی وەرگیراو دەچێتە سندوق؛ بڕی ماوە دەبێتە قەرزی کڕیار.'):lastTotals?.remaining?'پارەی وەرگیراو کەمە؛ بۆ فرۆشتنی کاش تەواوی پارەکە وەربگرە.':'فرۆشتن بە نرخە تۆمارکراوەکانی کاڵا تۆمار دەکرێت.';
 }

@@ -1,0 +1,7 @@
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict'),{view}=require('../sales-workspace.js');
+const base={count:2,mode:'cash',totals:{total:25000,received:30000,remaining:0,change:5000},canPost:true};
+test('cash impact shows net drawer increase, excluding returned change',()=>{const x=view(base);assert.equal(x.cash,new Intl.NumberFormat('ckb-IQ').format(25000)+' دینار');assert.equal(x.debt,new Intl.NumberFormat('ckb-IQ').format(0)+' دینار');assert.equal(x.tone,'ready');});
+test('credit impact distinguishes new debt from the customer overall balance',()=>{const x=view({...base,mode:'credit',customerName:'کڕیار',totals:{total:25000,received:5000,remaining:20000,change:0}});assert.equal(x.cash,new Intl.NumberFormat('ckb-IQ').format(5000)+' دینار');assert.equal(x.debt,new Intl.NumberFormat('ckb-IQ').format(20000)+' دینار');assert.match(x.note,/باڵانسی گشتی کڕیار نییە/);});
+test('empty or invalid drafts do not display invented impact amounts',()=>{for(const s of [{...base,count:0},{...base,totals:null}]){const x=view(s);assert.equal(x.cash,'—');assert.equal(x.debt,'—');}});
+test('pending and in-flight states stay distinct from a ready draft',()=>{assert.equal(view({...base,pending:true}).tone,'warning');assert.match(view({...base,pending:true}).state,/نادیارە/);assert.match(view({...base,pending:true,inFlight:true}).state,/تۆمارکردندایە/);assert.match(view({...base,refreshing:true}).state,/پشکنینی نرخ/);});
