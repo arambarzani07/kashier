@@ -48,6 +48,8 @@ jobs:
           node --check cash.js
           node --check daily.js
           node --check cash-statement-math.js
+      - name: Verify production-preview asset parity
+        run: node scripts/verify-static-assets.cjs
       - name: Run Node tests
         shell: bash
         run: |
