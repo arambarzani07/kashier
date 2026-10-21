@@ -1,0 +1,43 @@
+name: Crystal Glass visual smoke QA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'glass-system.css'
+      - '*.html'
+      - '*.css'
+      - 'scripts/crystal-glass-browser-qa.cjs'
+      - '.github/workflows/crystal-glass-visual.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-viewport-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated Playwright Chromium
+        run: |
+          npm install --prefix "$RUNNER_TEMP/crystal-browser" --no-save --no-package-lock --no-audit --no-fund playwright@1.56.1
+          "$RUNNER_TEMP/crystal-browser/node_modules/.bin/playwright" install chromium
+      - name: Verify isolated rendered layouts and printable sale
+        env:
+          CRYSTAL_SCREENSHOT_DIR: visual-qa-output
+        run: NODE_PATH="$RUNNER_TEMP/crystal-browser/node_modules" node scripts/crystal-glass-browser-qa.cjs
+      - name: Upload fictional screenshots and layout metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crystal-glass-synthetic-viewport-images
+          path: visual-qa-output
+          if-no-files-found: warn
+          retention-days: 3

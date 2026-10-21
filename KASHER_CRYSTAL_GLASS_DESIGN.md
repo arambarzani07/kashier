@@ -42,3 +42,11 @@ The first release changes **presentation only**. Each existing page retains its 
 - The sticky top/nav region grows safely with text on narrow devices; heading/action wrapping is allowed without dropping controls.
 - Glass-related changes remain CSS-only and under \`@media screen\`; printed receipts and all cashier financial code are unchanged.
 - Browser screenshot verification of real viewports is separately required before claiming full visual parity; static CSS unit assertions alone are insufficient.
+
+## Browser-based screenshot and overflow smoke QA (v2)
+
+\`scripts/crystal-glass-browser-qa.cjs\` and \`.github/workflows/crystal-glass-visual.yml\` render actual Chromium screenshots of the source HTML in a **completely isolated local server**, at 1366×768 Windows and 390×844 iPhone-like viewports, for seven representative pages (14 captures), plus one fictional print receipt.
+
+**Safety:** all original application JavaScript is removed from the offline HTML preview; only test-generated Kurdish labels and invented numeric amounts are inserted in the DOM. An explicit network route gate denies any request outside 127.0.0.1; CSP also denies remote connections. Tests cannot authenticate, contact Supabase, access customer records or process a payment. The screenshots/JSON report are short-lived GitHub Actions artifacts. This is layout smoke testing, *not production screenshot validation or user acceptance*.
+
+The browser job fails on whole-document horizontal overflow, missing Kurdish RTL, missing unified stylesheet, bad local HTTP response, or hidden printed receipt. Local, intentional horizontal scrolling inside POS line-item table is permitted.
