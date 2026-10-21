@@ -91,3 +91,9 @@ test('v4 common glass components normalize modules without restyling printed med
  assert.match(css,/@media \(forced-colors: active\)/);
  assert.match(css,/\.receipt-paper, \.statement-paper, #purchase-report-paper/);
 });
+
+test('v4 receipt lookup form allows 320px mobile without input min-content overflow',()=>{
+ assert.match(css,/body\.quick-return-page \.quick-return-input-row input \{[\s\S]*?min-width: 0/);
+ assert.match(css,/body\.quick-return-page \.quick-return-input-row \{\s*grid-template-columns: minmax\(0,1fr\)/);
+ assert.match(css,/body\.quick-return-page \.quick-return-heading > \*/);
+});

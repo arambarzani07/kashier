@@ -552,3 +552,40 @@
     }
   }
 }
+
+
+/* v4 QA repair — narrow 320px receipt lookup has a native input min-content width. */
+@media screen {
+  body.quick-return-page :is(
+    .quick-return-layout,.quick-return-search,.quick-return-help,
+    .quick-return-result,.quick-return-heading,.quick-return-input-row
+  ) {
+    min-width: 0;
+    max-width: 100%;
+  }
+  body.quick-return-page :is(.quick-return-search,.quick-return-help,.quick-return-result) {
+    background: var(--kg-glass-medium);
+    border: 1px solid var(--kg-stroke);
+    border-radius: var(--kg-radius-md);
+    box-shadow: var(--kg-shadow-md);
+    color: var(--kg-ink);
+  }
+  body.quick-return-page .quick-return-input-row input {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-variant-numeric: tabular-nums;
+  }
+  body.quick-return-page .quick-return-heading > * {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  body.quick-return-page .quick-return-meta > * { min-width: 0; overflow-wrap: anywhere; }
+  @media (max-width:720px) {
+    body.quick-return-page .quick-return-input-row {
+      grid-template-columns: minmax(0,1fr);
+    }
+    body.quick-return-page .quick-return-input-row button { min-width: 0; }
+  }
+}
