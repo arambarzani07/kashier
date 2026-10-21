@@ -386,3 +386,169 @@
     }
   }
 }
+
+
+/* v4 — One component language across every workspace; all overrides are SCREEN-only.
+   Avoid altering page-specific measurements, financial semantics or printed papers. */
+@media screen {
+  /* Standardized display surface for genuinely interactive/report containers. */
+  body :is(
+    .returns-filter, .returns-list, .returns-summary article,
+    .cash-overview, .cash-totals article,
+    .debt-summary > div, .customer-debt,
+    .payable-summary > div, .supplier-payable,
+    .price-search, .price-matches,
+    .labels-controls, .label-queue-panel, .label-preview-panel,
+    .stocktake-controls, #count-sheet,
+    .statement-controls, .return-panel, .reversal-panel,
+    .expense-summary > div, #purchase-report-summary > div,
+    .label-queue-item, .return-history-item,
+    .supplier-identity, .customer-identity
+  ) {
+    background: var(--kg-glass-medium);
+    border: 1px solid var(--kg-stroke);
+    border-radius: var(--kg-radius-md);
+    box-shadow: var(--kg-shadow-sm);
+    color: var(--kg-ink);
+  }
+  /* Very wide static record tables have a paper-like base, not transparent text. */
+  body :is(
+    .returns-list, .stocktake-controls, #count-sheet,
+    .labels-controls, .label-queue-panel, .label-preview-panel,
+    .statement-controls, .price-search, .price-matches
+  ) {
+    box-shadow: var(--kg-shadow-md);
+  }
+  /* Important outputs must stay paper-white and print-friendly even onscreen. */
+  body :is(
+    .receipt-paper, .statement-paper, #purchase-report-paper,
+    #expense-paper, #label-preview, .product-label
+  ) {
+    background: #fff;
+    color: var(--kg-ink);
+  }
+  body :is(.receipt-paper,.statement-paper,#purchase-report-paper,#expense-paper) {
+    border: 1px solid var(--kg-stroke);
+    border-radius: var(--kg-radius-md);
+    box-shadow: var(--kg-shadow-sm);
+  }
+  body :is(
+    .returns-summary strong,.cash-totals strong,.debt-summary strong,
+    .payable-summary strong,.supplier-payable strong,.customer-debt strong,
+    .expense-summary dd,#purchase-report-summary dd,
+    .price-value output,.receipt-summary .receipt-total,
+    .statement-totals strong
+  ) {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+  }
+  body :is(.debt-summary,.payable-summary,.returns-summary,.cash-totals,.expense-summary,
+     #purchase-report-summary) > * {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  body :is(.returns-main,.cash-main,.stocktake-layout,.labels-layout,.price-check-layout,
+     .receipt-layout,.statement-layout,.settings-layout,.supplier-profile,.customer-profile) {
+    min-width: 0;
+  }
+  body :is(.returns-heading,.cash-overview,.supplier-identity,.customer-identity) > * {
+    min-width: 0;
+  }
+  /* One unified label, field and action rhythm, with predictable touch targets. */
+  body :is(.returns-filter,.cash-filter,.settings-fields,.label-settings,
+     .statement-controls,.scan-form,.payment-panel) label {
+    color: var(--kg-ink-soft);
+    line-height: 1.65;
+    font-weight: 700;
+  }
+  body :is(.returns-filter,.cash-filter,.settings-fields,.label-settings,
+     .statement-controls,.scan-form,.payment-panel) :is(input,select,textarea) {
+    min-width: 0;
+    max-width: 100%;
+    min-height: 42px;
+  }
+  body :is(.primary,.secondary,.danger-solid,.return-button,
+     .returns-filter-actions button,.count-actions button,
+     .label-actions button,.receipt-actions a) {
+    border-radius: var(--kg-radius-sm);
+    min-height: 40px;
+    line-height: 1.5;
+  }
+  body :is(.returns-actions .returns-action,.payables-action,.account-actions a) {
+    border: 1px solid var(--kg-stroke);
+    border-radius: var(--kg-radius-sm);
+    background: rgba(243,248,255,.94);
+    color: var(--kg-primary-dark);
+  }
+  body :is(.returns-actions .returns-action,.payables-action,.account-actions a):hover {
+    background: #e6f0ff;
+  }
+  /* The same system states across customer, supplier and cash screens. */
+  body :is(.debt-delta-repayment,.payable-delta-payment,.cash-delta-in) {
+    color: var(--kg-success);
+    font-weight: 800;
+  }
+  body :is(.debt-delta-charge,.payable-delta-charge,.cash-delta-out) {
+    color: var(--kg-danger);
+    font-weight: 800;
+  }
+  body :is(.inline-status,.field-error,#cash-detail,.count-help,.label-help,.price-help,
+     .return-warning,.reversal-warning,.module-note) {
+    border-radius: var(--kg-radius-sm);
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+  }
+  body :is(.catalog-pagination,.receipt-actions,.label-pagination,.label-actions,
+     .count-actions,.cash-actions,.payable-actions,.debt-actions,.expense-actions) {
+    gap: var(--kg-gap);
+    min-width: 0;
+  }
+  body :is(.receipt-actions,.label-actions,.count-actions,.cash-actions,.payable-actions,
+     .debt-actions,.expense-actions) {
+    flex-wrap: wrap;
+  }
+  body :is(.catalog-pagination,.receipt-actions,.label-actions,.count-actions) > * {
+    min-width: 0;
+  }
+  /* Dialogs behave as a proper viewport-level overlay, not an offscreen form. */
+  body dialog {
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  body dialog :is(form,.form-pair,.confirm-actions) { min-width: 0; }
+  body dialog :is(input,select,textarea) { max-width: 100%; }
+  body dialog .dialog-heading { gap: 12px; }
+  body dialog .dialog-heading > :first-child { min-width: 0; overflow-wrap: anywhere; }
+  /* Avoid mistaking status badges for enabled actions. */
+  body :is(.draft-badge,.connection-status,.returns-kind,.purchase-return-mode) {
+    box-shadow: none;
+    font-weight: 750;
+    letter-spacing: 0;
+  }
+  body :is(a,button,input,select,textarea):focus-visible {
+    outline: 3px solid var(--kg-focus);
+    outline-offset: 3px;
+  }
+  @media (max-width:760px) {
+    body :is(.returns-heading,.cash-overview,.supplier-identity,.customer-identity) {
+      flex-wrap: wrap;
+    }
+    body :is(.return-panel,.reversal-panel,.labels-controls,.label-queue-panel,
+       .label-preview-panel,.stocktake-controls,.statement-controls) {
+      border-radius: var(--kg-radius-md);
+    }
+    body :is(.receipt-actions,.catalog-pagination,.cash-actions,.count-actions,
+       .label-actions,.expense-actions) { row-gap: 8px; }
+  }
+  @media (forced-colors: active) {
+    body :is(.cart-panel,.payment-panel,.returns-list,.returns-filter,
+      .home-summary,.tile,.cash-overview,.price-search,dialog) {
+      border: 1px solid CanvasText;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+  }
+}

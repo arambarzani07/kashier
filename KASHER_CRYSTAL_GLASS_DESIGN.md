@@ -75,3 +75,11 @@ Fix: reusable \`body.returns-page .returns-list .table-wrap\` own horizontal scr
 **Verified result:** [Chromium run 39577805629](https://github.com/arambarzani07/kashier/actions/runs/39577805629) passed **84/84** page/viewport checks (**0 document overflow violations**) and synthetic sale print visibility. Screenshots and machine-readable overflow report are available as short-lived [CI artifact 12334752310](https://github.com/arambarzani07/kashier/actions/runs/39577805629/artifacts/12334752310). [Node CI run 39577805787](https://github.com/arambarzani07/kashier/actions/runs/39577805787) passed **593/593**, 0 failures.
 
 **Scope limitations**: all original app JavaScript is removed, and screens that normally load data through JS are only tested as source-layout shells with optional invented visual fixtures. Successful CSS smoke checks are **not** proof of final human visual polish, interactive usability, complete text localization, authenticated roles, printed physical hardware, real financial consistency, or safe production readiness. Production release/backup/restore gates remain unchanged.
+
+## v4: Component-level unification across the 42-screen inventory
+
+This phase normalizes previously omitted legacy surfaces (cash overview, financial KPI cells, customer/supplier debt summaries, returns filter/list, labels editor, stocktake paper controls, statement controls, price search, refund panels) with the same white-glass fill, quiet border, three-level radius/shadow system and focus treatments.
+
+Business distinctions remain semantic: debt charges and cash-out are red, repayments and cash-in green; financial figures have tabular digits. Paper-like content (receipts, statements, labels, export report pages) stays **opaque white onscreen**, and all additions are under \`@media screen\` so receipt/label/statement print styles remain untouched. Dialogs limit height to device viewport and scroll internally for long forms. Touch targets and long Sorani strings are better handled without rewriting original IDs/JS. Forced-colors high contrast is explicitly supported.
+
+**Still required:** all-page Chromium smoke at phone/tablet/desktop widths and review of realistic populated states. Adding selectors does not imply every page's microspacing/typography is manually identical.

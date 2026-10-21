@@ -78,3 +78,16 @@ test('v3: financial tables keep intentional local scroll without overflowing the
  assert.match(css,/grid-template-columns: repeat\(4,minmax\(0,1fr\)\)/);
  assert.match(css,/body\.returns-page \.returns-filter-actions \{[\s\S]*?flex-wrap: wrap/);
 });
+
+test('v4 common glass components normalize modules without restyling printed media',()=>{
+ for(const selector of [
+ '.returns-filter','.returns-list','.cash-overview','.cash-totals article',
+ '.debt-summary > div','.payable-summary > div','.price-search','.price-matches',
+ '.labels-controls','.stocktake-controls','#count-sheet','.statement-controls',
+ '.receipt-paper','.statement-paper','.return-panel','.reversal-panel',
+ '.debt-delta-repayment','.payable-delta-payment','.field-error'
+ ]) assert.ok(css.includes(selector),selector+' must share visual vocabulary');
+ assert.match(css,/body dialog \{[\s\S]*?max-height: calc\(100dvh - 24px\)/);
+ assert.match(css,/@media \(forced-colors: active\)/);
+ assert.match(css,/\.receipt-paper, \.statement-paper, #purchase-report-paper/);
+});
