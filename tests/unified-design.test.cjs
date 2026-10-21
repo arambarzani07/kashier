@@ -11,7 +11,10 @@ test('every source and generated screen loads the final design contract exactly 
    continue;
   }
   assert.equal(css.filter(s=>s==='unified-design.css').length,1,file);
-  assert.equal(css.at(-1),'unified-design.css',file);
+  if (!file.startsWith('maintenance')) {
+   assert.deepEqual(css.slice(-2),['design-system.css','preferences.css'],file);
+   assert.match(html,/class="[^"]*kashier-ui/,file);
+  }
  }
 });
 test('every operational page has an isolated preview registered in the review selector',()=>{

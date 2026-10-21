@@ -15,3 +15,5 @@
  #return-status,#reversal-status{font-size:13px;line-height:1.9;overflow-wrap:anywhere}
  @media(max-width:500px){.receipt-actions>*{flex:1 1 140px}.return-line{grid-template-columns:minmax(0,1fr)}.receipt-summary>div{gap:10px}}
 }
+
+@media print { .receipt-paper .table-wrap { overflow: visible; max-width: none; } }
