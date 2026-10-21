@@ -50,3 +50,12 @@ The first release changes **presentation only**. Each existing page retains its 
 **Safety:** all original application JavaScript is removed from the offline HTML preview; only test-generated Kurdish labels and invented numeric amounts are inserted in the DOM. An explicit network route gate denies any request outside 127.0.0.1; CSP also denies remote connections. Tests cannot authenticate, contact Supabase, access customer records or process a payment. The screenshots/JSON report are short-lived GitHub Actions artifacts. This is layout smoke testing, *not production screenshot validation or user acceptance*.
 
 The browser job fails on whole-document horizontal overflow, missing Kurdish RTL, missing unified stylesheet, bad local HTTP response, or hidden printed receipt. Local, intentional horizontal scrolling inside POS line-item table is permitted.
+
+### v2 Chromium verification evidence — PASSED (2026-10-21)
+
+- Initial real Chromium viewport audit caught **36px whole-document overflow** on \`products.html\` at 390px wide. Root cause traced to the non-wrapping \`.topbar .header-links\` + logout item on a Sorani RTL product header.
+- Fixed with mobile \`flex-wrap:wrap\`, \`min-width:0\`, full-width link group on narrow screens and consistent touch-target heights, without removing any navigation link.
+- [Final Chromium run 39576922067](https://github.com/arambarzani07/kashier/actions/runs/39576922067): **PASS 14/14 rendered viewport samples** (7 representative application pages × 1366×768 desktop / 390×844 phone), no document-level horizontal overflow, required \`lang=ckb\`/\`dir=rtl\` and CSS loaded. **Print-media synthetic receipt also passed**.
+- [Artifact (short retention)](https://github.com/arambarzani07/kashier/actions/runs/39576922067/artifacts/12334234498): offline synthetic page screenshots and machine-readable layout measurements; does not contain real customers or transactions.
+- [Node CI run 39576922139](https://github.com/arambarzani07/kashier/actions/runs/39576922139): **592/592** passing, **0** failures.
+- Not verified: manual human visual acceptance of screenshots, actual live customer records, all 42 pages under full browser automation, logged-in roles, real peripherals, or production release. Keep production maintenance and data backup gates intact.
