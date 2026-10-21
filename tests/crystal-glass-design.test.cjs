@@ -69,3 +69,12 @@ test('product header links wrap rather than extending outside the RTL viewport',
  assert.match(css,/body \.topbar \.header-links \{[\s\S]*?max-width: 100%/);
  assert.match(css,/body \.topbar \.header-links \{ flex: 1 1 100%; width: 100%; \}/);
 });
+
+test('v3: financial tables keep intentional local scroll without overflowing the RTL page',()=>{
+ assert.match(css,/body\.returns-page \.returns-list \.table-wrap \{[\s\S]*?overflow-x: auto/);
+ assert.match(css,/body\.returns-page \.returns-list \.table-wrap > table/);
+ assert.match(css,/body\.returns-page \.returns-filter > \*/);
+ assert.match(css,/@media \(min-width: 1181px\) and \(max-width: 1440px\)/);
+ assert.match(css,/grid-template-columns: repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(css,/body\.returns-page \.returns-filter-actions \{[\s\S]*?flex-wrap: wrap/);
+});
