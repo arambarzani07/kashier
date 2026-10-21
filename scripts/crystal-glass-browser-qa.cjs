@@ -5,7 +5,9 @@
 const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict');
 const {chromium}=require('playwright');
 const root=path.resolve(__dirname,'..'),out=path.resolve(process.env.CRYSTAL_SCREENSHOT_DIR||'visual-qa-output');
-const screens=['auth.html','index.html','sale.html','products.html','customers.html','cash.html','settings.html'];
+const screens=fs.readdirSync(root).filter(name=>name.endsWith('.html')&&name!=='maintenance.html').sort();
+// Every live app screen, including print-oriented/source-only views. Original JS is deliberately disabled.
+assert.equal(screens.length,42,'page inventory changed; review the added/removed screens');
 const sizes=[{name:'desktop-1366',width:1366,height:768},{name:'phone-390',width:390,height:844}];
 function serverResponse(req,res){
  let name;
@@ -109,17 +111,24 @@ async function run(){
   await printed.screenshot({path:path.join(out,'sale-print-synthetic.png'),fullPage:true});
   await pctx.close();
   fs.writeFileSync(path.join(out,'report.json'),JSON.stringify({report,printAreaVisible:visible},null,2));
+  const failures=[];
   for(const row of report){
-   if(row.documentWidth-row.clientWidth>2)console.error('OVERFLOW DIAGNOSTIC '+JSON.stringify({page:row.file,viewport:row.viewport,width:row.documentWidth-row.clientWidth,offenders:row.offenders}));
-   assert.equal(row.status,200,row.file+' status');
-   assert.equal(row.lang,'ckb',row.file+' language');
-   assert.equal(row.dir,'rtl',row.file+' direction');
-   assert.equal(row.glassLoaded,true,row.file+' stylesheet');
-   assert.ok(row.documentWidth-row.clientWidth<=2,row.file+' '+row.viewport+' document overflow '+(row.documentWidth-row.clientWidth)+' px');
-   assert.deepEqual(row.errors,[],row.file+' script errors');
+   const context=row.file+' '+row.viewport;
+   if(row.status!==200)failures.push(context+' local HTTP '+row.status);
+   if(row.lang!=='ckb'||row.dir!=='rtl')failures.push(context+' expected Sorani RTL');
+   if(!row.glassLoaded)failures.push(context+' design stylesheet not loaded');
+   if(row.documentWidth-row.clientWidth>2){
+    const problem={page:row.file,viewport:row.viewport,width:row.documentWidth-row.clientWidth,offenders:row.offenders};
+    console.error('OVERFLOW DIAGNOSTIC '+JSON.stringify(problem));
+    failures.push(context+' document overflow '+problem.width+'px');
+   }
+   if(row.errors.length)failures.push(context+' browser exceptions: '+row.errors.join('; '));
   }
-  assert.equal(visible,true,'sale print sheet must be visible in print media');
-  console.log('PASS: 14 actual Chromium viewport renders, offline fictional DOM only, + print-media snapshot.');
+  if(!visible)failures.push('sale print media sheet hidden');
+  console.log('AUDIT: '+report.length+' Chromium screenshots from '+screens.length+' source HTML screens; '+failures.length+' violations.');
+  for(const issue of failures)console.error('VISUAL QA ISSUE: '+issue);
+  assert.deepEqual(failures,[],'visual smoke QA issues require responsive fixes');
+  console.log('PASS: '+report.length+' Chromium viewport renders, offline fictional DOM only, + print-media snapshot.');
  }finally{
   if(browser)await browser.close();
   await new Promise(resolve=>server.close(resolve));
