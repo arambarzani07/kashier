@@ -315,3 +315,26 @@
     body .tile-label { overflow-wrap: anywhere; }
   }
 }
+
+/* v2 browser-QA fix: prevent multi-link product header from extending offscreen. */
+@media screen {
+  body .topbar .header-links {
+    display: flex;
+    flex-wrap: wrap;
+    min-width: 0;
+    max-width: 100%;
+    gap: 8px;
+  }
+  body .topbar .header-links :is(a,button) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    max-width: 100%;
+    white-space: normal;
+  }
+  @media (max-width: 760px) {
+    body .topbar .header-links { flex: 1 1 100%; width: 100%; }
+    body .topbar .header-links a { padding: 6px 10px; }
+  }
+}

@@ -63,3 +63,9 @@ test('v2 checkout refinement keeps totals and barcode usable at mobile sizes',()
  for(const phrase of expected)assert.ok(css.includes(phrase),phrase+' missing');
  assert.doesNotMatch(css,/body\s+table\s*\{\s*min-width:\s*540px/);
 });
+
+test('product header links wrap rather than extending outside the RTL viewport',()=>{
+ assert.match(css,/body \.topbar \.header-links \{[\s\S]*?flex-wrap: wrap/);
+ assert.match(css,/body \.topbar \.header-links \{[\s\S]*?max-width: 100%/);
+ assert.match(css,/body \.topbar \.header-links \{ flex: 1 1 100%; width: 100%; \}/);
+});
