@@ -48,3 +48,18 @@ test('glass appearance never changes receipt printing and respects reduced motio
 test('visual theme contains no login privileges, financial operations, or network traffic',()=>{
  assert.doesNotMatch(css,/fetch\s*\(|localStorage|sessionStorage|service_role|owner_id|INSERT INTO/i);
 });
+
+test('v2 checkout refinement keeps totals and barcode usable at mobile sizes',()=>{
+ const expected=[
+  'body .sale-layout > * { min-width: 0; }',
+  'body .cart-panel .table-wrap',
+  'overflow-x: auto;',
+  'body .scan-form input',
+  'body .payment-panel .complete-sale',
+  '@media (max-width: 760px)',
+  '@media (max-width: 480px)',
+  'font-variant-numeric: tabular-nums'
+ ];
+ for(const phrase of expected)assert.ok(css.includes(phrase),phrase+' missing');
+ assert.doesNotMatch(css,/body\s+table\s*\{\s*min-width:\s*540px/);
+});

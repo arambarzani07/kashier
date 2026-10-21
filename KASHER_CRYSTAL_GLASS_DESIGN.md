@@ -34,3 +34,11 @@ The first release changes **presentation only**. Each existing page retains its 
 4. Retain security/backup/restore gate and maintenance-only deployment until a separately authorized production release.
 
 \`tests/crystal-glass-design.test.cjs\` provides static 42/42 link coverage + safety invariants. This static suite **does not constitute screenshot/visual QA or UX acceptance**.
+
+## v2 — functional layout refinements
+
+- Responsive cashier/cart has an explicit \`min-width:0\` grid sizing contract, with **local horizontal scrolling only inside the item table** at mobile widths. No forced whole-page sideways scrolling is intended.
+- Barcode search and payment controls get minimum finger targets; price/total numerals use tabular figures. Payment total keeps readable high-contrast blue (rather than translucent text).
+- The sticky top/nav region grows safely with text on narrow devices; heading/action wrapping is allowed without dropping controls.
+- Glass-related changes remain CSS-only and under \`@media screen\`; printed receipts and all cashier financial code are unchanged.
+- Browser screenshot verification of real viewports is separately required before claiming full visual parity; static CSS unit assertions alone are insufficient.

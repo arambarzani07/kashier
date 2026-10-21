@@ -239,3 +239,79 @@
     body dialog{border-radius:var(--kg-radius-md)}
   }
 }
+
+/* v2: cashier readability and touch-safe responsive refinements; presentation only. */
+@media screen {
+  body .topbar {
+    min-height: 52px;
+    height: auto;
+    padding-block: 7px;
+  }
+  body .tabbar {
+    min-height: 44px;
+    height: auto;
+  }
+  body .tabbar .tab { min-height: 44px; }
+  body .utilities button { min-width: 34px; min-height: 34px; }
+  body :is(.sale-layout,.catalog-layout) { min-width: 0; }
+  body .sale-layout > * { min-width: 0; }
+  body .cart-panel .table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  body .cart-panel .table-wrap table {
+    min-width: 540px;
+    font-variant-numeric: tabular-nums;
+  }
+  body .cart-panel .table-wrap :is(th,td) { white-space: nowrap; }
+  body .cart-panel .table-wrap td:first-child {
+    min-width: 150px;
+    max-width: 325px;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+  body .scan-form > div { min-width: 0; }
+  body .scan-form input {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  body .grand-total {
+    border: 1px solid rgba(255,255,255,.24);
+    border-radius: var(--kg-radius-md);
+    box-shadow: 0 10px 24px rgba(29,77,164,.16);
+    background: linear-gradient(126deg,#1750a8,#236bc9);
+  }
+  body :is(.grand-total strong,.balance strong,.subtotal dd,#subtotal,#item-count) {
+    font-variant-numeric: tabular-nums;
+  }
+  body .payment-panel :is(input,select) { min-height: 44px; }
+  body .payment-panel .complete-sale { min-height: 52px; }
+  body .section-heading { gap: 12px; }
+  body .section-heading :is(h1,h2) { line-height: 1.55; }
+  body .home-summary-grid > a { min-width: 0; }
+  body .home-summary-grid strong { overflow-wrap: anywhere; }
+  body :is(.tile,.home-summary-grid a,.cart-panel,.payment-panel) {
+    isolation: isolate;
+  }
+  @media (max-width: 760px) {
+    body .sale-layout { grid-template-columns: minmax(0,1fr); }
+    body .sale-layout .payment-panel { width: 100%; max-width: 100%; }
+    body .scan-form > div { display: flex; flex-wrap: wrap; }
+    body .scan-form input { flex-basis: 155px; }
+    body .scan-form button { min-height: 44px; }
+    body .section-heading { flex-wrap: wrap; padding: 16px; }
+    body .cart-panel .table-wrap td { padding-inline: 10px; }
+    body .grand-total strong { font-size: clamp(26px,7vw,34px); }
+  }
+  @media (max-width: 480px) {
+    body .topbar { flex-wrap: wrap; gap: 8px; }
+    body .tabbar .tab { min-width: 0; }
+    body .payment-panel { padding: 16px; }
+    body .home-summary-grid { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+    body .tile { padding: 12px 9px; }
+    body .tile-label { overflow-wrap: anywhere; }
+  }
+}
