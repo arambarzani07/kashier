@@ -53,6 +53,7 @@
   .kashier-ui :is(.sale-layout,.catalog-layout,.stocktake-layout,.statement-layout,.cash-main,.customer-profile,.supplier-profile,.returns-main,.return-document-main,.labels-layout,.account-settings-layout,.quick-return-layout) { padding: var(--ui-page-space); gap: var(--ui-gap); }
   .kashier-ui .workspace { min-height: calc(100vh - 114px); }
   .kashier-ui .workspace>main { padding: var(--ui-page-space); }
+  .kashier-ui :is(.customer-profile,.supplier-profile) > *, .kashier-ui :is(.cart-panel,.payment-panel) { min-width: 0; }
   .kashier-ui .price-check-layout { width: auto; max-width: 980px; margin: 0 auto; padding: var(--ui-page-space); }
   .kashier-ui :is(.cart-panel,.payment-panel,.stocktake-controls,#count-sheet,.statement-controls,.statement-paper,.account-card,.settings-notes,.returns-filter,.returns-list,.return-document-paper,.labels-controls,.label-queue-panel,.label-preview-panel,.price-search,.price-matches,.price-display,.quick-return-search,.quick-return-result,.quick-return-help,.customer-summary,.supplier-summary,.account-panel,.home-summary) { background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: var(--ui-card-radius); box-shadow: var(--ui-shadow); }
   .kashier-ui :is(.payment-panel,.stocktake-controls,#count-sheet,.statement-controls,.statement-paper,.account-card,.settings-notes,.returns-filter,.returns-list,.return-document-paper,.labels-controls,.label-queue-panel,.label-preview-panel,.price-search,.price-matches,.quick-return-search,.quick-return-result,.quick-return-help) { padding: var(--ui-page-space); }
@@ -71,11 +72,13 @@
   .kashier-ui :is(.count-help,.label-help,.price-help,.save-note,.storage-status,.statement-footnote,.access-description,.auth-footnote) { color: var(--ui-muted); font-size: 12px; }
 
   /* Buttons use one metric and three explicit visual roles. */
-  .kashier-ui button:not(.tile),.kashier-ui :is(a.primary,a.secondary,.secondary-link,.returns-action,.danger-link,.return-button) { min-height: var(--ui-control-height); border: 1px solid var(--ui-border); border-radius: var(--ui-radius); padding: 10px 16px; background: var(--ui-soft); color: var(--ui-primary); font-size: 13px; font-weight: 700; line-height: 1.6; box-shadow: none; text-decoration: none; cursor: pointer; }
+  .kashier-ui button:not(.tile),.kashier-ui :is(a.primary,a.secondary,.secondary-link,.returns-action,.payables-action,.danger-link,.return-button),.kashier-ui .profile-card .count-actions a { min-height: var(--ui-control-height); border: 1px solid var(--ui-border); border-radius: var(--ui-radius); padding: 10px 16px; background: var(--ui-soft); color: var(--ui-primary); font-size: 13px; font-weight: 700; line-height: 1.6; box-shadow: none; text-decoration: none; cursor: pointer; }
   .kashier-ui :is(a.primary,a.secondary,.secondary-link,.returns-action,.danger-link) { display: inline-flex; align-items: center; justify-content: center; }
   .kashier-ui button:not(.tile):not(:disabled):hover { filter: brightness(.96); }
-  .kashier-ui :is(button.primary,a.primary,button[type=submit],.complete-sale,.submit-button,.return-button,#password-save,#label-print) { background: var(--ui-primary); color: white; border-color: var(--ui-primary); }
+  .kashier-ui :is(button.primary,a.primary,.complete-sale,.submit-button,.return-button,#password-save,#label-print,#tender-exact,#export-download),.kashier-ui form :is(button[type=submit],button:not([type])):not(.secondary):not(.danger):not(.danger-solid) { background: var(--ui-primary); color: white; border-color: var(--ui-primary); }
   .kashier-ui :is(button.secondary,a.secondary,button[type=reset]) { background: var(--ui-soft); color: var(--ui-primary); border-color: var(--ui-border); }
+  .kashier-ui :is(#price-clear,#import-discard),.kashier-ui .returns-actions .returns-action { background: var(--ui-soft); color: var(--ui-primary); border-color: var(--ui-border); }
+  .kashier-ui #price-choices button { min-height: var(--ui-control-height); border-radius: var(--ui-radius); background: var(--ui-soft); color: var(--ui-primary); }
   .kashier-ui :is(button.danger,.danger-solid,.danger-link,.delete-item) { background: #fff0f2; color: var(--ui-danger); border-color: #edbcc4; }
   .kashier-ui :is(button,a)[aria-disabled=true],.kashier-ui button:disabled { opacity: .5; cursor: not-allowed; transform: none; }
   .kashier-ui :is(.dialog-heading button,.delete-item,.visibility-control) { min-width: 44px; width: 44px; min-height: 44px; padding: 0; flex-shrink: 0; }
@@ -85,6 +88,10 @@
   /* Form geometry and states, including login. Physical label previews excluded. */
   .kashier-ui :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea) { min-height: var(--ui-control-height); max-width: 100%; border: 1px solid var(--ui-border); border-radius: var(--ui-radius); padding: 10px 12px; background: var(--ui-surface); color: var(--ui-ink); font: 14px/1.6 var(--ui-font); box-shadow: none; }
   .kashier-ui textarea { resize: vertical; }
+  /* These legacy field IDs had greater specificity than class-based controls.
+     Keep their metrics on the same contract, including populated dialogs. */
+  .kashier-ui { --ui-control-font-size: 14px; }
+  .kashier-ui :is(#cash-statement-from,#cash-statement-to,#cash-kind,#debt-kind,#payable-kind,#allocation-payment,#allocation-charge,#allocation-amount,#allocation-note,#allocation-reason,#export-checksum,#purchase-report-from,#purchase-report-to,#sales-report-from,#sales-report-to,#hold-name,#verify-file,#verify-hash) { min-height: var(--ui-control-height); padding: 10px 12px; border: 1px solid var(--ui-border); border-radius: var(--ui-radius); font: var(--ui-control-font-size)/1.6 var(--ui-font); }
   .kashier-ui input::placeholder,.kashier-ui textarea::placeholder { color: var(--ui-muted); opacity: 1; }
   .kashier-ui :is(input,select,textarea):disabled,.kashier-ui input:read-only { background: var(--ui-soft); color: var(--ui-muted); }
   .kashier-ui :is(input[type=checkbox],input[type=radio]) { accent-color: var(--ui-primary); width: 20px; height: 20px; }
@@ -98,12 +105,15 @@
   .kashier-ui table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .kashier-ui :is(th,td) { padding: 12px; border-color: var(--ui-border); line-height: 1.8; }
   .kashier-ui th { background: var(--ui-soft); color: var(--ui-muted); font-size: 12px; font-weight: 700; }
-  .kashier-ui td { color: var(--ui-ink); }
+  .kashier-ui td { color: var(--ui-ink); font-size: 13px; }
   .kashier-ui tbody tr:hover { background: #f7faff; }
   .kashier-ui :is(.statement-totals>div,.returns-summary article,.quick-return-meta div,.home-summary-grid a) { background: var(--ui-soft); border: 1px solid var(--ui-border); border-radius: var(--ui-radius); padding: 16px; }
   .kashier-ui :is(.statement-totals span,.returns-summary span,.quick-return-meta dt,.home-summary-grid span) { color: var(--ui-muted); font-size: 12px; }
   .kashier-ui :is(.statement-totals strong,.returns-summary strong,.home-summary-grid strong) { color: var(--ui-primary); font-size: 24px; }
   .kashier-ui .grand-total { background: var(--ui-primary); border-radius: var(--ui-radius); }
+  .kashier-ui :is(.cash-balance,.customer-debt strong,.supplier-payable strong) { max-width: 100%; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+  .kashier-ui .cash-overview>div { min-width: 0; max-width: 100%; }
+  .kashier-ui .price-value output { max-width: 100%; overflow-wrap: anywhere; font-size: clamp(32px,10vw,100px); }
   .kashier-ui :is(.inline-status,.module-note,.form-status) { border-radius: var(--ui-radius); font-size: 13px; line-height: 1.9; }
   .kashier-ui :is(.field-error,.form-status) { color: var(--ui-danger); }
   .kashier-ui .balance { color: var(--ui-success); background: #eaf6ef; border-radius: var(--ui-radius); }
@@ -134,6 +144,7 @@
   @media(max-width:860px) { .kashier-ui .access-grid { grid-template-columns: minmax(0,1fr); } }
   @media(max-width:760px) {
     :root { --ui-page-space: 16px; --ui-gap: 12px; }
+    .kashier-ui { --ui-control-font-size: 16px; }
     .kashier-ui .topbar { gap: 10px; }
     .kashier-ui .header-links { flex: 1 1 100%; }
     .kashier-ui :is(.topbar>a,.header-links>a) { flex-shrink: 0; }
