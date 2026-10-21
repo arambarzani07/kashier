@@ -8,7 +8,7 @@ const root=path.resolve(__dirname,'..'),out=path.resolve(process.env.CRYSTAL_SCR
 const screens=fs.readdirSync(root).filter(name=>name.endsWith('.html')&&name!=='maintenance.html').sort();
 // Every live app screen, including print-oriented/source-only views. Original JS is deliberately disabled.
 assert.equal(screens.length,42,'page inventory changed; review the added/removed screens');
-const sizes=[{name:'desktop-1366',width:1366,height:768},{name:'phone-390',width:390,height:844}];
+const sizes=[{name:'desktop-1366',width:1366,height:768},{name:'tablet-768',width:768,height:1024},{name:'phone-390',width:390,height:844},{name:'phone-320',width:320,height:720}];
 function serverResponse(req,res){
  let name;
  try{ name=decodeURIComponent(new URL(req.url,'http://127.0.0.1').pathname).replace(/^\/+/,'')||'index.html';
@@ -89,7 +89,13 @@ async function run(){
       right:Math.round(e.getBoundingClientRect().right)})),
      glassLoaded:[...document.styleSheets].some(s=>s.href?.includes('glass-system.css')),
      cartWidth:document.querySelector('.cart-panel')?.getBoundingClientRect().width||null,
-     paymentWidth:document.querySelector('.payment-panel')?.getBoundingClientRect().width||null
+     paymentWidth:document.querySelector('.payment-panel')?.getBoundingClientRect().width||null,
+     glassSurface:(()=>{
+       const node=document.querySelector('.payment-panel,.returns-filter,.cash-overview,.labels-controls,.price-search,.home-summary,.access-panel,.cart-panel,.receipt-paper,.tile');
+       if(!node)return null;
+       const st=getComputedStyle(node);
+       return {selector:node.className,background:st.backgroundColor,radius:st.borderTopLeftRadius,borderWidth:st.borderTopWidth};
+     })()
     }));
     await page.screenshot({path:path.join(out,file.replace('.html','')+'-'+vp.name+'.png'),
      fullPage:true,animations:'disabled'});
@@ -117,6 +123,8 @@ async function run(){
    if(row.status!==200)failures.push(context+' local HTTP '+row.status);
    if(row.lang!=='ckb'||row.dir!=='rtl')failures.push(context+' expected Sorani RTL');
    if(!row.glassLoaded)failures.push(context+' design stylesheet not loaded');
+   if(row.glassSurface && parseFloat(row.glassSurface.radius)<10)failures.push(context+' nonunified surface radius '+JSON.stringify(row.glassSurface));
+   if(row.glassSurface && parseFloat(row.glassSurface.borderWidth)<1)failures.push(context+' no glass/paper surface border '+JSON.stringify(row.glassSurface));
    if(row.documentWidth-row.clientWidth>2){
     const problem={page:row.file,viewport:row.viewport,width:row.documentWidth-row.clientWidth,offenders:row.offenders};
     console.error('OVERFLOW DIAGNOSTIC '+JSON.stringify(problem));
