@@ -1,0 +1,241 @@
+@charset "UTF-8";
+/*
+ * Kashêr Crystal Glass Enterprise UI — v1 foundation (Sorani, RTL, high-contrast).
+ * Design-only. Source UI does not authorize transactions, users or sessions.
+ * All visual rules stay in @media screen: print/receipt media is not restyled.
+ */
+:root {
+  color-scheme: light;
+  --kg-font: "Noto Sans Arabic", Tahoma, Arial, sans-serif;
+  --kg-ink: #132642;
+  --kg-ink-soft: #4e617a;
+  --kg-muted: #6a7f98;
+  --kg-primary: #205fc3;
+  --kg-primary-dark: #153f88;
+  --kg-success: #12765b;
+  --kg-warning: #915509;
+  --kg-danger: #ad3048;
+  --kg-focus: #3475e7;
+  --kg-canvas: #eef4fc;
+  --kg-glass-strong: rgba(255,255,255,.93);
+  --kg-glass-medium: rgba(255,255,255,.82);
+  --kg-glass-light: rgba(255,255,255,.71);
+  --kg-stroke: rgba(118,151,193,.27);
+  --kg-highlight: rgba(255,255,255,.87);
+  --kg-shadow-sm: 0 3px 12px rgba(23,53,96,.07);
+  --kg-shadow-md: 0 12px 32px rgba(23,53,96,.11);
+  --kg-shadow-lg: 0 22px 60px rgba(23,53,96,.14);
+  --kg-blur: 14px;
+  --kg-radius-sm: 12px;
+  --kg-radius-md: 18px;
+  --kg-radius-lg: 24px;
+  --kg-gap: 12px;
+  --kg-speed: 160ms;
+}
+@media screen {
+  html:lang(ckb) { font-family: var(--kg-font); text-rendering: optimizeLegibility; }
+  body {
+    color: var(--kg-ink);
+    background:
+      radial-gradient(ellipse 42% 46% at 94% 5%, rgba(110,166,248,.18), transparent 88%),
+      radial-gradient(ellipse 45% 40% at 5% 100%, rgba(115,212,225,.12), transparent 89%),
+      var(--kg-canvas);
+    background-attachment: fixed;
+    font-family: var(--kg-font);
+  }
+  body.sale-page, body.stocktake-page {background-color: var(--kg-canvas);}
+  /* Glass top and navigation: preserve original position, direction and stacking. */
+  body .topbar {
+    background: linear-gradient(115deg,rgba(21,56,113,.97),rgba(18,78,166,.92));
+    border-block-end: 1px solid rgba(255,255,255,.28);
+    box-shadow: var(--kg-shadow-md);
+    color: #fff;
+  }
+  body .tabbar {
+    background: rgba(255,255,255,.69);
+    border-block-end: 1px solid var(--kg-stroke);
+    box-shadow: var(--kg-shadow-sm);
+  }
+  body .tabbar .tab {
+    color: var(--kg-ink);
+    background: rgba(255,255,255,.89);
+    border-color: var(--kg-stroke);
+    border-radius: 0 0 var(--kg-radius-sm) var(--kg-radius-sm);
+  }
+  body .rail {
+    background: rgba(220,233,251,.67);
+    border-color: var(--kg-stroke);
+  }
+  body .topbar :is(button, .home-link) {
+    border-radius: var(--kg-radius-sm);
+  }
+  body :is(.workspace main, .catalog-layout, .sale-layout) {
+    background-color: transparent;
+  }
+  body .workspace main {
+    background-image: none;
+  }
+  /* Explicitly enumerate working surfaces: no decorative blur on each table row. */
+  body :is(
+    .cart-panel,.payment-panel,.auth-card,.home-summary,.account-panel,
+    .search-panel,.module-note,.dialog,.settings-panel,.stock-panel,
+    .report-panel,.summary-panel,.details-panel
+  ) {
+    background: var(--kg-glass-medium);
+    color: var(--kg-ink);
+    border: 1px solid var(--kg-stroke);
+    border-radius: var(--kg-radius-lg);
+    box-shadow: var(--kg-shadow-md);
+    backdrop-filter: blur(var(--kg-blur)) saturate(120%);
+    -webkit-backdrop-filter: blur(var(--kg-blur)) saturate(120%);
+  }
+  body .cart-panel,body .payment-panel { overflow: hidden; }
+  body dialog {
+    background: var(--kg-glass-strong);
+    border: 1px solid var(--kg-stroke);
+    border-radius: var(--kg-radius-lg);
+    box-shadow: var(--kg-shadow-lg);
+    color: var(--kg-ink);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  body dialog::backdrop {
+    background: rgba(13,29,51,.5);
+    backdrop-filter: blur(4px);
+  }
+  body :is(.home-summary-grid a, .account-actions a, .role-item, .role-stack > *, .product-card) {
+    border-radius: var(--kg-radius-md);
+    border-color: var(--kg-stroke);
+    box-shadow: var(--kg-shadow-sm);
+  }
+  body .home-summary-grid a {
+    background: var(--kg-glass-strong);
+    color: var(--kg-ink);
+    border: 1px solid var(--kg-stroke);
+    border-top: 3px solid var(--kg-primary);
+  }
+  body .home-summary-grid a:hover { background: #f8fbff; }
+  body .home-summary-grid strong {
+    color: var(--kg-primary-dark);
+    font-variant-numeric: tabular-nums;
+  }
+  /* Dashboard tiles retain functional category distinctions via a top accent.
+     They share exactly one glass surface and typography treatment. */
+  body .tile {
+    --kg-tile-accent: #205fc3;
+    background: var(--kg-glass-medium);
+    color: var(--kg-ink);
+    border: 1px solid var(--kg-stroke);
+    border-top: 4px solid var(--kg-tile-accent);
+    border-radius: var(--kg-radius-md);
+    box-shadow: var(--kg-shadow-sm);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: transform var(--kg-speed),box-shadow var(--kg-speed),background var(--kg-speed);
+  }
+  body .tile.blue{--kg-tile-accent:#2165c7}
+  body .tile.green{--kg-tile-accent:#138362}
+  body .tile.orange{--kg-tile-accent:#c7781d}
+  body .tile.red{--kg-tile-accent:#bb455a}
+  body .tile.brown{--kg-tile-accent:#816046}
+  body .tile svg { color: var(--kg-tile-accent); }
+  body .tile::after { background: none; }
+  body .tile:hover { background:#fff;box-shadow:var(--kg-shadow-md);filter:none; }
+  /* Clear, stable numeric tables and barcode values, without mirroring code characters. */
+  body table {
+    border-collapse: separate;
+    border-spacing: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  body table :is(th,td) {
+    border-color: var(--kg-stroke);
+    line-height: 1.7;
+  }
+  body table th {
+    background: rgba(217,230,249,.71);
+    color: var(--kg-ink);
+    font-weight: 800;
+  }
+  body table td { background-color: rgba(255,255,255,.66); }
+  body table tbody tr:hover td { background-color: rgba(230,240,255,.84); }
+  body :is(input,select,textarea) {
+    color: var(--kg-ink);
+    border-color: var(--kg-stroke);
+    border-radius: var(--kg-radius-sm);
+    background-color: rgba(255,255,255,.91);
+  }
+  body :is(input,select,textarea)::placeholder { color: #687e99; opacity: 1; }
+  body :is(input,select,textarea):focus-visible {
+    outline: 3px solid var(--kg-focus);
+    outline-offset: 2px;
+    border-color: var(--kg-focus);
+  }
+  body :is(button,a):focus-visible {
+    outline: 3px solid var(--kg-focus);
+    outline-offset: 3px;
+  }
+  body :is(button,.primary,.secondary,.danger-solid,.return-button,.search-panel button) {
+    border-radius: var(--kg-radius-sm);
+    transition: background-color var(--kg-speed), box-shadow var(--kg-speed), transform var(--kg-speed);
+  }
+  body :is(.primary,.submit-button,.return-button,.scan-form button) {
+    background: linear-gradient(115deg,#226ee0,#194da9);
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(27,81,174,.21);
+  }
+  body :is(.secondary,.search-panel button) {
+    background: rgba(242,247,255,.9);
+    color: var(--kg-primary-dark);
+    border: 1px solid var(--kg-stroke);
+  }
+  body .danger-solid { background: #bd304b; color:#fff; }
+  body :is(button,input,select,textarea):disabled { cursor: not-allowed; opacity:.62; }
+  body :is(.field-error,.inline-status) { border-radius: var(--kg-radius-sm); }
+  body :is(.connection-status,.draft-badge) { border-radius: 999px; }
+  /* Login page uses its existing robust form layout; match shared palette. */
+  body.access-page .access-panel {
+    background: var(--kg-glass-strong);
+    border: 1px solid var(--kg-stroke);
+    box-shadow: var(--kg-shadow-lg);
+  }
+  body.access-page .identity-panel {
+    background: linear-gradient(140deg,#1a406e,#0f284c 62%,#10294b);
+    box-shadow: var(--kg-shadow-lg);
+  }
+  body.access-page .input-wrap {
+    background: rgba(255,255,255,.93);
+    border-color: var(--kg-stroke);
+  }
+  /* Never render blurred containers or ornamental backgrounds in POS receipts. */
+  #print-area, .print-area {
+    background: #fff;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  @supports not (backdrop-filter: blur(1px)) {
+    body .tile, body :is(.cart-panel,.payment-panel,.auth-card,.home-summary,.account-panel,.search-panel,.module-note,dialog) {
+      background: #fff;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body *,body *::before,body *::after {
+      transition-duration: 0s !important;
+      animation-duration: 0s !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    body .tile,body :is(.cart-panel,.payment-panel,.home-summary,.account-panel,dialog) {
+      background: #fff;
+      backdrop-filter:none;
+      -webkit-backdrop-filter:none;
+    }
+  }
+  @media (max-width:680px) {
+    body .tile{border-radius:var(--kg-radius-sm)}
+    body .sale-layout,body .catalog-layout{padding:12px}
+    body .home-summary{border-radius:var(--kg-radius-md)}
+    body dialog{border-radius:var(--kg-radius-md)}
+  }
+}
