@@ -59,3 +59,19 @@ The browser job fails on whole-document horizontal overflow, missing Kurdish RTL
 - [Artifact (short retention)](https://github.com/arambarzani07/kashier/actions/runs/39576922067/artifacts/12334234498): offline synthetic page screenshots and machine-readable layout measurements; does not contain real customers or transactions.
 - [Node CI run 39576922139](https://github.com/arambarzani07/kashier/actions/runs/39576922139): **592/592** passing, **0** failures.
 - Not verified: manual human visual acceptance of screenshots, actual live customer records, all 42 pages under full browser automation, logged-in roles, real peripherals, or production release. Keep production maintenance and data backup gates intact.
+
+## v3: all 42 screens under actual Chromium smoke checks (2026-10-21)
+
+The isolated, synthetic smoke script now enumerates **all 42 application HTML files dynamically**. With both 1366×768 desktop and 390×844 iPhone-like widths, this yields **84 browser-rendered screenshots** plus the separate synthetic 80mm-like sale print-media check.
+
+Initial all-page run [39577570856](https://github.com/arambarzani07/kashier/actions/runs/39577570856) detected **four document overflow violations**:
+1. \`purchase-returns.html\` at desktop width (19px) from an overly wide filter action group;
+2. \`purchase-returns.html\` at mobile width (683px);
+3. \`returns.html\` at mobile width (683px);
+4. \`supplier-payables.html\` at mobile width (683px).
+
+Fix: reusable \`body.returns-page .returns-list .table-wrap\` own horizontal scrolling for wide immutable financial tables, min-width 0 for flex/grid containers, wrapped filter actions, and a 4-column responsive purchase return filter on 1181–1440px screens. The table keeps its financial columns intact and retains the existing horizontal table min-width **within its own scroller**.
+
+**Verified result:** [Chromium run 39577805629](https://github.com/arambarzani07/kashier/actions/runs/39577805629) passed **84/84** page/viewport checks (**0 document overflow violations**) and synthetic sale print visibility. Screenshots and machine-readable overflow report are available as short-lived [CI artifact 12334752310](https://github.com/arambarzani07/kashier/actions/runs/39577805629/artifacts/12334752310). [Node CI run 39577805787](https://github.com/arambarzani07/kashier/actions/runs/39577805787) passed **593/593**, 0 failures.
+
+**Scope limitations**: all original app JavaScript is removed, and screens that normally load data through JS are only tested as source-layout shells with optional invented visual fixtures. Successful CSS smoke checks are **not** proof of final human visual polish, interactive usability, complete text localization, authenticated roles, printed physical hardware, real financial consistency, or safe production readiness. Production release/backup/restore gates remain unchanged.
