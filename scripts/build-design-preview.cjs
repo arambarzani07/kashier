@@ -17,7 +17,7 @@ for(const source of fs.readdirSync(root).filter(name=>name.endsWith('.html')&&!n
  const label=previewLabels[source]||(sourceHtml.match(/<title>([\s\S]*?)<\/title>/)?.[1]||source).replace(/^کاشێر\s*[—–-]\s*/, '');
  screens.push([source,source.replace(/\.html$/,'-preview.html'),label]);
 }
-function finalTheme(page){return page.replace(/<link rel="stylesheet" href="unified-design.css">/g,'').replace('</head>','<link rel="stylesheet" href="unified-design.css"></head>');}
+function finalTheme(page){return page.replace(/<link rel="stylesheet" href="(?:unified-design|design-system|glass-system|preferences)\.css">/g,'').replace('</head>','<link rel="stylesheet" href="unified-design.css"><link rel="stylesheet" href="design-system.css"><link rel="stylesheet" href="glass-system.css"><link rel="stylesheet" href="preferences.css"></head>');}
 const reviewPath=path.join(root,'design-review.html');
 let review=fs.readFileSync(reviewPath,'utf8');
 review=review.replace(/(<select id="review-screen">)[\s\S]*?(<\/select>)/,(_,open,close)=>open+screens.map(([,url,label])=>`<option value="${url}">${label}</option>`).join('')+close);
@@ -29,7 +29,7 @@ html=html.replace(/<section class="account-panel"[\s\S]*?<\/section>/,'').replac
 html=html.replace('<title>کاشێر — سەرەکی</title>','<title>کاشێر — پێشبینینی دیزاین</title>');
 html=html.replace('</head>','<link rel="stylesheet" href="operations.css"></head>');
 html=html.replace('<nav class="quick-links"','<p class="preview-notice" role="note">پێشبینینی دیزاین · داتای هەژمار پیشان نادرێت. <a href="auth.html">چوونەژوورەوە بۆ کارکردن ←</a></p>'+tabs('design-preview.html')+'<nav class="quick-links"');
-fs.writeFileSync(path.join(root,'design-preview.html'),finalTheme(html));
+fs.writeFileSync(path.join(root,'design-preview.html'),finalTheme(html).replace(/[ \t]+$/gm,''));
 for(const [source,target] of screens.slice(1)){
  let page=fs.readFileSync(path.join(root,source),'utf8');
  page=page.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,tag=>/^<script src="preferences.js"/.test(tag)?tag:'');
@@ -45,5 +45,5 @@ for(const [source,target] of screens.slice(1)){
   page=page.replace(/(id="(?:subtotal|total|balance)">)0/g,'$1—').replace('سەبەتە هەڵگیراوەکان (٠)','سەبەتە هەڵگیراوەکان').replace('٠ کاڵا','—');
  }
  page=page.replace(/>0<\//g,'>—</');
- fs.writeFileSync(path.join(root,target),finalTheme(page));
+ fs.writeFileSync(path.join(root,target),finalTheme(page).replace(/[ \t]+$/gm,''));
 }

@@ -12,7 +12,7 @@ test('every source and generated screen loads the final design contract exactly 
   }
   assert.equal(css.filter(s=>s==='unified-design.css').length,1,file);
   if (!file.startsWith('maintenance')) {
-   assert.deepEqual(css.slice(-2),['design-system.css','preferences.css'],file);
+   assert.deepEqual(css.slice(-3),['design-system.css','glass-system.css','preferences.css'],file);
    assert.match(html,/class="[^"]*kashier-ui/,file);
   }
  }

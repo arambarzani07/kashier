@@ -1,0 +1,41 @@
+@media screen {
+ html body.sales-desk .sale-layout { display:grid!important;grid-template-columns:minmax(0,1fr);gap:18px;padding:20px;max-width:1920px;margin:auto;align-items:start; }
+ html body.sales-desk .sale-layout>* { min-width:0;max-width:100%;scroll-margin-top:20px; }
+ html body.sales-desk .desk-catalog { padding:0;overflow:hidden; }
+ .sales-desk .desk-section-title { padding:22px 20px 0; }
+ .sales-desk .desk-section-title h2 { margin:4px 0;font-size:20px; }
+ .sales-desk .desk-section-title p,.sales-desk .desk-catalog-help { color:var(--ui-muted);font-size:12px; }
+ html body.sales-desk .desk-catalog .scan-form { padding:16px 20px; }
+ html body.sales-desk .desk-catalog .scan-form>div { display:flex;flex-wrap:wrap;gap:10px; }
+ html body.sales-desk .desk-catalog #barcode { width:100%;flex-basis:100%;min-width:0; }
+ .sales-desk .desk-catalog #sale-results { padding:0 16px;max-height:45vh;overflow-y:auto; }
+ .sales-desk .desk-catalog .sale-results button { width:100%;text-align:start;white-space:normal;overflow-wrap:anywhere; }
+ .sales-desk .desk-catalog .inline-status { margin:0 20px; }
+ .sales-desk .desk-catalog-help { padding:16px 20px;border-top:1px solid var(--ui-border); }
+ .sales-desk .desk-catalog-help kbd { margin-inline-end:8px; }
+ .sales-desk .sale-header-title small { display:block;color:#dce8f8;font-size:11px;font-weight:400; }
+ html body.sales-desk .desk-nav { display:flex;align-items:center;gap:8px;padding:12px 20px;flex-wrap:wrap;height:auto; }
+ .sales-desk .desk-nav a { border:1px solid var(--ui-border);border-radius:10px;padding:8px 14px;text-decoration:none;background:#fff;min-height:44px;display:inline-flex;align-items:center;font-weight:700; }
+ .sales-desk #desk-state { margin-inline-start:auto;padding:8px 12px;border-radius:10px;background:#edf3fc;color:#355574;font-size:12px;max-width:100%;overflow-wrap:anywhere; }
+ .sales-desk #desk-state[data-tone=ready] { background:#eaf6ef;color:#12643f; }
+ .sales-desk #desk-state[data-tone=warning] { background:#fff2d9;color:#754700; }
+ html body.sales-desk .payment-panel { padding:22px;position:static;top:auto; }
+ .sales-desk .desk-impact { border:1px solid #c9d9ed;border-radius:12px;background:#f1f6fe;padding:16px;margin:18px 0; }
+ .sales-desk .desk-impact h3 { font-size:14px;margin:0 0 8px; }
+ .sales-desk .desk-impact p,.sales-desk .desk-impact small { font-size:12px;margin:8px 0;line-height:1.9; }
+ .sales-desk .desk-impact dl { margin:12px 0; }
+ .sales-desk .desk-impact dl>div { display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 0;border-bottom:1px solid #d5dfed;flex-wrap:wrap; }
+ .sales-desk .desk-impact dt { font-size:12px;color:#425973; }
+ .sales-desk .desk-impact dd { margin:0;font-weight:800;font-size:17px;overflow-wrap:anywhere;max-width:100%; }
+ html body.sales-desk .grand-total { margin:18px 0;border-radius:12px;padding:20px;background:#195fc4!important;color:white!important; }
+ html body.sales-desk .grand-total strong { color:white!important;font-size:34px;overflow-wrap:anywhere; }
+ html body.sales-desk .cart-panel { overflow:hidden; }
+ html body.sales-desk .cart-panel .table-wrap { margin:0 16px;border:1px solid #e0e7f1;border-radius:12px; }
+ html body.sales-desk .cart-panel table { min-width:480px; }
+ .sales-desk .sale-hold-actions { flex-wrap:wrap;gap:8px;padding:16px; }
+ html body.sales-desk .sale-hold-actions button { flex:1 1 140px; }
+ .sales-desk .complete-sale { width:100%;min-height:52px!important; }
+ @media(min-width:850px) { html body.sales-desk .sale-layout { grid-template-columns:minmax(0,1fr) 340px; } html body.sales-desk .desk-catalog { grid-column:1/-1; } html body.sales-desk .desk-catalog .scan-form>div { flex-wrap:nowrap; } html body.sales-desk .desk-catalog #barcode { flex-basis:auto; } }
+ @media(min-width:1250px) { html body.sales-desk .sale-layout { grid-template-columns:260px minmax(0,1fr) 340px; } html body.sales-desk .desk-catalog { grid-column:auto;position:sticky;top:16px; } html body.sales-desk .desk-catalog .scan-form>div { flex-wrap:wrap; } html body.sales-desk .desk-catalog #barcode { flex-basis:100%; } }
+ @media(max-width:600px) { html body.sales-desk .sale-layout { padding:12px;gap:12px; } html body.sales-desk .payment-panel { padding:18px; } html body.sales-desk .desk-nav { padding:10px 12px; } .sales-desk #desk-state { width:100%;margin:0; } .sales-desk .desk-nav a { flex:1;justify-content:center;padding:8px; } }
+}

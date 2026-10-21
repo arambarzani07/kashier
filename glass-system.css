@@ -1,0 +1,159 @@
+/* Kashêr Glass: one surface system. Screen-only; business documents retain print styles. */
+@media screen {
+ :root { --glass-solid:#fff; --glass-surface:rgba(255,255,255,.86); --glass-edge:rgba(255,255,255,.92); --glass-shadow:0 12px 36px rgba(31,59,105,.075),inset 0 1px 0 #fff; --glass-blur:16px; }
+ html body.kashier-ui { background:radial-gradient(ellipse at 95% 0%,#dceafb 0,transparent 45%),radial-gradient(ellipse at 5% 65%,#e6e4f6 0,transparent 42%),#f2f6fc!important; /* Keep gradients scrollable on low-power mobile GPUs. */ }
+ html body.kashier-ui :is(.cart-panel,.payment-panel,.desk-catalog,.account-card,.profile-card,.profile-history,.customer-identity,.supplier-identity,.returns-filter,.returns-list,.statement-controls,.statement-paper,.cash-overview,.price-search,.price-matches,.price-display,.labels-controls,.label-queue-panel,.label-preview-panel,.account-panel,.home-summary,.access-card,.access-panel,.stocktake-controls,.return-document-paper,.quick-return-search,.quick-return-result,.settings-notes) {
+  background:var(--glass-surface)!important; border:1px solid var(--glass-edge)!important; border-radius:18px!important; box-shadow:var(--glass-shadow)!important;
+ }
+ @supports (backdrop-filter:blur(1px)) {
+  html body.kashier-ui :is(.cart-panel,.payment-panel,.desk-catalog,.account-card,.profile-card,.profile-history,.returns-filter,.statement-controls,.cash-overview,.price-search,.account-panel,.home-summary,.access-card,.access-panel,.settings-notes) { backdrop-filter:blur(var(--glass-blur)); -webkit-backdrop-filter:blur(var(--glass-blur)); }
+  html body.kashier-ui .topbar { background:rgba(19,48,86,.94)!important; backdrop-filter:blur(18px); }
+ }
+ html body.kashier-ui :is(input:not([type=checkbox]):not([type=radio]),select,textarea) { background:#fff!important; color:#20334e!important; border-color:#c9d6e8!important; }
+ html body.kashier-ui :is(.table-wrap,.count-table-wrap,.statement-table-wrap) { background:#fff; }
+ html body.kashier-ui :is(td,th) { backdrop-filter:none; }
+ html body.kashier-ui :is(.grand-total,.desk-impact) { font-variant-numeric:tabular-nums; }
+ html body.kashier-ui dialog { background:#fff!important; border:1px solid #d5dfed!important; box-shadow:0 24px 80px #18385e30!important; }
+ html body.kashier-ui :is(button,a,input,select,textarea,summary):focus-visible { outline:3px solid #195fc4!important; outline-offset:3px; }
+ @media(max-width:600px) { :root { --glass-blur:8px; } html body.kashier-ui { background-attachment:scroll; } }
+ @media(prefers-reduced-transparency:reduce) { :root { --glass-surface:#fff; --glass-blur:0px; } }
+ @media(prefers-reduced-motion:reduce) { html body.kashier-ui * { scroll-behavior:auto!important; animation:none!important; transition:none!important; } }
+ html[data-ui-contrast=high] body.kashier-ui { --glass-surface:#fff; --glass-blur:0px; --glass-edge:#31465f; --glass-shadow:none; background:#fff!important; }
+ html[data-ui-contrast=high] body.kashier-ui :is(.cart-panel,.payment-panel,.desk-catalog,.account-card,.profile-card,.profile-history,.returns-filter,.statement-controls,.cash-overview,.price-search,.account-panel,.home-summary,.access-card,.access-panel,.settings-notes) { backdrop-filter:none; }
+}
+
+
+/* Crystal Glass final polish — single cohesive RTL design vocabulary.
+ * Presentation only. Financial calculations, Auth, storage and print styles
+ * are intentionally untouched. Loaded after feature + unified CSS.
+ */
+@media screen {
+  :root {
+    --glass-surface:rgba(255,255,255,.90);
+    --glass-edge:rgba(102,137,183,.32);
+    --glass-shadow:0 8px 28px rgba(24,57,105,.10),inset 0 1px 0 rgba(255,255,255,.85);
+    --glass-blur:12px;
+    --glass-radius:18px;
+    --glass-control-radius:12px;
+  }
+  html body.kashier-ui {
+    font-family:var(--ui-font,"Noto Sans Arabic",Tahoma,Arial,sans-serif);
+    background-attachment:scroll;
+    min-width:0;
+  }
+  html body.kashier-ui :is(
+    .cart-panel,.payment-panel,.desk-catalog,.account-card,.profile-card,
+    .profile-history,.returns-filter,.returns-list,.cash-overview,
+    .price-search,.price-matches,.label-queue-panel,.label-preview-panel,
+    .home-summary,.access-panel,.stocktake-controls,.quick-return-search,
+    .quick-return-result,.settings-notes
+  ) {
+    border-radius:var(--glass-radius)!important;
+    border-color:var(--glass-edge)!important;
+    box-shadow:var(--glass-shadow)!important;
+    min-width:0;
+  }
+  /* A financial document should resemble paper even when surrounded by glass. */
+  html body.kashier-ui :is(
+    .receipt-paper,.statement-paper,.return-document-paper,
+    #purchase-report-paper,#expense-paper,#label-preview,.product-label
+  ) {
+    background:#fff!important;
+    color:var(--ui-ink,#20334e);
+    border:1px solid var(--glass-edge)!important;
+    border-radius:var(--glass-control-radius)!important;
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+  }
+  html body.kashier-ui :is(
+    .table-wrap,.count-table-wrap,.statement-table-wrap,
+    .expense-table-wrap,.returns-list .table-wrap
+  ) {
+    max-width:100%;
+    min-width:0;
+    overflow-x:auto;
+    overscroll-behavior-inline:contain;
+    -webkit-overflow-scrolling:touch;
+    background:rgba(255,255,255,.95);
+    border-radius:var(--glass-control-radius);
+  }
+  html body.kashier-ui :is(table,td,th) {
+    font-variant-numeric:tabular-nums;
+  }
+  html body.kashier-ui table th {
+    color:var(--ui-ink,#20334e);
+    background:rgba(221,233,249,.76);
+  }
+  html body.kashier-ui :is(
+    .primary,.secondary,.danger-solid,.complete-sale,
+    .home-link,.desk-nav a,.account-actions a
+  ) {
+    border-radius:var(--glass-control-radius);
+    min-height:40px;
+  }
+  html body.kashier-ui :is(input:not([type=checkbox]):not([type=radio]),select,textarea) {
+    border-radius:var(--glass-control-radius)!important;
+    min-width:0;
+    max-width:100%;
+  }
+  html body.kashier-ui :is(
+    .grand-total strong,.price-value output,.cash-totals strong,
+    .debt-summary strong,.payable-summary strong
+  ) { font-variant-numeric:tabular-nums; }
+  html body.kashier-ui :is(
+    .topbar,.tabbar,.header-links,.sale-header-nav,.desk-nav
+  ) { min-width:0; }
+  html body.kashier-ui :is(
+    .header-links,.sale-header-nav,.desk-nav
+  ) { flex-wrap:wrap; }
+  html body.kashier-ui :is(
+    .header-links a,.sale-header-nav a,.desk-nav a
+  ) { white-space:normal; overflow-wrap:anywhere; }
+  html body.kashier-ui dialog {
+    border-radius:var(--glass-radius)!important;
+    width:min(540px,calc(100vw - 24px));
+    max-width:calc(100vw - 24px);
+    max-height:calc(100dvh - 24px);
+    overflow:auto;
+    overscroll-behavior:contain;
+  }
+  html body.kashier-ui :is(.inline-status,.field-error,.connection-status,.draft-badge) {
+    border-radius:var(--glass-control-radius);
+    overflow-wrap:anywhere;
+  }
+  /* Native accessibility settings take precedence over visual effects. */
+  @media(prefers-reduced-transparency:reduce) {
+    html body.kashier-ui :is(
+      .cart-panel,.payment-panel,.desk-catalog,.account-card,.profile-card,
+      .returns-filter,.returns-list,.cash-overview,.home-summary,
+      .price-search,.price-matches,.access-panel
+    ) {
+      background:#fff!important;
+      backdrop-filter:none!important;
+      -webkit-backdrop-filter:none!important;
+    }
+  }
+  @media(forced-colors:active) {
+    html body.kashier-ui :is(
+      .cart-panel,.payment-panel,.desk-catalog,.returns-filter,
+      .returns-list,.home-summary,dialog
+    ) {
+      background:Canvas!important;
+      border:1px solid CanvasText!important;
+      box-shadow:none!important;
+      backdrop-filter:none!important;
+      -webkit-backdrop-filter:none!important;
+    }
+  }
+  @media(max-width:600px) {
+    :root { --glass-blur:6px; }
+    html body.kashier-ui :is(.topbar,.tabbar,.desk-nav) {
+      height:auto;
+      flex-wrap:wrap;
+    }
+    html body.kashier-ui :is(
+      .sale-layout,.catalog-layout,.returns-main,.cash-main,
+      .stocktake-layout,.statement-layout
+    ) { min-width:0; }
+  }
+}
