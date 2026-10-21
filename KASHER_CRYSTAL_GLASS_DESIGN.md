@@ -83,3 +83,13 @@ This phase normalizes previously omitted legacy surfaces (cash overview, financi
 Business distinctions remain semantic: debt charges and cash-out are red, repayments and cash-in green; financial figures have tabular digits. Paper-like content (receipts, statements, labels, export report pages) stays **opaque white onscreen**, and all additions are under \`@media screen\` so receipt/label/statement print styles remain untouched. Dialogs limit height to device viewport and scroll internally for long forms. Touch targets and long Sorani strings are better handled without rewriting original IDs/JS. Forced-colors high contrast is explicitly supported.
 
 **Still required:** all-page Chromium smoke at phone/tablet/desktop widths and review of realistic populated states. Adding selectors does not imply every page's microspacing/typography is manually identical.
+
+## v4 verified four-device responsive visual smoke (2026-10-21)
+
+- **Full source inventory:** 42 application HTML pages × four synthetic Chromium viewports (1366×768, 768×1024, 390×844 and 320×720) = **168 screenshot/overflow checks**. A separate synthetic POS receipt print-media check is also run.
+- First expanded visual run [39579516244](https://github.com/arambarzani07/kashier/actions/runs/39579516244) identified a **48px mobile document overflow** in \`quick-return.html\` at 320px. Cause: intrinsic native text input/grid min-content in the receipt lookup form.
+- Corrected \`quick-return-page\` by constraining the layout and lookup containers to min-width 0, using \`minmax(0,1fr)\` on narrow screens and bounding the barcode input width. Added Crystal Glass surface styling to the quick-return search/result/help containers.
+- **Passing visual run:** [39579810947](https://github.com/arambarzani07/kashier/actions/runs/39579810947) — **168/168 Chromium viewports**, **0 document-level overflow violations**, print visibility passed.
+- **Passing static Node CI:** [39579810932](https://github.com/arambarzani07/kashier/actions/runs/39579810932) — **595/595 tests passed**, **0 failures**.
+- **Visual artifacts:** [screenshots + machine-readable browser report](https://github.com/arambarzani07/kashier/actions/runs/39579810947/artifacts/12335174205) (short retention; expires 2026-10-24 UTC).
+- Coverage limitations persist: original business JS is stripped, data is fictional, and screens can change when real records load. This does not establish complete UX acceptance, all live user role flows, physical printer acceptance or safe production release. Source and backup release gates remain shut.
