@@ -15,6 +15,24 @@ test('technical exception prose has a Kurdish fallback while existing Sorani det
  const {locale}=setup();for(const raw of ['Failed to fetch','Invalid draft',undefined])assert.match(locale.message(raw),/کردارەکە تەواو نەبوو/);
  assert.equal(locale.message('قەرزی کڕیار گۆڕاوە.'),'قەرزی کڕیار گۆڕاوە.');
 });
+test('mixed Sorani and English server errors do not leak Latin exception details',()=>{
+ const {locale}=setup();
+ for(const raw of ['هەڵە: Invalid login','نەتوانرا: Failed to fetch','JSON داواکارییەکە نادروستە']){
+  const shown=locale.message(raw);
+  assert.match(shown,/[\u0600-\u06ff]/);
+  assert.doesNotMatch(shown,/[A-Za-z]/);
+ }
+ assert.equal(locale.message('قەرزی کڕیار گۆڕاوە.'),'قەرزی کڕیار گۆڕاوە.');
+});
+test('mixed-language custom validation messages fall back to Sorani',()=>{
+ const {locale,events}=setup();
+ const field={type:'text',validity:{valid:false,customError:true},validationMessage:'پێداویستی Invalid value',setCustomValidity(v){this.message=v;}};
+ events.invalid({target:field});
+ assert.equal(field.message,locale.validation(field));
+ assert.match(field.message,/[\u0600-\u06ff]/);
+ assert.doesNotMatch(field.message,/[A-Za-z]/);
+ events.input({target:field});assert.equal(field.message,'');
+});
 test('Kurdish import headings preserve codes and money and retain legacy compatibility',()=>{
  const parser=require('../product-import-csv.js');
  const kurdish=parser.parse('ناو,بارکۆد,نرخی_فرۆشتن\nشیر,001234,1500');
