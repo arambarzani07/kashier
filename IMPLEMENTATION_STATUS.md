@@ -22,3 +22,5 @@ The remaining installment/profit dashboard tiles still show unavailable-module U
 - Access X login backend (staged 2026-10-20): secured server-only core and Supabase Auth provider adapter with 15 isolated tests, but NO deployed API or durable role/session adapters. See `ACCESS_X_LOGIN_BACKEND.md`. Backup/release gate still closed.
 
 - Access X server login core STAGED: fail-closed, identity + DB role verification contract, no account self-registration, first-login rotation requirement, manager AAL2 assurance, short-lived HttpOnly sessions. **No live HTTP endpoint/actual DB adapters**. Maintained maintenance routing; see `ACCESS_X_SERVER_LOGIN.md`.
+
+- 2026-10-21 Crystal Glass UI v1: all 42 application HTML pages now import `glass-system.css` last; dashboard tiles, POS, cash, product/customer/supplier pages and reports share restrained Modern Glassmorphism tokens. Maintenance excluded; print media unchanged. Static CI coverage and visual QA checklist in `KASHER_CRYSTAL_GLASS_DESIGN.md`. **No production release gate opened or real visual acceptance claimed.**

@@ -40,7 +40,6 @@
       radial-gradient(ellipse 42% 46% at 94% 5%, rgba(110,166,248,.18), transparent 88%),
       radial-gradient(ellipse 45% 40% at 5% 100%, rgba(115,212,225,.12), transparent 89%),
       var(--kg-canvas);
-    background-attachment: fixed;
     font-family: var(--kg-font);
   }
   body.sale-page, body.stocktake-page {background-color: var(--kg-canvas);}
@@ -129,8 +128,9 @@
     border-top: 4px solid var(--kg-tile-accent);
     border-radius: var(--kg-radius-md);
     box-shadow: var(--kg-shadow-sm);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    /* Do not blur dozens of dashboard tiles on older cashier PCs. */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     transition: transform var(--kg-speed),box-shadow var(--kg-speed),background var(--kg-speed);
   }
   body .tile.blue{--kg-tile-accent:#2165c7}
