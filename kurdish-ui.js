@@ -3,7 +3,7 @@
  'use strict';
  function message(value){
   const text=typeof value==='string'?value:'';
-  return /[\u0600-\u06ff]/.test(text)?text:'کردارەکە تەواو نەبوو؛ زانیارییەکان و پەیوەندییەکەت بپشکنە و دووبارە هەوڵ بدەرەوە.';
+  return /[\u0600-\u06ff]/.test(text)&&!/[A-Za-z]/.test(text)?text:'کردارەکە تەواو نەبوو؛ زانیارییەکان و پەیوەندییەکەت بپشکنە و دووبارە هەوڵ بدەرەوە.';
  }
  function validation(field){
   const v=field.validity;
